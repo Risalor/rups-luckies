@@ -2,12 +2,14 @@ using System.Collections.Generic;
 using NUnit.Framework.Internal.Execution;
 using UnityEngine;
 using TMPro;
+using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
 {
     public GameObject Dictionary;
     public TMP_Text DictionaryText;
     private bool DictToggle = true;
+    public ScrollRect DictionaryScrollRect;
 
     private List<WordManager.WordItem> WordsDb;
     private string DictionaryDisplay = "";
@@ -20,8 +22,9 @@ public class UIManager : MonoBehaviour
         {
             DictionaryDisplay += WordsDb[i].eng_word + " - " + WordsDb[i].slo_word + "\n";
         }
-        
+
         DictionaryText.text = DictionaryDisplay;
+        DictionaryScrollRect.verticalNormalizedPosition = 1;
     }
 
     public void OnDictionaryToggle()
