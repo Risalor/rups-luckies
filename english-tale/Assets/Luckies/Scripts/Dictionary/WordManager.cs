@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 
+//Two classes for loading and processing the json file that contains all the word data
 [System.Serializable]
 public class WordData
 {
@@ -17,6 +18,7 @@ public class WordListWrapper
     public List<WordData> words;
 }
 
+//A class that is initialised at startup. It'f for loading and getting the slovenian and english words of objects as well as their coresponding images
 public class WordManager : MonoBehaviour
 {
     public static WordManager Instance { get; private set; }
@@ -120,16 +122,16 @@ public class WordManager : MonoBehaviour
         int randomIndex = Random.Range(0, wordDB.Count);
         return wordDB[randomIndex];
     }
-    
+
     public List<WordItem> getNRandomWords(int n)
     {
         if (wordDB == null || wordDB.Count == 0 || n <= 0)
-        return new List<WordItem>();
-    
+            return new List<WordItem>();
+
         n = Mathf.Min(n, wordDB.Count);
-    
+
         var shuffled = new List<WordItem>(wordDB);
-    
+
         for (int i = shuffled.Count - 1; i > 0; i--)
         {
             int randomIndex = Random.Range(0, i + 1);
@@ -137,7 +139,12 @@ public class WordManager : MonoBehaviour
             shuffled[i] = shuffled[randomIndex];
             shuffled[randomIndex] = temp;
         }
-    
+
         return shuffled.Take(n).ToList();
+    }
+
+    public List<WordItem> getAllWords()
+    {
+        return wordDB;
     }
 }
