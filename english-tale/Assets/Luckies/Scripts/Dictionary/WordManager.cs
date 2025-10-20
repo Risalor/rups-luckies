@@ -1,6 +1,7 @@
 using UnityEngine;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 
 [System.Serializable]
 public class WordData
@@ -99,7 +100,7 @@ public class WordManager : MonoBehaviour
     private void LoadWordsDB()
     {
         TextAsset jsonTextAsset = Resources.Load<TextAsset>("WordDBs/words");
-    
+
         if (jsonTextAsset != null)
         {
             string jsonData = jsonTextAsset.text;
@@ -111,4 +112,32 @@ public class WordManager : MonoBehaviour
         }
     }
 
+    public WordItem getRandomWord()
+    {
+        if (wordDB == null || wordDB.Count == 0)
+            return null;
+
+        int randomIndex = Random.Range(0, wordDB.Count);
+        return wordDB[randomIndex];
+    }
+    
+    public List<WordItem> getNRandomWords(int n)
+    {
+        if (wordDB == null || wordDB.Count == 0 || n <= 0)
+        return new List<WordItem>();
+    
+        n = Mathf.Min(n, wordDB.Count);
+    
+        var shuffled = new List<WordItem>(wordDB);
+    
+        for (int i = shuffled.Count - 1; i > 0; i--)
+        {
+            int randomIndex = Random.Range(0, i + 1);
+            var temp = shuffled[i];
+            shuffled[i] = shuffled[randomIndex];
+            shuffled[randomIndex] = temp;
+        }
+    
+        return shuffled.Take(n).ToList();
+    }
 }
