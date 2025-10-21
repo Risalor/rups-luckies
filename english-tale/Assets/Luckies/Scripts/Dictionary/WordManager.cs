@@ -18,47 +18,44 @@ public class WordListWrapper
     public List<WordData> words;
 }
 
+[System.Serializable]
+public class WordItem
+{
+    public string eng_word;
+    public string slo_word;
+    public Sprite image;
+    public string imageFile;
+
+    public WordItem() { }
+
+    public WordItem(WordData data)
+    {
+        eng_word = data.eng_word;
+        slo_word = data.slo_word;
+        imageFile = data.image;
+
+        string imagePath = "WordImages/" + Path.GetFileNameWithoutExtension(data.image);
+        image = Resources.Load<Sprite>(imagePath);
+
+        if (image == null)
+            Debug.LogWarning($"Missing image: {imagePath}");
+    }
+
+}
+
 //A class that is initialised at startup. It'f for loading and getting the slovenian and english words of objects as well as their coresponding images
 public class WordManager : MonoBehaviour
 {
-    public static WordManager Instance { get; private set; }
-
-    [System.Serializable]
-    public class WordItem
-    {
-        public string eng_word;
-        public string slo_word;
-        public Sprite image;
-        public string imageFile;
-    }
+    public static WordManager Instance = null;
 
     public List<WordItem> wordDB = new List<WordItem>();
 
-    [RuntimeInitializeOnLoadMethod(RuntimeInitializeLoadType.BeforeSceneLoad)]
-    private static void InitializeOnLoad()
-    {
-        if (Instance == null)
-        {
-            GameObject obj = new GameObject("WordManager");
-            Instance = obj.AddComponent<WordManager>();
-            DontDestroyOnLoad(obj);
-        }
-    }
-
     private void Awake()
     {
-        if (Instance == null)
-        {
-            Debug.Log("WORD MANAGER INIT");
-            Instance = this;
-            DontDestroyOnLoad(gameObject);
-            LoadWordsDB();
-        }
-        else if (Instance != this)
-        {
-            Destroy(gameObject);
-            return;
-        }
+        this.SetupSingleton(ref Instance, true);
+
+        Debug.Log("WORD MANAGER INIT");
+        LoadWordsDB();
     }
 
     private void LoadDB(string jsonData)
@@ -73,28 +70,7 @@ public class WordManager : MonoBehaviour
         wordDB.Clear();
 
         foreach (WordData data in wrapper.words)
-        {
-            WordItem newItem = new WordItem
-            {
-                eng_word = data.eng_word,
-                slo_word = data.slo_word,
-                imageFile = data.image
-            };
-
-            string imagePath = "WordImages/" + Path.GetFileNameWithoutExtension(data.image);
-            Sprite loadedSprite = Resources.Load<Sprite>(imagePath);
-
-            if (loadedSprite != null)
-            {
-                newItem.image = loadedSprite;
-            }
-            else
-            {
-                Debug.LogWarning($"Could not load image: {imagePath}");
-            }
-
-            wordDB.Add(newItem);
-        }
+            wordDB.Add(new(data));
 
         Debug.Log($"Successfully loaded {wordDB.Count} words from JSON");
     }
@@ -107,8 +83,7 @@ public class WordManager : MonoBehaviour
         {
             string jsonData = jsonTextAsset.text;
             LoadDB(jsonData);
-        }
-        else
+        } else
         {
             Debug.LogError("Failed to load words.json from Resources.");
         }

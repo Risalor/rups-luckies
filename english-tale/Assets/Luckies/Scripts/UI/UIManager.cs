@@ -1,7 +1,6 @@
 using System.Collections.Generic;
-using NUnit.Framework.Internal.Execution;
-using UnityEngine;
 using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
 
 public class UIManager : MonoBehaviour
@@ -11,7 +10,7 @@ public class UIManager : MonoBehaviour
     private bool DictToggle = true;
     public ScrollRect DictionaryScrollRect;
 
-    private List<WordManager.WordItem> WordsDb;
+    private List<WordItem> WordsDb;
     private string DictionaryDisplay = "";
 
     private void Awake()
