@@ -121,7 +121,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 203467993516923878}
         m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
         m_MethodName: HideOptions
         m_Mode: 1
@@ -768,7 +768,6 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: f2e4985840bd12448b950753f7cffec3, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  gameSceneName: MainScene
   mainMenuPanel: {fileID: 5818141409865128306}
   optionsPanel: {fileID: 6772779456267912549}
   mainMenuBackground: {fileID: 3260950865696796315}
@@ -969,7 +968,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 203467993516923878}
         m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
         m_MethodName: QuitGame
         m_Mode: 1
@@ -1102,7 +1101,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 203467993516923878}
         m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
         m_MethodName: PlayGame
         m_Mode: 1
@@ -1235,7 +1234,7 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
+      - m_Target: {fileID: 203467993516923878}
         m_TargetAssemblyTypeName: MainMenu, Assembly-CSharp
         m_MethodName: ShowOptions
         m_Mode: 1

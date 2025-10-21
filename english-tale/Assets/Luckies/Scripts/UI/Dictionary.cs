@@ -1,9 +1,18 @@
 using UnityEngine;
 
-public class Dictionary : MonoBehaviour
+public class Dictionary : UIObject
 {
+    public static Dictionary Instance;
+
     public DictionaryEntry entryPrefab;
     public Transform content;
+
+    public void Awake()
+    {
+        this.SetupSingleton(ref Instance, true);
+
+        gameObject.SetActive(false);
+    }
 
     private void Start()
     {
