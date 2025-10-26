@@ -3,7 +3,6 @@ using UnityEngine;
 public class Dictionary : UIObject
 {
     public static Dictionary Instance;
-
     public DictionaryEntry entryPrefab;
     public Transform content;
 
@@ -11,7 +10,7 @@ public class Dictionary : UIObject
     {
         this.SetupSingleton(ref Instance, true);
 
-        gameObject.SetActive(false);
+        gameObject.SetActive(true);
     }
 
     private void Start()
