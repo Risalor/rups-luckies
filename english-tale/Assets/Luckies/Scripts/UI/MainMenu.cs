@@ -10,7 +10,7 @@ public class MainMenu : UIObject
 
     private void Awake()
     {
-        this.SetupSingleton(ref Instance, true);
+        this.SetupSingleton(ref Instance);
 
         HideOptions();
     }

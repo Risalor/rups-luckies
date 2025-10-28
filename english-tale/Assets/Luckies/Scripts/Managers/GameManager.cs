@@ -6,16 +6,19 @@ public class GameManager : MonoBehaviour
 
     private void Awake()
     {
-        this.SetupSingleton(ref Instance, true);
+        this.SetupSingleton(ref Instance);
+    }
 
-        MainMenu.Instance.Hide();
+    private void Start()
+    {
+        MainMenu.Instance.Show();
         Dictionary.Instance.Hide();
         GameWorld.Instance.gameObject.SetActive(false);
     }
 
     public void StartGame()
     {
-        MainMenu.Instance.Show();
+        MainMenu.Instance.Hide();
         GameWorld.Instance.StartGame();
     }
 

@@ -8,7 +8,7 @@ public class Dictionary : UIObject
 
     public void Awake()
     {
-        this.SetupSingleton(ref Instance, true);
+        this.SetupSingleton(ref Instance);
 
         gameObject.SetActive(true);
     }

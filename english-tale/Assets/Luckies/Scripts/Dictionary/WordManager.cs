@@ -52,7 +52,7 @@ public class WordManager : MonoBehaviour
 
     private void Awake()
     {
-        this.SetupSingleton(ref Instance, true);
+        this.SetupSingleton(ref Instance);
 
         Debug.Log("WORD MANAGER INIT");
         LoadWordsDB();
