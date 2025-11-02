@@ -346,7 +346,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 939877882152028399, guid: a43a3c7d934aa904d824d4df7c5fda3f, type: 3}
       propertyPath: m_AnchoredPosition.y
-      value: -0.00055010413
+      value: -0.0006421215
       objectReference: {fileID: 0}
     - target: {fileID: 2839660896750974378, guid: a43a3c7d934aa904d824d4df7c5fda3f, type: 3}
       propertyPath: m_AnchorMax.x
@@ -359,6 +359,30 @@ PrefabInstance:
     - target: {fileID: 2839660896750974378, guid: a43a3c7d934aa904d824d4df7c5fda3f, type: 3}
       propertyPath: m_SizeDelta.x
       value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3787683241303280454, guid: a43a3c7d934aa904d824d4df7c5fda3f, type: 3}
+      propertyPath: m_SizeDelta.x
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 3787683241303280454, guid: a43a3c7d934aa904d824d4df7c5fda3f, type: 3}
+      propertyPath: m_SizeDelta.y
+      value: 100
+      objectReference: {fileID: 0}
+    - target: {fileID: 3787683241303280454, guid: a43a3c7d934aa904d824d4df7c5fda3f, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3787683241303280454, guid: a43a3c7d934aa904d824d4df7c5fda3f, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 4386301917711355886, guid: a43a3c7d934aa904d824d4df7c5fda3f, type: 3}
+      propertyPath: m_AnchoredPosition.x
+      value: -1078
+      objectReference: {fileID: 0}
+    - target: {fileID: 4386301917711355886, guid: a43a3c7d934aa904d824d4df7c5fda3f, type: 3}
+      propertyPath: m_AnchoredPosition.y
+      value: 307
       objectReference: {fileID: 0}
     - target: {fileID: 4544437443838591314, guid: a43a3c7d934aa904d824d4df7c5fda3f, type: 3}
       propertyPath: m_Name
@@ -760,8 +784,8 @@ SceneRoots:
   m_Roots:
   - {fileID: 327279354}
   - {fileID: 1872741843}
-  - {fileID: 794327936}
   - {fileID: 747773803}
+  - {fileID: 794327936}
   - {fileID: 1429684793}
   - {fileID: 8139856797634677669}
   - {fileID: 2013838889}
