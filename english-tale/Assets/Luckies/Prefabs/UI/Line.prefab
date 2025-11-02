@@ -703,7 +703,7 @@ MonoBehaviour:
   m_ChildForceExpandHeight: 1
   m_ChildControlWidth: 1
   m_ChildControlHeight: 1
-  m_ChildScaleWidth: 0
+  m_ChildScaleWidth: 1
   m_ChildScaleHeight: 0
   m_ReverseArrangement: 0
 --- !u!114 &2602613753763472350
@@ -721,4 +721,3 @@ MonoBehaviour:
   english: {fileID: 2766257854463270840}
   spacer: {fileID: 7746782935967879746}
   slovenian: {fileID: 9088184134264358920}
-  Font: {fileID: 11400000, guid: 0aba7e1e676a9e1e2b0890b6d1475bf5, type: 2}
