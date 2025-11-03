@@ -24,22 +24,22 @@ AnimationClip:
       value: {fileID: -245127688, guid: af7ac0c27b7f4b044b67be72cdd4f89f, type: 3}
     - time: 0.1
       value: {fileID: -2035218243, guid: af7ac0c27b7f4b044b67be72cdd4f89f, type: 3}
-    - time: 0.18333334
+    - time: 0.2
       value: {fileID: -302916957, guid: af7ac0c27b7f4b044b67be72cdd4f89f, type: 3}
     - time: 0.28333333
       value: {fileID: 218078559, guid: af7ac0c27b7f4b044b67be72cdd4f89f, type: 3}
-    - time: 0.36666667
+    - time: 0.38333333
       value: {fileID: -777741058, guid: af7ac0c27b7f4b044b67be72cdd4f89f, type: 3}
-    - time: 0.46666667
+    - time: 0.48333332
       value: {fileID: -2127503886, guid: af7ac0c27b7f4b044b67be72cdd4f89f, type: 3}
-    - time: 0.56666666
+    - time: 0.5833333
       value: {fileID: -131867163, guid: af7ac0c27b7f4b044b67be72cdd4f89f, type: 3}
-    - time: 0.65
+    - time: 0.6666667
       value: {fileID: 627686851, guid: af7ac0c27b7f4b044b67be72cdd4f89f, type: 3}
-    - time: 0.75
+    - time: 0.76666665
       value: {fileID: -1377266389, guid: af7ac0c27b7f4b044b67be72cdd4f89f, type: 3}
     attribute: m_Sprite
-    path: SkeletonSprite
+    path: EntitySprite
     classID: 212
     script: {fileID: 0}
     flags: 2
@@ -51,7 +51,7 @@ AnimationClip:
   m_ClipBindingConstant:
     genericBindings:
     - serializedVersion: 2
-      path: 1113857746
+      path: 206342197
       attribute: 0
       script: {fileID: 0}
       typeID: 212
@@ -74,7 +74,7 @@ AnimationClip:
     m_AdditiveReferencePoseClip: {fileID: 0}
     m_AdditiveReferencePoseTime: 0
     m_StartTime: 0
-    m_StopTime: 0.76666665
+    m_StopTime: 0.7833333
     m_OrientationOffsetY: 0
     m_Level: 0
     m_CycleOffset: 0

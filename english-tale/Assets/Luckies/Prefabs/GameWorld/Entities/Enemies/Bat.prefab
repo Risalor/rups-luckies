@@ -12,6 +12,10 @@ PrefabInstance:
       propertyPath: m_Controller
       value: 
       objectReference: {fileID: 22100000, guid: ad4ecbb436286da498443484958d982f, type: 2}
+    - target: {fileID: 414098037799662316, guid: 45324443008e57d4187778646673a3a5, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0.5
+      objectReference: {fileID: 0}
     - target: {fileID: 652374689729539514, guid: 45324443008e57d4187778646673a3a5, type: 3}
       propertyPath: m_Sprite
       value: 
@@ -63,6 +67,10 @@ PrefabInstance:
     - target: {fileID: 8056790344603622076, guid: 45324443008e57d4187778646673a3a5, type: 3}
       propertyPath: m_Name
       value: Bat
+      objectReference: {fileID: 0}
+    - target: {fileID: 9129180573612772309, guid: 45324443008e57d4187778646673a3a5, type: 3}
+      propertyPath: m_IsActive
+      value: 1
       objectReference: {fileID: 0}
     m_RemovedComponents: []
     m_RemovedGameObjects: []
