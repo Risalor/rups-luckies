@@ -8,6 +8,10 @@ PrefabInstance:
     serializedVersion: 3
     m_TransformParent: {fileID: 0}
     m_Modifications:
+    - target: {fileID: -8075602086542806875, guid: 45324443008e57d4187778646673a3a5, type: 3}
+      propertyPath: m_Controller
+      value: 
+      objectReference: {fileID: 22100000, guid: c2eab39ebc17c0943a99359018b86a2a, type: 2}
     - target: {fileID: 414098037799662316, guid: 45324443008e57d4187778646673a3a5, type: 3}
       propertyPath: m_LocalScale.x
       value: 1.5
@@ -43,6 +47,34 @@ PrefabInstance:
     - target: {fileID: 3559234229596579509, guid: 45324443008e57d4187778646673a3a5, type: 3}
       propertyPath: m_Offset.y
       value: 0.35
+      objectReference: {fileID: 0}
+    - target: {fileID: 3559234229596579509, guid: 45324443008e57d4187778646673a3a5, type: 3}
+      propertyPath: m_SpriteTilingProperty.pivot.x
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3559234229596579509, guid: 45324443008e57d4187778646673a3a5, type: 3}
+      propertyPath: m_SpriteTilingProperty.pivot.y
+      value: 0.5
+      objectReference: {fileID: 0}
+    - target: {fileID: 3559234229596579509, guid: 45324443008e57d4187778646673a3a5, type: 3}
+      propertyPath: m_SpriteTilingProperty.newSize.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3559234229596579509, guid: 45324443008e57d4187778646673a3a5, type: 3}
+      propertyPath: m_SpriteTilingProperty.newSize.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3559234229596579509, guid: 45324443008e57d4187778646673a3a5, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.x
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3559234229596579509, guid: 45324443008e57d4187778646673a3a5, type: 3}
+      propertyPath: m_SpriteTilingProperty.oldSize.y
+      value: 1
+      objectReference: {fileID: 0}
+    - target: {fileID: 3559234229596579509, guid: 45324443008e57d4187778646673a3a5, type: 3}
+      propertyPath: m_SpriteTilingProperty.adaptiveTilingThreshold
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 3847328490691479639, guid: 45324443008e57d4187778646673a3a5, type: 3}
       propertyPath: m_IsActive
