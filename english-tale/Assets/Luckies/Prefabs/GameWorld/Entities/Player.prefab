@@ -22,11 +22,11 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 414098037799662316, guid: 45324443008e57d4187778646673a3a5, type: 3}
       propertyPath: m_LocalPosition.x
-      value: -0.75
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 414098037799662316, guid: 45324443008e57d4187778646673a3a5, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 0.1
+      value: 0.8
       objectReference: {fileID: 0}
     - target: {fileID: 652374689729539514, guid: 45324443008e57d4187778646673a3a5, type: 3}
       propertyPath: m_SortingLayer
@@ -144,8 +144,10 @@ MonoBehaviour:
   maxHealth: 10
   currentHealth: 0
   damage: 1
-  moveGrid: 1
   movementSpeed: 5
+  hittingWall: 0
+  inTunnel: 0
+  ignoreTunnel: 0
 --- !u!114 &2445889545334616872
 MonoBehaviour:
   m_ObjectHideFlags: 0
