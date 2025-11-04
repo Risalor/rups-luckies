@@ -13,4 +13,9 @@ public class DictionaryEntry : MonoBehaviour
         spacer.SetText("-");
         slovenian.SetText(word.slo_word);
     }
+
+    public string GetWord()
+    {
+        return english.text;
+    }
 }

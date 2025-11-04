@@ -121,8 +121,8 @@ MonoBehaviour:
   m_OnClick:
     m_PersistentCalls:
       m_Calls:
-      - m_Target: {fileID: 0}
-        m_TargetAssemblyTypeName: UIManager, Assembly-CSharp
+      - m_Target: {fileID: 2116532777308669425}
+        m_TargetAssemblyTypeName: Dictionary, Assembly-CSharp
         m_MethodName: OnDictionaryToggle
         m_Mode: 1
         m_Arguments:
@@ -701,8 +701,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 43b82dcac6d95124a9ae7d8b0da99569, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  Dict: {fileID: 6182694496775984343}
   entryPrefab: {fileID: 2602613753763472350, guid: c84b0fd1d2bdc96428a25ace1593c0e9, type: 3}
   content: {fileID: 939877882152028399}
+  OpenSound: {fileID: 8300000, guid: 12ade1722a861180d86f738cb2ec6925, type: 3}
 --- !u!1 &6182694496775984343
 GameObject:
   m_ObjectHideFlags: 0
@@ -759,7 +761,7 @@ Animator:
   m_PrefabInstance: {fileID: 0}
   m_PrefabAsset: {fileID: 0}
   m_GameObject: {fileID: 6182694496775984343}
-  m_Enabled: 0
+  m_Enabled: 1
   m_Avatar: {fileID: 0}
   m_Controller: {fileID: 9100000, guid: 144ec8e6cbb142ca5a7c66833ebd1735, type: 2}
   m_CullingMode: 0
