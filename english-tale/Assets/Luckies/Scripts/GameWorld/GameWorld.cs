@@ -38,7 +38,7 @@ public class GameWorld : MonoBehaviour
 
             Entity enemyPrefab = enemyPrefabs[Random.Range(0, enemyPrefabs.Length)];
 
-            Vector3 worldPos = spawnTilemap.CellToWorld(pos) + spawnTilemap.tileAnchor;
+            Vector3 worldPos = spawnTilemap.CellToWorld(pos) + new Vector3(0.5f, 0f, 0f);
             Entity newEnemy = Instantiate(enemyPrefab, worldPos, Quaternion.identity);
             entityMap.Add(newEnemy.gameObject, newEnemy);
         }
