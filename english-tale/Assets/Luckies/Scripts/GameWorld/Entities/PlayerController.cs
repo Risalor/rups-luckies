@@ -21,7 +21,6 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
-        Player.MoveFree(controls.ReadValue<Vector2>());
         Player.MoveGrid(controls.ReadValue<Vector2>());
     }
 }

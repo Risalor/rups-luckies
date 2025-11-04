@@ -1,61 +1,26 @@
 using System.Collections.Generic;
 using UnityEngine;
-
-public class PlayerMovementPath
-{
-    public int logSize;
-    private List<Vector2> _destinationLog = new();
-
-    public PlayerMovementPath()
-    {
-        logSize = 1;
-    }
-
-    public PlayerMovementPath(int size)
-    {
-        logSize = size;
-    }
-
-    public void AddDestination(Vector2 destination)
-    {
-        if (_destinationLog[^1] == destination)
-            return;
-
-        _destinationLog.Add(destination);
-
-        if (_destinationLog.Count > logSize)
-            _destinationLog.RemoveAt(0);
-    }
-
-    public Vector2 GetCurrentDestination()
-    {
-        return _destinationLog[^1];
-    }
-
-    public void RemoveCurrentDestination()
-    {
-        _destinationLog.RemoveAt(_destinationLog.Count - 1);
-    }
-}
+using UnityEngine.Rendering;
 
 [RequireComponent(typeof(Rigidbody2D))]
+[RequireComponent(typeof(SortingGroup))]
 public class Player : Entity
 {
-    public bool moveGrid = true;
     public float movementSpeed = 5f;
 
-    private int _wallCounter = 0;
     private Vector3 _bannedTargetPosition = INFINITY_VECTOR;
     private Vector3 _targetPosition;
     private Vector3 _oldPosition;
     private bool _isMoving = false;
 
-    private Vector3 _movementDirection;
-    private Vector3 _bannedMoveDirection = Vector3.zero;
-
     private static Vector3 INFINITY_VECTOR = new(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
 
-    public bool HittingWall => _wallCounter > 0;
+    public bool hittingWall = false;
+    public bool inTunnel = false;
+    public bool ignoreTunnel = false;
+
+    private SortingGroup _group = null;
+    private SortingGroup Group => _group ??= GetComponent<SortingGroup>();
 
     public override void Setup(Vector3 spawnPosition)
     {
@@ -65,44 +30,20 @@ public class Player : Entity
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        this.SmartLog($"Player collided with {collision.gameObject.name}");
-
         if (collision.CompareTag("Enemy"))
             OnEnemyCollide(collision.gameObject);
 
-        if (collision.CompareTag("Wall"))
-            _wallCounter++;
-    }
+        if (collision.gameObject.CompareTag("RaisedFloor") && !inTunnel)
+            ignoreTunnel = true;
 
-    private void OnTriggerExit2D(Collider2D collision)
-    {
-        this.SmartLog($"Player exited collision with {collision.gameObject.name}");
+        if (collision.gameObject.CompareTag("Tunnel") && !ignoreTunnel)
+            inTunnel = true;
 
-        if (collision.CompareTag("Wall"))
-            _wallCounter--;
-    }
+        if (collision.gameObject.CompareTag("Wall") && !inTunnel)
+            OnHitWall();
 
-    private void OnCollisionEnter2D(Collision2D collision)
-    {
-        this.SmartLog($"Player collided with {collision.gameObject.name}");
-
-        if (collision.gameObject.CompareTag("Wall"))
-        {
-            _bannedTargetPosition = _targetPosition;
-            _bannedMoveDirection = _movementDirection;
-            _wallCounter++;
-        }
-    }
-
-    private void OnCollisionExit2D(Collision2D collision)
-    {
-        this.SmartLog($"Player exited collision with {collision.gameObject.name}");
-
-        if (collision.gameObject.CompareTag("Wall"))
-        {
-            _bannedMoveDirection = Vector3.zero;
-            _wallCounter--;
-        }
+        if (collision.gameObject.CompareTag("HiddenWall") && inTunnel)
+            OnHitWall();
     }
 
     private void OnEnemyCollide(GameObject enemyObject)
@@ -113,17 +54,35 @@ public class Player : Entity
         enemyEntity.SmartLog("Collided with Player");
     }
 
-    public void MoveFree(Vector3 direction)
+    private void OnHitWall()
     {
-        if (_bannedMoveDirection == direction)
-            _movementDirection = Vector3.zero;
-        else
-            _movementDirection = direction;
+        _bannedTargetPosition = _targetPosition;
+        hittingWall = true;
+    }
+
+    private void OnTriggerExit2D(Collider2D collision)
+    {
+        if (collision.gameObject.CompareTag("RaisedFloor") && !inTunnel)
+            ignoreTunnel = false;
+
+        if (collision.gameObject.CompareTag("Tunnel") && !ignoreTunnel)
+            inTunnel = false;
+
+        if (collision.gameObject.CompareTag("Wall") && !inTunnel)
+            OnExitWall();
+
+        if (collision.gameObject.CompareTag("HiddenWall") && inTunnel)
+            OnExitWall();
+    }
+
+    private void OnExitWall()
+    {
+        hittingWall = false;
     }
 
     public void MoveGrid(Vector3 direction)
     {
-        if (_isMoving || _wallCounter > 0)
+        if (_isMoving || hittingWall)
             return;
 
         if (direction.x != 0)
@@ -133,7 +92,7 @@ public class Player : Entity
         else
             return;
 
-        if (!HittingWall)
+        if (!hittingWall)
             _oldPosition = transform.position;
         _targetPosition = transform.position + direction.normalized;
 
@@ -146,21 +105,17 @@ public class Player : Entity
 
     private void Update()
     {
-        if (moveGrid)
-        {
-            if (HittingWall)
-                _targetPosition = _oldPosition;
+        Group.sortingLayerName = inTunnel ? "HiddenCharacter" : "Character";
 
-            if (_isMoving)
-            {
-                transform.position = Vector3.MoveTowards(transform.position, _targetPosition, movementSpeed * Time.deltaTime);
+        if (hittingWall)
+            _targetPosition = _oldPosition;
 
-                if (transform.position == _targetPosition)
-                    _isMoving = false;
-            }
-        } else
+        if (_isMoving)
         {
-            transform.position += _movementDirection * movementSpeed * Time.deltaTime;
+            transform.position = Vector3.MoveTowards(transform.position, _targetPosition, movementSpeed * Time.deltaTime);
+
+            if (transform.position == _targetPosition)
+                _isMoving = false;
         }
     }
 }

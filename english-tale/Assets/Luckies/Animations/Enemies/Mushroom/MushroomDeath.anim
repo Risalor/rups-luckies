@@ -51,7 +51,7 @@ AnimationClip:
     - time: 1
       value: {fileID: -9147222279066183815, guid: 0f712f2cff31a0448a63c2c76b82c4b8, type: 3}
     attribute: m_Sprite
-    path: MushroomSprite
+    path: EntitySprite
     classID: 212
     script: {fileID: 0}
     flags: 2
@@ -63,7 +63,7 @@ AnimationClip:
   m_ClipBindingConstant:
     genericBindings:
     - serializedVersion: 2
-      path: 677362282
+      path: 206342197
       attribute: 0
       script: {fileID: 0}
       typeID: 212
