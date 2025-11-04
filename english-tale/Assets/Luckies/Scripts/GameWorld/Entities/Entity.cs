@@ -47,4 +47,9 @@ public class Entity : MonoBehaviour
     {
         MainAnimator.SetBool("isRunning", _isMoving);
     }
+
+    public void OnAttack()
+    {
+        this.SmartLog("I attacked :)");
+    }
 }
