@@ -17,10 +17,6 @@ PrefabInstance:
       value: 0.7
       objectReference: {fileID: 0}
     - target: {fileID: 652374689729539514, guid: 45324443008e57d4187778646673a3a5, type: 3}
-      propertyPath: m_FlipX
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 652374689729539514, guid: 45324443008e57d4187778646673a3a5, type: 3}
       propertyPath: m_Sprite
       value: 
       objectReference: {fileID: 1979232534141036308, guid: 685eec495fbc25e4ba7f2d5f2780821d, type: 3}
@@ -51,10 +47,6 @@ PrefabInstance:
     - target: {fileID: 3559234229596579509, guid: 45324443008e57d4187778646673a3a5, type: 3}
       propertyPath: m_SpriteTilingProperty.adaptiveTilingThreshold
       value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 3847328490691479639, guid: 45324443008e57d4187778646673a3a5, type: 3}
-      propertyPath: m_IsActive
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8041330913243839564, guid: 45324443008e57d4187778646673a3a5, type: 3}
       propertyPath: m_LocalPosition.x

@@ -1,4 +1,3 @@
-using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Rendering;
 
@@ -11,7 +10,6 @@ public class Player : Entity
     private Vector3 _bannedTargetPosition = INFINITY_VECTOR;
     private Vector3 _targetPosition;
     private Vector3 _oldPosition;
-    private bool _isMoving = false;
 
     private static Vector3 INFINITY_VECTOR = new(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
 
@@ -99,12 +97,19 @@ public class Player : Entity
         if (_targetPosition == _bannedTargetPosition)
             return;
 
+        if (direction.x > 0)
+            LookRight();
+        else if (direction.x < 0)
+            LookLeft();
+
         _bannedTargetPosition = INFINITY_VECTOR;
         _isMoving = true;
     }
 
-    private void Update()
+    protected override void Update()
     {
+        base.Update();
+
         Group.sortingLayerName = inTunnel ? "HiddenCharacter" : "Character";
 
         if (hittingWall)

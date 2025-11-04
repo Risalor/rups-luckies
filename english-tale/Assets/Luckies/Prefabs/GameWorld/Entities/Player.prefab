@@ -49,6 +49,10 @@ PrefabInstance:
       value: 0.35
       objectReference: {fileID: 0}
     - target: {fileID: 3559234229596579509, guid: 45324443008e57d4187778646673a3a5, type: 3}
+      propertyPath: m_IsTrigger
+      value: 0
+      objectReference: {fileID: 0}
+    - target: {fileID: 3559234229596579509, guid: 45324443008e57d4187778646673a3a5, type: 3}
       propertyPath: m_SpriteTilingProperty.pivot.x
       value: 0.5
       objectReference: {fileID: 0}
@@ -108,6 +112,10 @@ PrefabInstance:
       propertyPath: m_Name
       value: Player
       objectReference: {fileID: 0}
+    - target: {fileID: 8056790344603622076, guid: 45324443008e57d4187778646673a3a5, type: 3}
+      propertyPath: m_TagString
+      value: Player
+      objectReference: {fileID: 0}
     m_RemovedComponents:
     - {fileID: 9147937155798557140, guid: 45324443008e57d4187778646673a3a5, type: 3}
     m_RemovedGameObjects: []
@@ -129,6 +137,11 @@ PrefabInstance:
       insertIndex: -1
       addedObject: {fileID: 759761048431094952}
   m_SourcePrefab: {fileID: 100100000, guid: 45324443008e57d4187778646673a3a5, type: 3}
+--- !u!212 &4400584369357428016 stripped
+SpriteRenderer:
+  m_CorrespondingSourceObject: {fileID: 652374689729539514, guid: 45324443008e57d4187778646673a3a5, type: 3}
+  m_PrefabInstance: {fileID: 3755922347830769802}
+  m_PrefabAsset: {fileID: 0}
 --- !u!1 &6616015831442793014 stripped
 GameObject:
   m_CorrespondingSourceObject: {fileID: 8056790344603622076, guid: 45324443008e57d4187778646673a3a5, type: 3}
@@ -173,6 +186,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e617637b32927643a1e08cde5f4394f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  entitySprite: {fileID: 4400584369357428016}
   maxHealth: 10
   currentHealth: 0
   damage: 1
