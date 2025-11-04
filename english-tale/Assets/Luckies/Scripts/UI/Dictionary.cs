@@ -12,10 +12,12 @@ public class Dictionary : UIObject
     private AudioSource audioSource;
     private Animator anim = null;
     private bool DictToggle = true;
-    private List<DictionaryEntry> entries = new List<DictionaryEntry>();
+    private readonly Dictionary<string, DictionaryEntry> _entries = new();
     public ScrollRect scrollRect;
     string wordToFind = "";
     public TMPro.TMP_InputField wordInputField;
+
+    public bool IsOpen => !DictToggle;
 
     public void Awake()
     {
@@ -36,7 +38,8 @@ public class Dictionary : UIObject
         {
             var entry = Instantiate(entryPrefab, content);
             entry.Setup(word);
-            entries.Add(entry);
+            _entries.Add(word.slo_word.ToLower().Trim(), entry);
+            _entries.Add(word.eng_word.ToLower().Trim(), entry);
         }
     }
 
@@ -53,16 +56,9 @@ public class Dictionary : UIObject
         }
 
         if (DictToggle)
-        {
-            anim.SetBool("SlideIn", true);
-            anim.SetBool("SlideOut", false);
-            Debug.Log("Open!");
-        }
+            anim.SetTrigger("Appear");
         else
-        {
-            anim.SetBool("SlideIn", false);
-            anim.SetBool("SlideOut", true);
-        }
+            anim.SetTrigger("Hide");
 
         audioSource.clip = OpenSound;
         audioSource.Play();
@@ -72,18 +68,16 @@ public class Dictionary : UIObject
 
     public void ScrollToWord()
     {
-        wordToFind = wordInputField.text;
-        var entry = entries.Find(e => e.GetWord() == wordToFind);
-        if (entry != null)
-        {
+        wordToFind = wordInputField.text.ToLower().Trim();
+
+        if (_entries.TryGetValue(wordToFind, out DictionaryEntry entry))
             ScrollToEntry(entry.transform as RectTransform);
-        }
     }
 
     public void ScrollToEntry(RectTransform targetEntry)
     {
         if (scrollRect == null || targetEntry == null) return;
-        
+
         StartCoroutine(ScrollToEntryCoroutine(targetEntry));
     }
 

@@ -103,12 +103,12 @@ TextureImporter:
       name: signbord_pixelart_0
       rect:
         serializedVersion: 2
-        x: 17
-        y: 64
-        width: 989
-        height: 955
+        x: 48
+        y: 72
+        width: 928
+        height: 878
       alignment: 0
-      pivot: {x: 0, y: 0}
+      pivot: {x: 0.5, y: 0.5}
       border: {x: 0, y: 0, z: 0, w: 0}
       customData: 
       outline: []
@@ -125,7 +125,7 @@ TextureImporter:
     customData: 
     physicsShape: []
     bones: []
-    spriteID: 
+    spriteID: 492be4855526af540a0cb075abac7d7b
     internalID: 0
     vertices: []
     indices: 

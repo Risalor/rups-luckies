@@ -19,6 +19,7 @@ public class GameManager : MonoBehaviour
     public void StartGame()
     {
         MainMenu.Instance.Hide();
+        Dictionary.Instance.Show();
         GameWorld.Instance.StartGame();
     }
 

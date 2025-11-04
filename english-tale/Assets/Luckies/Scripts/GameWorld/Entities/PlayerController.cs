@@ -21,6 +21,9 @@ public class PlayerController : MonoBehaviour
 
     private void Update()
     {
+        if (Dictionary.Instance && Dictionary.Instance.IsOpen)
+            return;
+
         Player.MoveGrid(controls.ReadValue<Vector2>());
     }
 }
