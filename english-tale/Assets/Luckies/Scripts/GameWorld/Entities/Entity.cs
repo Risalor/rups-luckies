@@ -52,4 +52,14 @@ public class Entity : MonoBehaviour
     {
         this.SmartLog("I attacked :)");
     }
+
+    public void OnHit()
+    {
+        this.SmartLog("I got hit :(");
+    }
+
+    public void OnDie()
+    {
+        this.SmartLog("I died D:");
+    }
 }
