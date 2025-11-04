@@ -1,4 +1,6 @@
+using System.Collections.Generic;
 using UnityEngine;
+using UnityEngine.UI;
 
 public class Dictionary : UIObject
 {
@@ -10,6 +12,10 @@ public class Dictionary : UIObject
     private AudioSource audioSource;
     private Animator anim = null;
     private bool DictToggle = true;
+    private List<DictionaryEntry> entries = new List<DictionaryEntry>();
+    public ScrollRect scrollRect;
+    string wordToFind = "";
+    public TMPro.TMP_InputField wordInputField;
 
     public void Awake()
     {
@@ -27,17 +33,21 @@ public class Dictionary : UIObject
             Destroy(child.gameObject);
 
         foreach (var word in WordManager.Instance.wordDB)
-            Instantiate(entryPrefab, content).Setup(word);
+        {
+            var entry = Instantiate(entryPrefab, content);
+            entry.Setup(word);
+            entries.Add(entry);
+        }
     }
-    
+
     public void OnDictionaryToggle()
     {
         if (anim == null)
         {
             anim = Dict.GetComponent<Animator>();
         }
-        
-        if(audioSource == null)
+
+        if (audioSource == null)
         {
             audioSource = Dict.GetComponent<AudioSource>();
         }
@@ -58,5 +68,41 @@ public class Dictionary : UIObject
         audioSource.Play();
 
         DictToggle = !DictToggle;
+    }
+
+    public void ScrollToWord()
+    {
+        wordToFind = wordInputField.text;
+        var entry = entries.Find(e => e.GetWord() == wordToFind);
+        if (entry != null)
+        {
+            ScrollToEntry(entry.transform as RectTransform);
+        }
+    }
+
+    public void ScrollToEntry(RectTransform targetEntry)
+    {
+        if (scrollRect == null || targetEntry == null) return;
+        
+        StartCoroutine(ScrollToEntryCoroutine(targetEntry));
+    }
+
+    private System.Collections.IEnumerator ScrollToEntryCoroutine(RectTransform targetEntry)
+    {
+        yield return new WaitForEndOfFrame();
+
+        Canvas.ForceUpdateCanvases();
+
+        Vector2 viewportLocalPosition = scrollRect.viewport.localPosition;
+        Vector2 childLocalPosition = targetEntry.localPosition;
+        Vector2 result = new Vector2(
+            0,
+            -childLocalPosition.y - (targetEntry.rect.height / 2)
+        );
+
+        scrollRect.content.localPosition = result;
+
+        audioSource.clip = OpenSound;
+        audioSource.Play();
     }
 }
