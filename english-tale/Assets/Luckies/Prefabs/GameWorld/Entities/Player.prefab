@@ -187,13 +187,12 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   entitySprite: {fileID: 4400584369357428016}
-  maxHealth: 10
-  currentHealth: 0
-  damage: 1
   movementSpeed: 5
   hittingWall: 0
   inTunnel: 0
   ignoreTunnel: 0
+  climbingStairs: 0
+  canMove: 1
 --- !u!114 &2445889545334616872
 MonoBehaviour:
   m_ObjectHideFlags: 0
@@ -268,6 +267,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   followEnabled: 1
+  xOffset: 2.75
 --- !u!210 &759761048431094952
 SortingGroup:
   m_ObjectHideFlags: 0

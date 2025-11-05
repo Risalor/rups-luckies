@@ -1,12 +1,17 @@
 using UnityEngine;
 
+[RequireComponent(typeof(Player))]
 public class CameraFollowController : MonoBehaviour
 {
     public bool followEnabled = true;
+    public float xOffset = 0;
 
     private Camera _mainCamera;
     private Camera MainCamera => _mainCamera ??= Camera.main;
     private float _originalCameraZ = 0f;
+
+    private Player _player = null;
+    private Player Player => _player ??= GetComponent<Player>();
 
     private void Start()
     {
@@ -19,7 +24,7 @@ public class CameraFollowController : MonoBehaviour
             return;
 
         MainCamera.transform.position = new Vector3(
-            transform.position.x,
+            transform.position.x + (Player && Player.InBattle ? xOffset : 0),
             transform.position.y,
             _originalCameraZ
         );

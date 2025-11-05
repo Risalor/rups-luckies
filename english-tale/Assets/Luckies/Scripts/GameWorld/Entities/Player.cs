@@ -22,15 +22,33 @@ public class Player : Entity
     public bool inTunnel = false;
     public bool ignoreTunnel = false;
     public bool climbingStairs = false;
+    public bool canMove = true;
 
     private SortingGroup _group = null;
     private SortingGroup Group => _group ??= GetComponent<SortingGroup>();
 
     public override void Setup(Vector3 spawnPosition)
     {
+        canMove = true;
         _targetPosition = spawnPosition;
         base.Setup(spawnPosition);
     }
+
+    public override void StartBattle(Entity opponent)
+    {
+        base.StartBattle(opponent);
+        canMove = false;
+    }
+
+    public override void EndBattle(bool win)
+    {
+        base.EndBattle(win);
+        canMove = true;
+
+        _bannedTargetPosition = INFINITY_VECTOR;
+    }
+
+    protected override void LookAtPlayer() { }
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
@@ -59,7 +77,11 @@ public class Player : Entity
         if (!GameWorld.Instance.Entities.TryGetValue(enemyObject, out Entity enemyEntity))
             return;
 
-        enemyEntity.SmartLog("Collided with Player");
+        StartBattle(enemyEntity);
+        enemyEntity.StartBattle(this);
+        QuestionUI.Instance.Setup(this, enemyEntity);
+
+        this.SmartLog($"Collided with enemy: {enemyEntity}");
     }
 
     private void OnHitWall()
@@ -93,7 +115,7 @@ public class Player : Entity
 
     public void MoveGrid(Vector3 direction)
     {
-        if (_isMoving || hittingWall)
+        if (!canMove || _isMoving || hittingWall)
             return;
 
         if (direction.x != 0)
@@ -123,7 +145,7 @@ public class Player : Entity
 
     public void MoveStairs(Vector3 targetPosition, Vector3 afterStairDirection)
     {
-        if (OnStairs || climbingStairs || inTunnel) return;
+        if (!canMove || OnStairs || climbingStairs || inTunnel) return;
 
         _stairsTargetPositin = targetPosition;
         _afterStairsDirection = afterStairDirection;

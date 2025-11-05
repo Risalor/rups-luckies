@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
     {
         MainMenu.Instance.Show();
         Dictionary.Instance.Hide();
+        QuestionUI.Instance.Hide();
         GameWorld.Instance.gameObject.SetActive(false);
     }
 
@@ -20,6 +21,7 @@ public class GameManager : MonoBehaviour
     {
         MainMenu.Instance.Hide();
         Dictionary.Instance.Show();
+        QuestionUI.Instance.Hide();
         GameWorld.Instance.StartGame();
     }
 
@@ -27,5 +29,6 @@ public class GameManager : MonoBehaviour
     {
         Dictionary.Instance.Hide();
         MainMenu.Instance.Show();
+        QuestionUI.Instance.Hide();
     }
 }

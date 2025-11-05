@@ -714,7 +714,7 @@ Canvas:
   m_AdditionalShaderChannelsFlag: 25
   m_UpdateRectTransformForStandalone: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 10
   m_TargetDisplay: 0
 --- !u!114 &3842775132657252013
 MonoBehaviour:
@@ -770,8 +770,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   mainMenuPanel: {fileID: 5818141409865128306}
   optionsPanel: {fileID: 6772779456267912549}
-  mainMenuBackground: {fileID: 3260950865696796315}
-  optionsBackground: {fileID: 7386098440073519450}
 --- !u!1 &3260950865696796315
 GameObject:
   m_ObjectHideFlags: 0

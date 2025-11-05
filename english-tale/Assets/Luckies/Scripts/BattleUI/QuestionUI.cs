@@ -1,17 +1,22 @@
-using UnityEngine;
-using TMPro;
-using UnityEngine.UI;
+using System.Collections;
 using System.Collections.Generic;
-using Random = UnityEngine.Random;
+using System.ComponentModel;
+using TMPro;
+using UnityEngine;
+using UnityEngine.UI;
+using static UnityEditor.Experimental.GraphView.GraphView;
 using Debug = UnityEngine.Debug;
+using Random = UnityEngine.Random;
 
-public class QuestionUI : MonoBehaviour
+public class QuestionUI : UIObject
 {
+    public static QuestionUI Instance = null;
+
     public enum QuestionType { Typing, Matching }
 
     [Header("Battle Rules")]
-    public int totalCorrectRequired = 10; 
-    private int totalCorrectCount = 0; 
+    public int totalCorrectRequired = 10;
+    private int totalCorrectCount = 0;
 
 
     [Header("Common")]
@@ -38,7 +43,8 @@ public class QuestionUI : MonoBehaviour
     private List<RectTransform> lines = new List<RectTransform>();
     private Dictionary<int, RectTransform> lineFromImage = new Dictionary<int, RectTransform>();
 
-
+    private Entity _player = null;
+    private Entity _enemy = null;
 
     private QuestionType currentType;
     private WordItem currentWord;
@@ -49,6 +55,11 @@ public class QuestionUI : MonoBehaviour
     private Dictionary<int, int> playerMatches = new Dictionary<int, int>();  // player selections (imageIndex -> wordIndex)
     private int[] buttonIndexToWordIndex = new int[3]; // mapping after shuffling right-side words
 
+    private void Awake()
+    {
+        this.SetupSingleton(ref Instance);
+    }
+
     private void Start()
     {
         // Typing buttons
@@ -58,8 +69,35 @@ public class QuestionUI : MonoBehaviour
         // Matching buttons
         matchingSubmitButton.onClick.AddListener(CheckMatchingAnswer);
         matchingNextButton.onClick.AddListener(LoadNewWord);
+    }
+
+    public void Setup(Entity player, Entity enemy)
+    {
+        totalCorrectRequired = Random.Range(3, 7);
+        totalCorrectCount = 0;
+        _player = player;
+        _enemy = enemy;
+        Show();
+        StartCoroutine(DelaySetup());
+    }
+
+    private IEnumerator DelaySetup()
+    {
+        yield return null;
 
         LoadNewWord();
+    }
+
+    private void EndBattle()
+    {
+        Debug.Log("Battle complete!");
+        MatchPanel.SetActive(false);
+        TypeAnswerPanel.SetActive(false);
+
+        Hide();
+
+        _player.EndBattle(true);
+        _enemy.EndBattle(false);
     }
 
     private void LoadNewWord()
@@ -125,11 +163,14 @@ public class QuestionUI : MonoBehaviour
             totalCorrectCount++;
             typingFeedbackText.text = $"Correct! ({totalCorrectCount}/{totalCorrectRequired})";
             typingFeedbackText.color = Color.green;
-        }
-        else
+
+            _player.Attack();
+        } else
         {
             typingFeedbackText.text = "Wrong! Correct: " + currentWord.eng_word;
             typingFeedbackText.color = Color.red;
+
+            _enemy.Attack();
         }
 
         typingFeedbackText.gameObject.SetActive(true);
@@ -348,11 +389,14 @@ public class QuestionUI : MonoBehaviour
             totalCorrectCount++;
             matchingFeedbackText.text = $"All matches correct! ({totalCorrectCount}/{totalCorrectRequired})";
             matchingFeedbackText.color = Color.green;
-        }
-        else
+
+            _player.Attack();
+        } else
         {
             matchingFeedbackText.text = "Some matches are wrong!";
             matchingFeedbackText.color = Color.red;
+
+            _enemy.Attack();
         }
 
         matchingFeedbackText.gameObject.SetActive(true);
@@ -364,17 +408,5 @@ public class QuestionUI : MonoBehaviour
             EndBattle();
         }
     }
-
-    private void EndBattle()
-    {
-        Debug.Log("Battle complete!");
-        MatchPanel.SetActive(false);
-        TypeAnswerPanel.SetActive(false);
-
-        // Optionally notify other systems
-        // Example: GameManager.Instance.BattleFinished();
-    }
-
-
     #endregion
 }

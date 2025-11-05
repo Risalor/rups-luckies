@@ -221,15 +221,15 @@ MonoBehaviour:
 
 '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 39c964861d972a0499fbd7414dd4304f, type: 2}
-  m_sharedMaterial: {fileID: 256999243809553537, guid: 39c964861d972a0499fbd7414dd4304f, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: ddce4d0ef22bdc94f87249b2d2eda888, type: 2}
+  m_sharedMaterial: {fileID: 1452418603850572081, guid: ddce4d0ef22bdc94f87249b2d2eda888, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4280301402
+  m_fontColor: {r: 0.3529412, g: 0.21568628, b: 0.1254902, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -246,12 +246,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
+  m_fontSize: 18
   m_fontSizeBase: 36
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMax: 52
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
@@ -435,15 +435,15 @@ MonoBehaviour:
 
 '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 39c964861d972a0499fbd7414dd4304f, type: 2}
-  m_sharedMaterial: {fileID: 256999243809553537, guid: 39c964861d972a0499fbd7414dd4304f, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: ddce4d0ef22bdc94f87249b2d2eda888, type: 2}
+  m_sharedMaterial: {fileID: 1452418603850572081, guid: ddce4d0ef22bdc94f87249b2d2eda888, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4280301402
+  m_fontColor: {r: 0.3529412, g: 0.21568628, b: 0.1254902, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -460,12 +460,12 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
+  m_fontSize: 18
   m_fontSizeBase: 36
   m_fontWeight: 400
-  m_enableAutoSizing: 0
+  m_enableAutoSizing: 1
   m_fontSizeMin: 18
-  m_fontSizeMax: 72
+  m_fontSizeMax: 52
   m_fontStyle: 0
   m_HorizontalAlignment: 2
   m_VerticalAlignment: 512
@@ -571,15 +571,15 @@ MonoBehaviour:
       m_Calls: []
   m_text: '-'
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 39c964861d972a0499fbd7414dd4304f, type: 2}
-  m_sharedMaterial: {fileID: 256999243809553537, guid: 39c964861d972a0499fbd7414dd4304f, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: ddce4d0ef22bdc94f87249b2d2eda888, type: 2}
+  m_sharedMaterial: {fileID: 1452418603850572081, guid: ddce4d0ef22bdc94f87249b2d2eda888, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
   m_fontColor32:
     serializedVersion: 2
-    rgba: 4294967295
-  m_fontColor: {r: 1, g: 1, b: 1, a: 1}
+    rgba: 4280301402
+  m_fontColor: {r: 0.3529412, g: 0.21568628, b: 0.1254902, a: 1}
   m_enableVertexGradient: 0
   m_colorMode: 3
   m_fontColorGradient:
@@ -596,8 +596,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 36
-  m_fontSizeBase: 36
+  m_fontSize: 72
+  m_fontSizeBase: 72
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18

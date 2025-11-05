@@ -1,3 +1,4 @@
+using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -66,5 +67,19 @@ public class GameWorld : MonoBehaviour
         gameObject.SetActive(false);
 
         GameManager.Instance.ReturnToMainMenu();
+    }
+
+    public void EntityDied(Entity entity)
+    {
+        _entityMap.Remove(entity.gameObject);
+        if (_entityMap.Count == 1)
+            StartCoroutine(WaitAndEndGame());
+    }
+
+    private IEnumerator WaitAndEndGame()
+    {
+        yield return new WaitForSecondsRealtime(1f);
+
+        EndGame();
     }
 }
