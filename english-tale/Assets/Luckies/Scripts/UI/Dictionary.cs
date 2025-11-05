@@ -38,8 +38,8 @@ public class Dictionary : UIObject
         {
             var entry = Instantiate(entryPrefab, content);
             entry.Setup(word);
-            _entries.Add(word.slo_word.ToLower().Trim(), entry);
-            _entries.Add(word.eng_word.ToLower().Trim(), entry);
+            _entries[word.slo_word.ToLower().Trim()] = entry;
+            _entries[word.eng_word.ToLower().Trim()] = entry;
         }
     }
 
