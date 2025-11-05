@@ -73,8 +73,6 @@ public class Player : Entity
         if (collision.gameObject.CompareTag("RaisedFloor") && !inTunnel)
             ignoreTunnel = false;
 
-        if (OnStairs || climbingStairs) return;
-
         if (collision.CompareTag("Enemy") && !inTunnel)
             OnExitWall();
 
@@ -129,6 +127,11 @@ public class Player : Entity
 
         _stairsTargetPositin = targetPosition;
         _afterStairsDirection = afterStairDirection;
+
+        if (_afterStairsDirection.x > 0)
+            LookRight();
+        else if (_afterStairsDirection.x < 0)
+            LookLeft();
     }
 
     protected override void Update()
