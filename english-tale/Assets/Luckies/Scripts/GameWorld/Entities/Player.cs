@@ -10,12 +10,18 @@ public class Player : Entity
     private Vector3 _bannedTargetPosition = INFINITY_VECTOR;
     private Vector3 _targetPosition;
     private Vector3 _oldPosition;
+    private Vector3 _currentDirection;
+    private Vector3 _afterStairsDirection;
+    private Vector3? _stairsTargetPositin = null;
+
+    private bool OnStairs => _stairsTargetPositin != null;
 
     private static Vector3 INFINITY_VECTOR = new(float.PositiveInfinity, float.PositiveInfinity, float.PositiveInfinity);
 
     public bool hittingWall = false;
     public bool inTunnel = false;
     public bool ignoreTunnel = false;
+    public bool climbingStairs = false;
 
     private SortingGroup _group = null;
     private SortingGroup Group => _group ??= GetComponent<SortingGroup>();
@@ -28,11 +34,13 @@ public class Player : Entity
 
     private void OnTriggerEnter2D(Collider2D collision)
     {
-        if (collision.CompareTag("Enemy"))
-            OnEnemyCollide(collision.gameObject);
-
         if (collision.gameObject.CompareTag("RaisedFloor") && !inTunnel)
             ignoreTunnel = true;
+
+        if (OnStairs || climbingStairs) return;
+
+        if (collision.CompareTag("Enemy") && !inTunnel)
+            OnEnemyCollide(collision.gameObject);
 
         if (collision.gameObject.CompareTag("Tunnel") && !ignoreTunnel)
             inTunnel = true;
@@ -46,7 +54,9 @@ public class Player : Entity
 
     private void OnEnemyCollide(GameObject enemyObject)
     {
-        if (!GameWorld.Instance.entityMap.TryGetValue(enemyObject, out Entity enemyEntity))
+        OnHitWall();
+
+        if (!GameWorld.Instance.Entities.TryGetValue(enemyObject, out Entity enemyEntity))
             return;
 
         enemyEntity.SmartLog("Collided with Player");
@@ -62,6 +72,11 @@ public class Player : Entity
     {
         if (collision.gameObject.CompareTag("RaisedFloor") && !inTunnel)
             ignoreTunnel = false;
+
+        if (OnStairs || climbingStairs) return;
+
+        if (collision.CompareTag("Enemy") && !inTunnel)
+            OnExitWall();
 
         if (collision.gameObject.CompareTag("Tunnel") && !ignoreTunnel)
             inTunnel = false;
@@ -90,20 +105,30 @@ public class Player : Entity
         else
             return;
 
+        _currentDirection = direction.normalized;
+
         if (!hittingWall)
             _oldPosition = transform.position;
-        _targetPosition = transform.position + direction.normalized;
+        _targetPosition = transform.position + _currentDirection;
 
         if (_targetPosition == _bannedTargetPosition)
             return;
 
-        if (direction.x > 0)
+        if (_currentDirection.x > 0)
             LookRight();
-        else if (direction.x < 0)
+        else if (_currentDirection.x < 0)
             LookLeft();
 
         _bannedTargetPosition = INFINITY_VECTOR;
         _isMoving = true;
+    }
+
+    public void MoveStairs(Vector3 targetPosition, Vector3 afterStairDirection)
+    {
+        if (OnStairs || climbingStairs || inTunnel) return;
+
+        _stairsTargetPositin = targetPosition;
+        _afterStairsDirection = afterStairDirection;
     }
 
     protected override void Update()
@@ -120,7 +145,17 @@ public class Player : Entity
             transform.position = Vector3.MoveTowards(transform.position, _targetPosition, movementSpeed * Time.deltaTime);
 
             if (transform.position == _targetPosition)
-                _isMoving = false;
+                if (OnStairs)
+                {
+                    _targetPosition = _stairsTargetPositin.Value;
+                    _stairsTargetPositin = null;
+                    climbingStairs = true;
+                } else if (climbingStairs)
+                {
+                    _targetPosition += _afterStairsDirection;
+                    climbingStairs = false;
+                } else
+                    _isMoving = false;
         }
     }
 }

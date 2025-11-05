@@ -30,11 +30,15 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 414098037799662316, guid: 45324443008e57d4187778646673a3a5, type: 3}
       propertyPath: m_LocalPosition.y
-      value: 1
+      value: 0.5
       objectReference: {fileID: 0}
     - target: {fileID: 652374689729539514, guid: 45324443008e57d4187778646673a3a5, type: 3}
       propertyPath: m_SortingLayer
       value: 5
+      objectReference: {fileID: 0}
+    - target: {fileID: 1991411627679135983, guid: 45324443008e57d4187778646673a3a5, type: 3}
+      propertyPath: m_LocalPosition.y
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3559234229596579509, guid: 45324443008e57d4187778646673a3a5, type: 3}
       propertyPath: m_Size.x
@@ -46,7 +50,7 @@ PrefabInstance:
       objectReference: {fileID: 0}
     - target: {fileID: 3559234229596579509, guid: 45324443008e57d4187778646673a3a5, type: 3}
       propertyPath: m_Offset.y
-      value: 0.4
+      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 3559234229596579509, guid: 45324443008e57d4187778646673a3a5, type: 3}
       propertyPath: m_IsTrigger
@@ -79,10 +83,6 @@ PrefabInstance:
     - target: {fileID: 3559234229596579509, guid: 45324443008e57d4187778646673a3a5, type: 3}
       propertyPath: m_SpriteTilingProperty.adaptiveTilingThreshold
       value: 0.5
-      objectReference: {fileID: 0}
-    - target: {fileID: 3847328490691479639, guid: 45324443008e57d4187778646673a3a5, type: 3}
-      propertyPath: m_IsActive
-      value: 0
       objectReference: {fileID: 0}
     - target: {fileID: 8041330913243839564, guid: 45324443008e57d4187778646673a3a5, type: 3}
       propertyPath: m_LocalPosition.x
@@ -278,5 +278,5 @@ SortingGroup:
   m_Enabled: 1
   m_SortingLayerID: -521769517
   m_SortingLayer: 5
-  m_SortingOrder: 0
+  m_SortingOrder: 5
   m_SortAtRoot: 0
