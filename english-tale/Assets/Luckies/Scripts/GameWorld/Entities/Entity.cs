@@ -69,6 +69,7 @@ public class Entity : MonoBehaviour
 
     public void Die()
     {
+        Collider.enabled = false;
         MainAnimator.SetBool("isDying", true);
     }
 
