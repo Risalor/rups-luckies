@@ -97,3 +97,6 @@ english-tale/[Aa]ssets/Unity.VisualScripting.Generated/VisualScripting.Core/Prop
 
 # Auto-generated scenes by play mode tests
 english-tale/[Aa]ssets/[Ii]nit[Tt]est[Ss]cene*.unity*
+
+english-tale/[Aa]ssets/Vuplex/**
+english-tale/[Aa]ssets/Vuplex.meta
