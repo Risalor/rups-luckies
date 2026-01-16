@@ -237,7 +237,7 @@ export default class MenuScene extends Phaser.Scene {
                 if (this.isSwitchOn) this.scene.start('LoginScene');
             });
 
-        console.log(`${localStorage.getItem('username')}`);
+        //console.log(`${localStorage.getItem('username')}`);
 
         this.titleTween = this.tweens.add({
             targets: this.title,

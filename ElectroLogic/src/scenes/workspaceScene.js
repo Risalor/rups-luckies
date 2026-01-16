@@ -353,11 +353,11 @@ export default class WorkspaceScene extends Phaser.Scene {
     //   .on('pointerover', () => simulate.setStyle({ color: '#0044cc' }))
     //   .on('pointerout', () => simulate.setStyle({ color: '#0066ff' }))
     //   .on('pointerdown', () => {
-    //     console.log(this.graph);
+    //     //console.log(this.graph);
     //     this.graph.simulate();
     //   });
 
-    console.log(JSON.parse(localStorage.getItem("users")));
+    //console.log(JSON.parse(localStorage.getItem("users")));
   }
 
   getComponentDetails(type) {
@@ -861,7 +861,7 @@ export default class WorkspaceScene extends Phaser.Scene {
 
         const comp = component.getData("logicComponent");
         if (comp) {
-          console.log("Component: " + comp);
+          //console.log("Component: " + comp);
           this.graph.addComponent(comp);
 
           // Add start/end nodes to graph if they exist
@@ -919,7 +919,7 @@ export default class WorkspaceScene extends Phaser.Scene {
         (type === "stikalo-on" || type === "stikalo-off") &&
         !isInPanel
       ) {
-        console.log("LEFT CLICK SWITCH DETECTED - toggling switch");
+        //console.log("LEFT CLICK SWITCH DETECTED - toggling switch");
 
         // toggla se switch
         logic.is_on = !logic.is_on;
@@ -943,7 +943,7 @@ export default class WorkspaceScene extends Phaser.Scene {
 
       // desni click na gridu je rotate element
       if (pointer.rightButtonDown() && !isInPanel) {
-        console.log("RIGHT CLICK ROTATE DETECTED");
+        //console.log("RIGHT CLICK ROTATE DETECTED");
         const currentRotation = component.getData("rotation");
         const newRotation = (currentRotation + 90) % 360;
 
@@ -979,7 +979,7 @@ export default class WorkspaceScene extends Phaser.Scene {
     const placedTypes = this.placedComponents.map((comp) =>
       comp.getData("type")
     );
-    console.log("components", placedTypes);
+    //console.log("components", placedTypes);
     this.checkText.setStyle({ color: "#cc0000" });
     // preverjas ce so vse komponente na mizi
     if (

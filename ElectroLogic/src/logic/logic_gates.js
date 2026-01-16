@@ -15,7 +15,7 @@ export class LogicGate {
         }
         
         if (this.wouldCreateCycle(gate)) {
-            console.log(`Cannot connect ${this.id} to ${gate.id}: Would create a cycle!`);
+            //console.log(`Cannot connect ${this.id} to ${gate.id}: Would create a cycle!`);
             return true;
         }
         
@@ -248,7 +248,7 @@ export class LogicCircuit {
                 this.gates.set(id, new LightGate(id));
                 return this.gates.get(id);
             default:
-                console.log("Incorrect gate type provided!");
+                //console.log("Incorrect gate type provided!");
                 return null;
         }
     }
@@ -276,7 +276,7 @@ export class LogicCircuit {
             }
             return true;
         } catch (err) {
-            console.error('connectGatesWithIndex error', err);
+            //console.error('connectGatesWithIndex error', err);
             return false;
         }
     }
@@ -328,4 +328,4 @@ circuit.connectGates('input1', 'and2');
 circuit.connectGates('and2', 'not2');
 circuit.connectGates('and2', 'and1');
 
-console.log('Circuit results:', circuit.evaluate());
+//console.log('Circuit results:', circuit.evaluate());

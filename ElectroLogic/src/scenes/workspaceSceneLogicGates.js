@@ -303,7 +303,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                 this.logicCircuit.evaluate();
             }
         } catch (e) {
-            console.error('Circuit evaluation error:', e);
+            //console.error('Circuit evaluation error:', e);
         }
 
         // Update bulb labels with real-time status
@@ -489,7 +489,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         try {
             ok = this.logicCircuit.connectGatesWithIndex(finalSourceId, finalTargetId, toPinIndex);
         } catch (err) {
-            console.error('connectWithIndex error', err);
+            //console.error('connectWithIndex error', err);
             ok = false;
         }
 
@@ -1073,7 +1073,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             this.checkText.setText('Gate deleted');
             this.time.delayedCall(1000, () => this._origCheckTextSet(''));
         } catch (e) {
-            console.error('Error deleting gate:', e);
+            //console.error('Error deleting gate:', e);
         }
     }
 

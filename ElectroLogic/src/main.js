@@ -13,6 +13,26 @@ import WorkspaceScene from './scenes/workspaceScene';
 import WorkspaceSceneLogicGates from './scenes/workspaceSceneLogicGates';
 import ProfileScene from './scenes/ProfileScene'
 
+// Get scene from URL parameter
+const urlParams = new URLSearchParams(window.location.search);
+const sceneParam = urlParams.get('scene');
+
+// Determine which scene to start with
+let startScene;
+switch(sceneParam) {
+  case 'logic':
+    startScene = WorkspaceSceneLogicGates;
+    break;
+  case 'workspace':
+    startScene = WorkspaceScene;
+    break;
+  default:
+    // Default to WorkspaceScene if no parameter
+    startScene = WorkspaceScene;
+    // Or use logic gates as default:
+    // startScene = WorkspaceSceneLogicGates;
+}
+
 const config = {
   type: Phaser.AUTO,            
   width: window.innerWidth,                    
@@ -20,18 +40,19 @@ const config = {
   backgroundColor: '#f4f6fa',    
   parent: 'game-container',      
   scene: [
-    // uvoz scen
+    startScene,  // Start with the determined scene
+    
+    // Add all other scenes
+    sceneParam === 'logic' ? WorkspaceScene : WorkspaceSceneLogicGates, // Add the other one
     MenuScene,
     LabScene,
-    WorkspaceScene,
-    WorkspaceSceneLogicGates,
     PreloadScene,
     UIScene,
     TestScene,
     LoginScene,
     ScoreboardScene,
     ProfileScene
-  ],
+  ].filter(Boolean), // Remove any null/undefined scenes
   physics: {
     default: 'arcade',           
     arcade: {

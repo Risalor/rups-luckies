@@ -17,10 +17,10 @@ const wire2 = new Wire(wire1.end, new Node('B'));
 const bulb = new Bulb('blb', wire8.end, new Node('H'));
 // const wire9 = new Wire(bulb.end, new Node('fjsd')); // Branch to create a loop
 
-console.log(`Adding components to circuit:`);
-console.log(battery);
-console.log(wire1);
-console.log(wire2);
+//console.log(`Adding components to circuit:`);
+//console.log(battery);
+//console.log(wire1);
+//console.log(wire2);
 
 circuit.addComponent(battery);
 circuit.addComponent(wire1);

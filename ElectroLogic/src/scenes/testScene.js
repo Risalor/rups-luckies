@@ -25,10 +25,10 @@ export default class TestScene extends Phaser.Scene {
         graph.addNode(bulb.nodes[0]);
         graph.addNode(bulb.nodes[1]);
 
-        console.log('battery.pos connected_wires:', battery.nodes[0].connected_wires);
-        console.log('battery.neg connected_wires:', battery.nodes[1].connected_wires);
-        console.log('bulb.a connected_wires:', bulb.nodes[0].connected_wires);
-        console.log('bulb.b connected_wires:', bulb.nodes[1].connected_wires);
+        //console.log('battery.pos connected_wires:', battery.nodes[0].connected_wires);
+        //console.log('battery.neg connected_wires:', battery.nodes[1].connected_wires);
+        //console.log('bulb.a connected_wires:', bulb.nodes[0].connected_wires);
+        //console.log('bulb.b connected_wires:', bulb.nodes[1].connected_wires);
 
 
         const wire1 = new Wire(battery.nodes[0], bulb.nodes[0]);
@@ -37,11 +37,11 @@ export default class TestScene extends Phaser.Scene {
         graph.addWire(wire1);
         graph.addWire(wire2);
 
-        console.log(battery.nodes[0] === wire1.start); // should be true
-        console.log(battery.nodes[1] === wire2.end);   // should be true
+        //console.log(battery.nodes[0] === wire1.start); // should be true
+        //console.log(battery.nodes[1] === wire2.end);   // should be true
 
 
-        console.log(graph.isConnected(battery.nodes[0], battery.nodes[1])); // true
+        //console.log(graph.isConnected(battery.nodes[0], battery.nodes[1])); // true
 
         this.add.text(300, 250, 'Dobrodošel v laboratoriju!', {
             fontFamily: 'Arial',

@@ -438,8 +438,8 @@ export default class ProfileScene extends Phaser.Scene {
       try {
         loadingOverlay.style.display = 'flex';
         
-        console.log('Saving avatar:', this.selectedAvatar);
-        console.log('User ID:', userData._id);
+        //console.log('Saving avatar:', this.selectedAvatar);
+        //console.log('User ID:', userData._id);
         
         const response = await fetch(`${API_URL}/users/${userData._id}`, {
           method: 'PUT',
@@ -452,8 +452,8 @@ export default class ProfileScene extends Phaser.Scene {
         });
         
         const responseText = await response.text();
-        console.log('Response status:', response.status);
-        console.log('Response text:', responseText);
+        //console.log('Response status:', response.status);
+        //console.log('Response text:', responseText);
         
         if (!response.ok) {
           let errorMessage = 'Napaka pri shranjevanju';
@@ -467,7 +467,7 @@ export default class ProfileScene extends Phaser.Scene {
         }
         
         const data = JSON.parse(responseText);
-        console.log('Update successful:', data);
+        //console.log('Update successful:', data);
         
         localStorage.setItem('userData', JSON.stringify(data.user));
         

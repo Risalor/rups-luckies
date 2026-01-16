@@ -24,9 +24,9 @@ class CircuitGraph {
       const distance = Math.hypot(dx, dy);
 
       if (distance < this.MERGE_RADIUS) {
-        console.log(
+        /*console.log(
           `MERGE! ${node.id} (${node.x},${node.y})  ==>  ${existingNode.id} (${existingNode.x},${existingNode.y})`
-        );
+        );*/
 
         // merga sete
         if (!existingNode.connected) existingNode.connected = new Set();
@@ -54,7 +54,7 @@ class CircuitGraph {
       }
     }
 
-    console.log(`Adding new node ${node.id} at (${node.x},${node.y})`);
+    //console.log(`Adding new node ${node.id} at (${node.x},${node.y})`);
     this.nodes.set(node.id, node);
     return node;
   }
@@ -141,9 +141,9 @@ class CircuitGraph {
     dfs(start, []);
 
     // debug logging
-    console.log(`getConductivePaths: found ${results.length} path(s) from ${start.id} to ${end.id}`);
+    //console.log(`getConductivePaths: found ${results.length} path(s) from ${start.id} to ${end.id}`);
     results.forEach((p, i) => {
-      console.log(` path[${i}]: nodes = ${p.map(n => n.id + '(' + n.x + ',' + n.y + ')').join(' -> ')}`);
+      //console.log(` path[${i}]: nodes = ${p.map(n => n.id + '(' + n.x + ',' + n.y + ')').join(' -> ')}`);
     });
 
     return results;
@@ -152,7 +152,7 @@ class CircuitGraph {
   addComponent(component) {
     if (!component || !component.start || !component.end) return;
 
-    console.log(`Adding component ${component.id} of type ${component.type}`);
+    //console.log(`Adding component ${component.id} of type ${component.type}`);
     component.start = this.addNode(component.start);
     component.end = this.addNode(component.end);
 
@@ -187,7 +187,7 @@ class CircuitGraph {
     path = [...path, current.id];
 
     if (this.sameNode(current, target) && visitedComps.size > 0) {
-      console.log(`Closed loop found! Path: ${path.join(" -> ")}`);
+      //console.log(`Closed loop found! Path: ${path.join(" -> ")}`);
       return true;
     }
 
@@ -206,30 +206,30 @@ class CircuitGraph {
       visitedComps.delete(comp);
     }
 
-    console.log(
+    /*console.log(
       `No path from node ${
         current.id
       } along this branch. Path so far: ${path.join(" -> ")}`
-    );
+    );*/
     return false;
   }
 
   simulate() {
     const battery = this.components.find((c) => c.type === "battery");
     if (!battery) {
-      console.log("No battery found!");
+      //console.log("No battery found!");
       return -1;
     }
 
-    console.log(`Battery found: ${battery.id}`);
-    console.log(
+    //console.log(`Battery found: ${battery.id}`);
+    /*console.log(
       "All nodes in graph:",
       [...this.nodes.values()].map((n) => `${n.id}(${n.x},${n.y})`)
-    );
-    console.log(
+    );*/
+    /*console.log(
       "All components in graph:",
       this.components.map((c) => `${c.id}(${c.type})`)
-    );
+    );*/
 
     const start = battery.start;
     const end = battery.end;
@@ -237,14 +237,14 @@ class CircuitGraph {
     const closed = this.hasClosedLoop(start, end, new Set());
 
     if (closed) {
-      console.log("Circuit is closed. Current flows!");
+      //console.log("Circuit is closed. Current flows!");
       const bulbs = this.components.filter((c) => c.type === "bulb");
       bulbs.forEach((b) => {
         if (b.turnOn) b.turnOn();
       });
       return 1;
     } else {
-      console.log("Circuit is open. No current flows.");
+      //console.log("Circuit is open. No current flows.");
       const bulbs = this.components.filter((c) => c.type === "bulb");
       bulbs.forEach((b) => {
         if (b.turnOff) b.turnOff();

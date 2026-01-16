@@ -10,11 +10,9 @@ export default class LoginScene extends Phaser.Scene {
     create() {
         const { width, height } = this.scale;
 
-        // --- Ozadje laboratorija ---
         this.add.rectangle(0, 0, width, height - 150, 0xe8e8e8).setOrigin(0);
         this.add.rectangle(0, height - 150, width, 150, 0xd4c4a8).setOrigin(0);
 
-        // miza
         const tableX = width / 2;
         const tableY = height / 2 + 50;
         const tableWidth = 500;
@@ -44,13 +42,11 @@ export default class LoginScene extends Phaser.Scene {
             grid.strokePath();
         }
 
-        // nogice mize
         const legWidth = 20;
         const legHeight = 150;
         this.add.rectangle(tableX - tableWidth / 2 + 40, tableY + tableHeight / 2 + 20, legWidth, legHeight, 0x654321);
         this.add.rectangle(tableX + tableWidth / 2 - 40, tableY + tableHeight / 2 + 20, legWidth, legHeight, 0x654321);
 
-        // okvir
         const panelWidth = 500;
         const panelHeight = 340;
         const panelX = width / 2 - panelWidth / 2;
@@ -62,7 +58,6 @@ export default class LoginScene extends Phaser.Scene {
         panel.lineStyle(3, 0xcccccc, 1);
         panel.strokeRoundedRect(panelX, panelY, panelWidth, panelHeight, 25);
 
-        // naslov
         this.add.text(width / 2, panelY + 40, 'PRIJAVA', {
             fontFamily: 'Arial',
             fontSize: '36px',
@@ -70,7 +65,6 @@ export default class LoginScene extends Phaser.Scene {
             color: '#222'
         }).setOrigin(0.5);
 
-        // input polji
         const inputWidth = 350;
         const inputHeight = 45;
         const corner = 10;
@@ -111,7 +105,6 @@ export default class LoginScene extends Phaser.Scene {
         password.style.backgroundColor = '#f9f9f9';
         document.body.appendChild(password);
 
-        // Loading indicator (hidden by default)
         const loadingText = this.add.text(width / 2, panelY + 220, '', {
             fontFamily: 'Arial',
             fontSize: '16px',
@@ -174,12 +167,10 @@ export default class LoginScene extends Phaser.Scene {
                     return;
                 }
 
-                // Show loading
                 loadingText.setText('Prijavljam...').setVisible(true);
                 loginButton.disableInteractive();
 
                 try {
-                    // First try to login
                     const loginResponse = await this.makeApiRequest(`${API_URL}/users/login`, {
                         method: 'POST',
                         body: JSON.stringify({
@@ -188,7 +179,6 @@ export default class LoginScene extends Phaser.Scene {
                         })
                     });
 
-                    // Login successful
                     localStorage.setItem('username', usernameTrim);
                     localStorage.setItem('userData', JSON.stringify(loginResponse.user));
                     
@@ -200,7 +190,6 @@ export default class LoginScene extends Phaser.Scene {
 
                 } catch (loginError) {
                     try {
-                        console.log('Login failed, trying registration...');
                         
                         const registerResponse = await this.makeApiRequest(`${API_URL}/users/register`, {
                             method: 'POST',
@@ -229,7 +218,7 @@ export default class LoginScene extends Phaser.Scene {
                         this.scene.start('LabScene');
 
                     } catch (registerError) {
-                        console.error('Registration failed:', registerError);
+                        //console.error('Registration failed:', registerError);
                         loadingText.setVisible(false);
                         loginButton.setInteractive();
                     }
@@ -261,7 +250,55 @@ export default class LoginScene extends Phaser.Scene {
             return data;
         };
 
-        // Počisti inpute ob izhodu
+        const guestButtonBg = this.add.graphics();
+        guestButtonBg.fillStyle(0x66cc66, 1);
+        guestButtonBg.fillRoundedRect(
+            rectX - buttonWidth / 2,
+            buttonY - buttonHeight / 2 + 60,
+            buttonWidth,
+            buttonHeight,
+            cornerRadius
+        );
+
+        const guestButton = this.add.text(rectX, buttonY + 60, '▶ Nadaljuj kot gost', {
+            fontFamily: 'Arial',
+            fontSize: '20px',
+            color: '#ffffff'
+        })
+            .setOrigin(0.5)
+            .setInteractive({ useHandCursor: true })
+            .on('pointerover', () => {
+                guestButtonBg.clear();
+                guestButtonBg.fillStyle(0x44aa44, 1);
+                guestButtonBg.fillRoundedRect(
+                    rectX - buttonWidth / 2,
+                    buttonY - buttonHeight / 2 + 60,
+                    buttonWidth,
+                    buttonHeight,
+                    cornerRadius
+                );
+            })
+            .on('pointerout', () => {
+                guestButtonBg.clear();
+                guestButtonBg.fillStyle(0x66cc66, 1);
+                guestButtonBg.fillRoundedRect(
+                    rectX - buttonWidth / 2,
+                    buttonY - buttonHeight / 2 + 60,
+                    buttonWidth,
+                    buttonHeight,
+                    cornerRadius
+                );
+            })
+            .on('pointerdown', () => {
+                localStorage.removeItem('username');
+                localStorage.removeItem('userData');
+                localStorage.removeItem('profilePic');
+                
+                username.remove();
+                password.remove();
+                this.scene.start('LabScene');
+            });
+
         this.events.once('shutdown', () => {
             username.remove();
             password.remove();
