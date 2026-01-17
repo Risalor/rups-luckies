@@ -9,8 +9,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
 
     init() {
         this.logicCircuit = new LogicCircuit();
-        //const savedIndex = localStorage.getItem('currentChallengeIndex');
-        this.currentChallengeIndex = 0;//savedIndex !== null ? parseInt(savedIndex) : 0;
+        this.currentChallengeIndex = 0;
     }
 
     preload() {
@@ -55,6 +54,24 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         types.forEach(t => {
             this.createComponent(panelWidth / 2, y, t.key, t.label);
             y += 80;
+        });
+
+        this.timerActive = false;
+        this.timerCountdown = 15;
+        this.timerText = this.add.text(width - 100, 20, `Time: ${this.timerCountdown}`, { 
+            fontSize: '24px', 
+            color: '#ff0000',
+            fontStyle: 'bold',
+            backgroundColor: '#000000',
+            padding: { x: 10, y: 5 }
+        }).setOrigin(0.5).setDepth(1000);
+        
+        this.timerEvent = this.time.addEvent({
+            delay: 1000,
+            callback: this.updateTimer,
+            callbackScope: this,
+            loop: true,
+            paused: true
         });
 
         this.checkText = this.add.text(width / 2, height - 70, '', { fontSize: '18px', color: '#000000', fontStyle: 'bold', padding: { x: 15, y: 8 } }).setOrigin(0.5);
@@ -120,6 +137,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
     };
 
     this.currentTaskIndex = getRandomTaskIndex();
+    this.startTimer();
 
     const taskBoxWidth = Math.min(420, width - panelWidth - 80);
     const taskBoxHeight = 80;
@@ -187,14 +205,14 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             return button;
         };
 
-        makeButton(width - 140, 75, 'Lestvica', () => this.scene.start('ScoreboardScene'));
+        //makeButton(width - 140, 75, 'Lestvica', () => this.scene.start('ScoreboardScene'));
         makeButton(width - 140, 125, 'Preveri', () => {
             this._suppressCheckTextClear = true;
             this._suppressCheckTextClearUntil = Date.now() + 3000;
             this.time.delayedCall(3000, () => { this._suppressCheckTextClear = false; this._suppressCheckTextClearUntil = 0; });
             this.evaluateCircuit();
         });
-        makeButton(width - 140, 175, 'Reset', () => this.resetWorkspace());
+        //makeButton(width - 140, 175, 'Reset', () => this.resetWorkspace());
 
         const backButton = this.add.text(Math.round(panelWidth / 2), 20, '↩ Nazaj', { fontFamily: 'Arial', fontSize: '20px', color: '#387affff', padding: { x: 20, y: 10 } })
             .setOrigin(0.5, 0.5)
@@ -223,6 +241,53 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             this.updatePreviewLine();
             this.updateCircuitEvaluation();
         });
+    }
+
+        startTimer() {
+        this.timerCountdown = 15;
+        this.timerText.setText(`Time: ${this.timerCountdown}`);
+        this.timerText.setColor('#00ff00');
+        
+        if (this.timerEvent) {
+            this.timerEvent.paused = false;
+        }
+        
+        this.timerActive = true;
+    }
+
+    stopTimer() {
+        this.timerActive = false;
+        if (this.timerEvent) {
+            this.timerEvent.paused = true;
+        }
+    }
+
+    resetTimer() {
+        this.timerCountdown = 15;
+        this.timerText.setText(`Time: ${this.timerCountdown}`);
+        this.timerText.setColor('#ff0000');
+    }
+
+    updateTimer() {
+        if (!this.timerActive) return;
+        
+        this.timerCountdown--;
+        this.timerText.setText(`Time: ${this.timerCountdown}`);
+        
+        if (this.timerCountdown <= 5) {
+            this.timerText.setColor('#ff0000');
+        } else if (this.timerCountdown <= 10) {
+            this.timerText.setColor('#ff9900');
+        } else {
+            this.timerText.setColor('#00ff00');
+        }
+        
+        if (this.timerCountdown <= 0) {
+            console.log("failed");
+            this.stopTimer();
+            
+            this.showStatus('Čas je potekel! Naloga ni bila rešena v danem času.', '#ff0000', 3000);
+        }
     }
 
     updatePreviewLine() {
