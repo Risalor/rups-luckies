@@ -9,8 +9,8 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
 
     init() {
         this.logicCircuit = new LogicCircuit();
-        const savedIndex = localStorage.getItem('currentChallengeIndex');
-        this.currentChallengeIndex = savedIndex !== null ? parseInt(savedIndex) : 0;
+        //const savedIndex = localStorage.getItem('currentChallengeIndex');
+        this.currentChallengeIndex = 0;//savedIndex !== null ? parseInt(savedIndex) : 0;
     }
 
     preload() {
@@ -30,26 +30,15 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         this.input.mouse.disableContextMenu();
 
         const { width, height } = this.cameras.main;
-
-        // ensure grid size is available before drawing
         this.gridSize = 40;
-        // round rendering to integer pixels to avoid blurry text/sprites
         this.cameras.main.roundPixels = true;
-
-        // background and grid (match workspaceScene look)
         this.add.rectangle(0, 0, width, height, 0xe0c9a6).setOrigin(0);
         this.createGrid();
-
-    // info window removed — hover tooltips intentionally disabled
-
-        // sidebar (styled like workspaceScene)
         const panelWidth = 200;
         this.add.rectangle(0, 0, panelWidth, height, 0xc0c0c0).setOrigin(0);
         this.add.rectangle(0, 0, panelWidth, height, 0x000000, 0.2).setOrigin(0);
-        // larger title positioned to avoid overlap with Nazaj
         this.add.text(panelWidth / 2, 60, 'Logični elementi', { fontSize: '20px', color: '#ffffff', fontStyle: 'bold' }).setOrigin(0.5);
 
-        // gate list
         const types = [
             { key: 'input', label: 'INPUT' },
             { key: 'and', label: 'AND' },
@@ -62,27 +51,21 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             { key: 'bulb', label: 'OUTPUT' }
         ];
 
-        // move sprites down a bit so they don't overlap the title
         let y = 140;
         types.forEach(t => {
             this.createComponent(panelWidth / 2, y, t.key, t.label);
             y += 80;
         });
 
-        // controls (use same button style as WorkspaceScene)
-        // bottom status text: always black for readability
         this.checkText = this.add.text(width / 2, height - 70, '', { fontSize: '18px', color: '#000000', fontStyle: 'bold', padding: { x: 15, y: 8 } }).setOrigin(0.5);
-        // override setText to allow suppressing only clears (empty-string sets)
         this._origCheckTextSet = this.checkText.setText.bind(this.checkText);
         this._suppressCheckTextClear = false;
         this._suppressCheckTextClearUntil = 0;
         this._checkTextTimer = null;
-        // helper to show a status line with color and auto-clear that respects suppression window
         this.showStatus = (text, color = '#000000', holdMs = 2000) => {
             try { if (this._checkTextTimer && this._checkTextTimer.remove) this._checkTextTimer.remove(false); } catch (e) {}
             try { this.checkText.setStyle({ color }); } catch (e) {}
             try { this._origCheckTextSet(text); } catch (e) {}
-            // compute delay: if suppression-until exists and is in future, ensure we hold until then
             let delay = holdMs;
             try {
                 if (this._suppressCheckTextClearUntil && this._suppressCheckTextClearUntil > Date.now()) {
@@ -101,35 +84,43 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         this.checkText.setText = (txt) => {
             try {
                 if (txt === '' && this._suppressCheckTextClear) {
-                    // ignore clears while suppression active
                     return this.checkText;
                 }
-            } catch (e) { /* ignore */ }
+            } catch (e) {  }
             return this._origCheckTextSet(txt), this.checkText;
         };
 
-    // track used numeric indices for Inputs and Bulbs so we can reuse freed numbers
     this.inputIndices = new Set();
     this.bulbIndices = new Set();
 
-        // Tasks for logic gates workspace (simple progression)
-        this.tasks = [
-            { id: 'and_task', prompt: 'Naloga 1: Poveži AND z OUTPUT (preveri osnovna AND vrata).', gateType: 'AND', points: 10, completed: false },
-            { id: 'or_task', prompt: 'Naloga 2: Poveži OR z OUTPUT (preveri osnovna OR vrata).', gateType: 'OR', points: 10, completed: false },
-            { id: 'not_task', prompt: 'Naloga 3: Poveži NOT z OUTPUT (preveri negacijo).', gateType: 'NOT', points: 10, completed: false },
-            { id: 'nand_task', prompt: 'Naloga 4: Poveži NAND z OUTPUT.', gateType: 'NAND', points: 10, completed: false },
-            { id: 'nor_task', prompt: 'Naloga 5: Poveži NOR z OUTPUT.', gateType: 'NOR', points: 10, completed: false },
-            { id: 'xor_task', prompt: 'Naloga 6: Poveži XOR z OUTPUT.', gateType: 'XOR', points: 10, completed: false },
-            { id: 'xnor_task', prompt: 'Naloga 7: Poveži XNOR z OUTPUT.', gateType: 'XNOR', points: 10, completed: false },
-            // mixed tasks: specify arrays [childA, childB, top] meaning: Bulb <- top gate whose inputs include childA and childB
-            { id: 'mix_1', prompt: 'Naloga 8: Naredi vezje: OUTPUT poveži na XOR; XOR naj ima vhoda AND in OR.', gateType: ['AND','OR','XOR'], points: 20, completed: false },
-            { id: 'mix_2', prompt: 'Naloga 9: Naredi vezje: OUTPUT poveži na OR; OR naj ima vhoda NAND in NOR.', gateType: ['NAND','NOR','OR'], points: 20, completed: false },
-            { id: 'mix_3', prompt: 'Naloga 10: Naredi vezje: OUTPUT poveži na XNOR; XNOR naj ima vhoda AND in XOR.', gateType: ['AND','XOR','XNOR'], points: 20, completed: false }
-        ];
-        const savedTaskIndex = localStorage.getItem('logicTasksIndex');
-        this.currentTaskIndex = savedTaskIndex !== null ? parseInt(savedTaskIndex) : 0;
+    this.tasks = [
+        { id: 'and_task', prompt: 'Naloga 1: Poveži AND z OUTPUT (preveri osnovna AND vrata).', gateType: 'AND', points: 10, completed: false },
+        { id: 'or_task', prompt: 'Naloga 2: Poveži OR z OUTPUT (preveri osnovna OR vrata).', gateType: 'OR', points: 10, completed: false },
+        { id: 'not_task', prompt: 'Naloga 3: Poveži NOT z OUTPUT (preveri negacijo).', gateType: 'NOT', points: 10, completed: false },
+        { id: 'nand_task', prompt: 'Naloga 4: Poveži NAND z OUTPUT.', gateType: 'NAND', points: 10, completed: false },
+        { id: 'nor_task', prompt: 'Naloga 5: Poveži NOR z OUTPUT.', gateType: 'NOR', points: 10, completed: false },
+        { id: 'xor_task', prompt: 'Naloga 6: Poveži XOR z OUTPUT.', gateType: 'XOR', points: 10, completed: false },
+        { id: 'xnor_task', prompt: 'Naloga 7: Poveži XNOR z OUTPUT.', gateType: 'XNOR', points: 10, completed: false },
+        { id: 'mix_1', prompt: 'Naloga 8: Naredi vezje: OUTPUT poveži na XOR; XOR naj ima vhoda AND in OR.', gateType: ['AND','OR','XOR'], points: 20, completed: false },
+        { id: 'mix_2', prompt: 'Naloga 9: Naredi vezje: OUTPUT poveži na OR; OR naj ima vhoda NAND in NOR.', gateType: ['NAND','NOR','OR'], points: 20, completed: false },
+        { id: 'mix_3', prompt: 'Naloga 10: Naredi vezje: OUTPUT poveži na XNOR; XNOR naj ima vhoda AND in XOR.', gateType: ['AND','XOR','XNOR'], points: 20, completed: false }
+    ];
+        
+    const getRandomTaskIndex = () => {
+        const uncompletedTasks = this.tasks.filter(task => !task.completed);
+        
+        if (uncompletedTasks.length === 0) {
+            return Math.floor(Math.random() * this.tasks.length);
+        }
+        
+        const randomIndexInUncompleted = Math.floor(Math.random() * uncompletedTasks.length);
+        const randomTask = uncompletedTasks[randomIndexInUncompleted];
+        
+        return this.tasks.findIndex(task => task.id === randomTask.id);
+    };
 
-    // Task UI tab (persistent until task completed)
+    this.currentTaskIndex = getRandomTaskIndex();
+
     const taskBoxWidth = Math.min(420, width - panelWidth - 80);
     const taskBoxHeight = 80;
     const taskBoxX = panelWidth + 20;
@@ -148,7 +139,6 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             const hoverColor = 0x0f5cad;
             const activeColor = opts.activeColor || null;
 
-            // helper: draw the rounded rect background
             const drawBg = (color) => {
                 bg.clear();
                 bg.fillStyle(color, 1);
@@ -159,7 +149,6 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
 
             const button = { bg, active: false, activeColor };
 
-            // helper to produce a slightly darker/lighter shade of a hex color (number)
             const shadeColor = (hex, factor) => {
                 if (hex == null) return null;
                 const h = typeof hex === 'number' ? hex : parseInt(hex);
@@ -169,20 +158,15 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                 return (r << 16) | (g << 8) | b;
             };
 
-            // compute a hover shade for activeColor (slightly darker)
             const activeHoverColor = activeColor ? shadeColor(activeColor, 0.85) : null;
-
-            // Create an invisible interactive zone that covers the entire button
             const hitZone = this.add.zone(x, y, buttonWidth, buttonHeight)
                 .setOrigin(0.5)
                 .setInteractive({ useHandCursor: true })
                 .on('pointerover', () => {
-                    // always show a hover effect; if active, use the activeHoverColor when available
                     const hover = (button.active && button.activeColor) ? (activeHoverColor || hoverColor) : hoverColor;
                     drawBg(hover);
                 })
                 .on('pointerout', () => {
-                    // when leaving, restore active color if active, otherwise the default
                     drawBg(button.active && button.activeColor ? button.activeColor : defaultColor);
                 })
                 .on('pointerdown', () => {
@@ -205,10 +189,8 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
 
         makeButton(width - 140, 75, 'Lestvica', () => this.scene.start('ScoreboardScene'));
         makeButton(width - 140, 125, 'Preveri', () => {
-            // temporarily suppress clears to keep completion text visible
             this._suppressCheckTextClear = true;
             this._suppressCheckTextClearUntil = Date.now() + 3000;
-            // release suppression after a short grace period
             this.time.delayedCall(3000, () => { this._suppressCheckTextClear = false; this._suppressCheckTextClearUntil = 0; });
             this.evaluateCircuit();
         });
@@ -220,28 +202,23 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             .on('pointerover', () => backButton.setStyle({ color: '#0054fdff' }))
             .on('pointerout', () => backButton.setStyle({ color: '#387affff' }))
             .on('pointerdown', () => {
-                // reset workspace counters and state when leaving
-                try { this.resetWorkspace(); } catch (e) { /* ignore */ }
+                try { this.resetWorkspace(); } catch (e) { }
                 this.cameras.main.fade(300, 0, 0, 0);
                 this.time.delayedCall(300, () => { this.scene.start('LabScene'); });
             });
 
-        // placement state
         this.placedComponents = [];
-        this.connections = []; // { fromId, toId, gfx }
-        this.connectingPin = null; // { pinObject, container, isOutput }
-        this.previewLine = null; // Graphics for preview line while connecting
+        this.connections = [];
+        this.connectingPin = null;
+        this.previewLine = null;
         this.gridSize = 40;
-        // store grid start to align exactly with the sidebar width so grid touches it
         this.gridStartX = panelWidth;
 
-        // Real-time circuit evaluation state
         this.lastEvaluationTime = 0;
-        this.evaluationThrottle = 50; // Evaluate at most every 50ms
-        this.pinTooltip = null; // Current tooltip object
-        this.pinTooltipTimer = null; // Timer for showing tooltip
+        this.evaluationThrottle = 50;
+        this.pinTooltip = null;
+        this.pinTooltipTimer = null;
 
-        // Add update handler for continuous connection updates during drag and real-time evaluation
         this.events.on('update', () => {
             this.updatePreviewLine();
             this.updateCircuitEvaluation();
@@ -249,13 +226,11 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
     }
 
     updatePreviewLine() {
-        // Update the preview line from selected pin to cursor
         if (!this.connectingPin) {
             if (this.previewLine) {
                 this.previewLine.destroy();
                 this.previewLine = null;
             }
-            // Also update all connection lines when gates move
             if (this.placedComponents && this.placedComponents.length > 0) {
                 this.placedComponents.forEach(c => {
                     if (c.getData('isDragging')) {
@@ -266,7 +241,6 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             return;
         }
 
-        // Draw preview line from selected pin to cursor
         const { pinObject, container } = this.connectingPin;
         const pointer = this.input.activePointer;
         
@@ -290,14 +264,11 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
     }
 
     updateCircuitEvaluation() {
-        // Throttle circuit evaluation to avoid excessive re-computation
         const now = Date.now();
         if (now - this.lastEvaluationTime < this.evaluationThrottle) {
             return;
         }
         this.lastEvaluationTime = now;
-
-        // Evaluate the circuit
         try {
             if (this.logicCircuit && typeof this.logicCircuit.evaluate === 'function') {
                 this.logicCircuit.evaluate();
@@ -306,7 +277,6 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             //console.error('Circuit evaluation error:', e);
         }
 
-        // Update bulb labels with real-time status
         try {
             (this.placedComponents || []).forEach(c => {
                 if (c.getData('isBulb')) {
@@ -319,25 +289,19 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                     }
                 }
             });
-        } catch (e) {
-            // ignore visual update errors
-        }
+        } catch (e) { }
     }
 
     showPinTooltip(pin, container, isOutput) {
-        // Show a tooltip displaying the pin's current state
         this.hidePinTooltip();
 
         try {
             const gate = container.getData('logicGate');
             if (!gate) return;
-
-            // Get the pin's state
             let pinValue = false;
             if (isOutput) {
                 pinValue = !!gate.getOutput();
             } else {
-                // For input pins, we can show the input value or source value
                 const inputPins = container.getData('inputPins') || [];
                 const pinIndex = inputPins.indexOf(pin);
                 if (pinIndex >= 0) {
@@ -345,12 +309,8 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                     pinValue = inputGate ? !!inputGate.getOutput() : false;
                 }
             }
-
-            // Get pin world position
             const pinWorldX = container.x + pin.x;
             const pinWorldY = container.y + pin.y;
-
-            // Create tooltip graphics and text
             const tooltipBg = this.add.rectangle(pinWorldX, pinWorldY - 25, 80, 30, 0x000000, 0.9)
                 .setStrokeStyle(2, 0xffffff)
                 .setOrigin(0.5)
@@ -365,20 +325,15 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                 .setDepth(1001);
 
             this.pinTooltip = { bg: tooltipBg, text: tooltipText };
-        } catch (e) {
-            // ignore tooltip errors
-        }
+        } catch (e) {}
     }
 
     hidePinTooltip() {
-        // Hide the current pin tooltip
         if (this.pinTooltip) {
             try {
                 if (this.pinTooltip.bg && this.pinTooltip.bg.destroy) this.pinTooltip.bg.destroy();
                 if (this.pinTooltip.text && this.pinTooltip.text.destroy) this.pinTooltip.text.destroy();
-            } catch (e) {
-                // ignore
-            }
+            } catch (e) {}
             this.pinTooltip = null;
         }
     }
@@ -406,7 +361,6 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
     }
 
     cancelConnection() {
-        // Cancel the current connection attempt and clear highlight
         if (this.connectingPin) {
             const { pinObject, container } = this.connectingPin;
             if (pinObject && pinObject.setStrokeStyle) {
@@ -415,7 +369,6 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             this.connectingPin = null;
             this._origCheckTextSet('');
         }
-        // Clear preview line
         if (this.previewLine) {
             this.previewLine.destroy();
             this.previewLine = null;
@@ -423,15 +376,12 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
     }
 
     completeConnection(targetPin, targetContainer, targetIsOutput) {
-        // Attempt to complete a connection from this.connectingPin to target pin
         if (!this.connectingPin) return;
 
         const source = this.connectingPin;
         const sourcePin = source.pinObject;
         const sourceContainer = source.container;
         const sourceIsOutput = source.isOutput;
-
-        // Validate connection logic
         const sourceId = sourceContainer.getData('gateId');
         const targetId = targetContainer.getData('gateId');
         const sourceType = sourceContainer.getData('type');
@@ -443,7 +393,6 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             return;
         }
 
-        // Cannot connect output to output or input to input
         if (sourceIsOutput === targetIsOutput) {
             this.checkText.setText('Ne morete povezati ' + (sourceIsOutput ? 'dveh izhodov' : 'dveh vhodov'));
             this.time.delayedCall(1200, () => this._origCheckTextSet(''));
@@ -451,23 +400,19 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             return;
         }
 
-        // Determine which is source and which is target
         let finalSourceId, finalTargetId, toPinIndex = 0;
         if (sourceIsOutput) {
-            // Source is output, target is input
             finalSourceId = sourceId;
             finalTargetId = targetId;
             const targetPins = targetContainer.getData('inputPins') || [];
             toPinIndex = targetPins.indexOf(targetPin);
         } else {
-            // Source is input (shouldn't be the case but handle it)
             finalSourceId = targetId;
             finalTargetId = sourceId;
             const targetPins = sourceContainer.getData('inputPins') || [];
             toPinIndex = targetPins.indexOf(sourcePin);
         }
 
-        // Prevent connecting input gates to each other
         if (sourceType === 'input' && targetType === 'input') {
             this.checkText.setText('Ne morete povezati dveh INPUT vrat');
             this.time.delayedCall(1200, () => this._origCheckTextSet(''));
@@ -475,7 +420,6 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             return;
         }
 
-        // Check if input is already occupied
         const targetGateObj = this.logicCircuit.getGate(finalTargetId);
         if (targetGateObj && targetGateObj.inputGates[toPinIndex]) {
             this.checkText.setText('Ta vhod je že zaseden');
@@ -484,19 +428,16 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             return;
         }
 
-        // Attempt connection
         let ok = false;
         try {
             ok = this.logicCircuit.connectGatesWithIndex(finalSourceId, finalTargetId, toPinIndex);
         } catch (err) {
-            //console.error('connectWithIndex error', err);
             ok = false;
         }
 
         if (ok) {
             this.checkText.setText('Povezano');
             
-            // Draw connection line
             const fromPin = sourceIsOutput ? sourcePin : targetPin;
             const toPin = sourceIsOutput ? targetPin : sourcePin;
             const fromContainer = sourceIsOutput ? sourceContainer : targetContainer;
@@ -515,7 +456,6 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             gfx.strokePath();
             gfx.setDepth(10);
 
-            // Add hit zone for removal
             const dx = toX - fromX;
             const dy = toY - fromY;
             const dist = Math.hypot(dx, dy);
@@ -527,7 +467,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                     const srcGate = this.logicCircuit.getGate(finalSourceId);
                     const dstGate = this.logicCircuit.getGate(finalTargetId);
                     if (srcGate && dstGate) srcGate.disconnectFrom(dstGate);
-                } catch (e) { /* ignore */ }
+                } catch (e) { }
                 try { gfx.destroy(); } catch (e) {}
                 try { hit.destroy(); } catch (e) {}
                 this.connections = this.connections.filter(c => !(c.fromId === finalSourceId && c.toId === finalTargetId && c.toPinIndex === toPinIndex));
@@ -544,11 +484,10 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
     }
 
     setupInputOutputPins(container, type, labelText, img) {
-        // INPUT/OUTPUT PINS setup
         const pinRadius = 6;
-        const inputPinColor = 0xff6600;   // Orange for input pins
-        const outputPinColor = 0x00ff00;  // Green for output pins
-        const highlightColor = 0xffff00;  // Yellow for highlighted pins
+        const inputPinColor = 0xff6600;
+        const outputPinColor = 0x00ff00;
+        const highlightColor = 0xffff00;
         
         let maxInputs = 2;
         if (type === 'not' || type === 'bulb') maxInputs = 1;
@@ -566,7 +505,6 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                 inPin.on('pointerdown', (pointer, localX, localY, event) => {
                     if (event && event.stopPropagation) event.stopPropagation();
                     
-                    // If no pin is selected, select this one
                     if (!this.connectingPin) {
                         this.connectingPin = { pinObject: inPin, container, isOutput: false };
                         inPin.setStrokeStyle(3, highlightColor);
@@ -574,17 +512,14 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                         return;
                     }
 
-                    // If this pin is already selected, deselect it
                     if (this.connectingPin.pinObject === inPin) {
                         this.cancelConnection();
                         return;
                     }
 
-                    // Try to complete connection to this input pin
                     this.completeConnection(inPin, container, false);
                 });
 
-                // Add hover handlers for pin state tooltip
                 inPin.on('pointerover', () => {
                     this.showPinTooltip(inPin, container, false);
                 });
@@ -595,8 +530,6 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                 inputPins.push(inPin);
             }
         }
-
-        // output pin (for all gates except bulb — bulbs are terminals with only inputs)
         let outputPin = container.getData('outputPin') || null;
         if (type !== 'bulb' && !outputPin) {
             outputPin = this.add.circle(36, 0, pinRadius, outputPinColor).setStrokeStyle(2, 0xffffff).setOrigin(0.5);
@@ -604,25 +537,19 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             outputPin.on('pointerdown', (pointer, localX, localY, event) => {
                 if (event && event.stopPropagation) event.stopPropagation();
                 
-                // If no pin is selected, select this one
                 if (!this.connectingPin) {
                     this.connectingPin = { pinObject: outputPin, container, isOutput: true };
                     outputPin.setStrokeStyle(3, highlightColor);
                     this.checkText.setText('Izberi vhod za povezavo');
                     return;
                 }
-
-                // If this pin is already selected, deselect it
                 if (this.connectingPin.pinObject === outputPin) {
                     this.cancelConnection();
                     return;
                 }
-
-                // Try to complete connection from this output pin
                 this.completeConnection(outputPin, container, true);
             });
 
-            // Add hover handlers for pin state tooltip
             outputPin.on('pointerover', () => {
                 this.showPinTooltip(outputPin, container, true);
             });
@@ -638,7 +565,6 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
 
     createComponent(x, y, type, labelText) {
         const container = this.add.container(x, y);
-        // panel items default depth so connections draw above the grid but below placed gates
         container.setDepth(5);
 
         var size = 80;
@@ -657,7 +583,6 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
 
         const img = this.add.image(0, 0, textureName).setDisplaySize(size, size).setOrigin(0.5);
         container.add(img);
-        // keep a reference to the image for easy updates (tint/texture)
         container.setData('img', img);
 
         const label = this.add.text(0, 36, labelText || type, { fontSize: '12px', color: '#fff', backgroundColor: '#00000088', padding: { x: 4, y: 2 } }).setOrigin(0.5);
@@ -665,16 +590,12 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
 
         container.setSize(64, 64);
         container.setInteractive({ draggable: true, useHandCursor: true });
-
-        // store meta
         container.setData('originalX', x);
         container.setData('originalY', y);
         container.setData('type', type);
         container.setData('isInPanel', true);
 
         this.input.setDraggable(container);
-
-        // hover handlers removed — no tooltip or hover box
         container.on('pointerover', () => {});
         container.on('pointerout', () => {});
 
@@ -683,16 +604,13 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         container.on('drag', (pointer, dragX, dragY) => { 
             container.x = dragX; 
             container.y = dragY;
-            // Update connection lines in real-time while dragging
             this.updateConnectionsForGate(container.getData('gateId'));
         });
 
-        // Add right-click handler for deletion
         container.on('pointerdown', (pointer) => {
-            if (pointer.button === 2) { // Right-click (button 2)
+            if (pointer.button === 2) {
                 const gateId = container.getData('gateId');
                 if (gateId && !container.getData('isInPanel')) {
-                    // Only delete if it's a placed gate (not in panel)
                     this.deleteGate(container, gateId);
                 }
             }
@@ -701,31 +619,25 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         container.on('dragend', () => {
             const isInPanel = container.x < (this.gridStartX || 200);
             if (isInPanel && !container.getData('isInPanel')) {
-                // moved back into the sidebar: remove the placed gate and any connections
                 const gateId = container.getData('gateId');
 
-                // if this was the currently selected connecting source, clear it
                 if (this.connectingSource === container) this.connectingSource = null;
 
-                // remove any connection graphics that reference this gate
                 try {
                     this.connections = this.connections.filter(conn => {
                         if (conn.fromId === gateId || conn.toId === gateId) {
-                            try { if (conn.gfx) conn.gfx.destroy(); } catch (e) { /* ignore */ }
-                            try { if (conn.hitZone) conn.hitZone.destroy(); } catch (e) { /* ignore */ }
-                            return false; // remove this connection from the array
+                            try { if (conn.gfx) conn.gfx.destroy(); } catch (e) { }
+                            try { if (conn.hitZone) conn.hitZone.destroy(); } catch (e) { }
+                            return false;
                         }
                         return true;
                     });
-                } catch (e) { /* ignore */ }
+                } catch (e) { }
 
-                // remove the gate from the logic circuit (disconnects underlying links)
-                try { if (this.logicCircuit && typeof this.logicCircuit.removeGate === 'function') this.logicCircuit.removeGate(gateId); } catch (e) { /* ignore */ }
+                try { if (this.logicCircuit && typeof this.logicCircuit.removeGate === 'function') this.logicCircuit.removeGate(gateId); } catch (e) { }
 
-                // remove from placedComponents list
-                try { this.placedComponents = this.placedComponents.filter(c => c !== container); } catch (e) { /* ignore */ }
+                try { this.placedComponents = this.placedComponents.filter(c => c !== container); } catch (e) { }
 
-                // free any used numeric index for inputs/bulbs
                 try {
                     const name = container.getData('displayName');
                     const idx = container.getData('displayIndex');
@@ -736,14 +648,13 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                     if (t === 'bulb' && typeof idx === 'number') {
                         try { this.bulbIndices.delete(idx); } catch (e) {}
                     }
-                } catch (e) { /* ignore */ }
+                } catch (e) { }
 
                 container.destroy();
             } else if (!isInPanel && container.getData('isInPanel')) {
                 const snapped = this.snapToGrid(container.x, container.y);
                 container.x = snapped.x; container.y = snapped.y;
 
-                // create logic gate in the circuit
                 const id = `${type}_${this.getRandomInt(1000, 9999)}`;
                 let gateType = null;
                 switch (type) {
@@ -790,19 +701,16 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                 container.setData('isInPanel', false);
                 container.setDepth(20);
 
-                // Setup input and output pins
                 this.setupInputOutputPins(container, type, labelText, img);
 
                 this.placedComponents.push(container);
 
-                // create a new panel copy
                 this.createComponent(container.getData('originalX'), container.getData('originalY'), container.getData('type'), labelText);
 
             } else if (!container.getData('isInPanel')) {
                 const snapped = this.snapToGrid(container.x, container.y);
                 container.x = snapped.x; container.y = snapped.y;
 
-                // update any connection lines that reference this gate
                 this.updateConnectionsForGate(container.getData('gateId'));
             } else {
                 container.x = container.getData('originalX'); container.y = container.getData('originalY');
@@ -814,7 +722,6 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         container.on('pointerdown', (pointer) => {
             if (container.getData('isInPanel')) return;
 
-            // double-click detection for input gates to toggle value
             const now = Date.now();
             const last = container.getData('lastClick') || 0;
             if (now - last < 300) {
@@ -841,10 +748,8 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
     }
 
     evaluateCircuit() {
-        // compute only end gates (those without outputs) and show their outputs
         const resultsFull = this.logicCircuit.evaluate();
         const endResults = {};
-        // logicCircuit.gates is a Map
         if (this.logicCircuit && this.logicCircuit.gates) {
             for (const [id, gate] of this.logicCircuit.gates) {
                 if (!gate.outputGates || gate.outputGates.length === 0) {
@@ -852,9 +757,6 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                 }
             }
         }
-
-        // Build a simple bulb output summary (only bulbs) — use displayed names when possible
-        // We'll derive bulb outputs from placedComponents so we can show "Bulb1: true" etc.
         const bulbEntries = [];
         try {
             (this.placedComponents || []).forEach(c => {
@@ -866,11 +768,8 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                     bulbEntries.push(`${name}: ${val ? 'true' : 'false'}`);
                 }
             });
-        } catch (e) {
-            // ignore
-        }
+        } catch (e) { }
 
-        // Update bulb labels with status (no coloring)
         try {
             this.placedComponents.forEach(c => {
                 if (c.getData('isBulb')) {
@@ -883,21 +782,16 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                     }
                 }
             });
-        } catch (e) {
-            // ignore visual update errors
-        }
+        } catch (e) { }
 
-        // Check current task completion (structural check)
         let taskCompleted = false;
         try {
             taskCompleted = this.checkCurrentTaskCompletion();
-        } catch (e) { /* ignore */ }
+        } catch (e) { }
 
-    // Show concise bulb outputs and task status
     const statusText = bulbEntries.length > 0 ? `OUTPUT values: ${bulbEntries.join(', ')}` : 'No OUTPUT present';
 
         if (taskCompleted && this.tasks && this.tasks[this.currentTaskIndex] && !this.tasks[this.currentTaskIndex].completed) {
-            // award points and mark completed, then advance after a short delay
             this.tasks[this.currentTaskIndex].completed = true;
             this.addPoints(this.tasks[this.currentTaskIndex].points);
             this.showStatus(`${statusText} — Naloga opravljena! (+${this.tasks[this.currentTaskIndex].points})`, '#00aa00', 2000);
@@ -906,24 +800,19 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             const taskMsg = (this.tasks && this.tasks[this.currentTaskIndex] && this.tasks[this.currentTaskIndex].completed) ? 'Naloga opravljena!' : 'Naloga ni opravljena';
             const color = (taskMsg === 'Naloga opravljena!') ? '#00aa00' : '#cc0000';
             this.showStatus(`${statusText} — ${taskMsg}`, color, 2000);
-            // reset color to black and clear text after a short delay (respect suppression)
             try { this.time.delayedCall(2000, () => { try { this._origCheckTextSet(''); this.checkText.setStyle({ color: '#000000' }); } catch (e) {} }); } catch (e) {}
         }
     }
 
     checkCurrentTaskCompletion() {
-        // return boolean: true if current task completed, false otherwise
         if (!this.tasks || this.currentTaskIndex == null) return false;
         const task = this.tasks[this.currentTaskIndex];
         if (!task) return false;
 
-        // ensure gate outputs are up-to-date before checking
-        try { if (this.logicCircuit && typeof this.logicCircuit.evaluate === 'function') this.logicCircuit.evaluate(); } catch (e) { /* ignore */ }
+        try { if (this.logicCircuit && typeof this.logicCircuit.evaluate === 'function') this.logicCircuit.evaluate(); } catch (e) { }
 
-        // we look for a bulb (LIGHT) whose evaluated output is true and whose input structure matches the task requirement
         for (const [id, gate] of this.logicCircuit.gates) {
             if (gate.operation !== 'LIGHT') continue;
-            // require the bulb to evaluate to true for a task to be considered complete
             let bulbVal = false;
             try { bulbVal = !!(gate && gate.getOutput && gate.getOutput()); } catch (e) { bulbVal = false; }
             if (!bulbVal) continue;
@@ -931,11 +820,9 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             const src = gate.inputGates[0];
             if (!src) continue;
 
-            // support task.gateType as string (single gate) or array (composed requirement)
             if (typeof task.gateType === 'string') {
                 if (src.operation === task.gateType) {
                     const numInputs = src.inputGates ? src.inputGates.filter(Boolean).length : 0;
-                    // for NOT/BUFFER we don't require >=1 (they naturally have 1), for other gates ensure at least one input exists
                     const okStructure = (task.gateType === 'NOT' || task.gateType === 'BUFFER') ? true : (numInputs >= 1);
                     if (okStructure) {
                         task.completed = true;
@@ -988,10 +875,8 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             this.taskText.setText(this.tasks[this.currentTaskIndex].prompt);
         } else {
             this.taskText.setText('Vse naloge opravljene! Bravo!');
-            // award a small completion bonus and show a congratulatory message
             this.showStatus('Čestitke! Vse naloge opravljene!', '#00aa00', 3000);
             try { this.addPoints(20); } catch (e) {}
-            // clear saved index
             localStorage.removeItem('logicTasksIndex');
         }
     }
@@ -1007,20 +892,16 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
     }
 
     resetWorkspace() {
-        // destroy placed components
         this.placedComponents.forEach(c => c.destroy());
         this.placedComponents = [];
-        // destroy connection graphics
         if (this.connections && this.connections.length > 0) {
             this.connections.forEach(conn => {
-                try { if (conn.gfx) conn.gfx.destroy(); } catch (e) { /* ignore */ }
-                try { if (conn.hitZone) conn.hitZone.destroy(); } catch (e) { /* ignore */ }
+                try { if (conn.gfx) conn.gfx.destroy(); } catch (e) { }
+                try { if (conn.hitZone) conn.hitZone.destroy(); } catch (e) { }
             });
         }
         this.connections = [];
-        // reset logic circuit
         this.logicCircuit = new LogicCircuit();
-        // reset placement index trackers
         try { this.inputIndices = new Set(); } catch (e) {}
         try { this.bulbIndices = new Set(); } catch (e) {}
         this._origCheckTextSet('Workspace reset');
@@ -1028,29 +909,24 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
     }
 
     deleteGate(container, gateId) {
-        // Delete a placed gate and all its connections
         try {
-            // Remove any connection graphics that reference this gate
             this.connections = this.connections.filter(conn => {
                 if (conn.fromId === gateId || conn.toId === gateId) {
-                    try { if (conn.gfx) conn.gfx.destroy(); } catch (e) { /* ignore */ }
-                    try { if (conn.hitZone) conn.hitZone.destroy(); } catch (e) { /* ignore */ }
-                    return false; // remove this connection from the array
+                    try { if (conn.gfx) conn.gfx.destroy(); } catch (e) { }
+                    try { if (conn.hitZone) conn.hitZone.destroy(); } catch (e) { }
+                    return false;
                 }
                 return true;
             });
 
-            // Remove the gate from the logic circuit
             try {
                 if (this.logicCircuit && typeof this.logicCircuit.removeGate === 'function') {
                     this.logicCircuit.removeGate(gateId);
                 }
-            } catch (e) { /* ignore */ }
+            } catch (e) { }
 
-            // Remove from placedComponents list
             this.placedComponents = this.placedComponents.filter(c => c !== container);
 
-            // Free any used numeric index for inputs/bulbs
             try {
                 const idx = container.getData('displayIndex');
                 const t = container.getData('type');
@@ -1060,31 +936,25 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                 if (t === 'bulb' && typeof idx === 'number') {
                     this.bulbIndices.delete(idx);
                 }
-            } catch (e) { /* ignore */ }
+            } catch (e) { }
 
-            // Cancel any active connection involving this gate
             if (this.connectingPin && (this.connectingPin.container === container)) {
                 this.cancelConnection();
             }
 
-            // Destroy the container
             container.destroy();
 
             this.checkText.setText('Gate deleted');
             this.time.delayedCall(1000, () => this._origCheckTextSet(''));
-        } catch (e) {
-            //console.error('Error deleting gate:', e);
-        }
+        } catch (e) { }
     }
 
     updateConnectionsForGate(gateId) {
-        // update graphics positions for any connections referencing this gate
         this.connections.forEach(conn => {
             if (conn.fromId === gateId || conn.toId === gateId) {
                 const fromContainer = this.placedComponents.find(c => c.getData('gateId') === conn.fromId);
                 const toContainer = this.placedComponents.find(c => c.getData('gateId') === conn.toId);
                 if (fromContainer && toContainer && conn.gfx) {
-                    // compute endpoints using pin positions if available
                     const fromPin = fromContainer.getData('outputPin');
                     const toPins = toContainer.getData('inputPins') || [];
                     const fromX = fromContainer.x + (fromPin ? fromPin.x : 36);
@@ -1100,7 +970,6 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                     conn.gfx.lineTo(toX, toY);
                     conn.gfx.strokePath();
 
-                    // update hitZone position/size if present
                     if (conn.hitZone) {
                         const dx = toX - fromX; const dy = toY - fromY; const dist = Math.hypot(dx, dy);
                         const midX = fromX + dx / 2; const midY = fromY + dy / 2;
