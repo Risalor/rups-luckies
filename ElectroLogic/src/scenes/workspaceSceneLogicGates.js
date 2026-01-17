@@ -120,7 +120,8 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         { id: 'xnor_task', prompt: 'Naloga 7: Poveži XNOR z OUTPUT.', gateType: 'XNOR', points: 10, completed: false },
         { id: 'mix_1', prompt: 'Naloga 8: Naredi vezje: OUTPUT poveži na XOR; XOR naj ima vhoda AND in OR.', gateType: ['AND','OR','XOR'], points: 20, completed: false },
         { id: 'mix_2', prompt: 'Naloga 9: Naredi vezje: OUTPUT poveži na OR; OR naj ima vhoda NAND in NOR.', gateType: ['NAND','NOR','OR'], points: 20, completed: false },
-        { id: 'mix_3', prompt: 'Naloga 10: Naredi vezje: OUTPUT poveži na XNOR; XNOR naj ima vhoda AND in XOR.', gateType: ['AND','XOR','XNOR'], points: 20, completed: false }
+        { id: 'mix_3', prompt: 'Naloga 10: Naredi vezje: OUTPUT poveži na XNOR; XNOR naj ima vhoda AND in XOR.', gateType: ['AND','XOR','XNOR'], points: 20, completed: false },
+        { id: 'mix_3_1', prompt: 'Naloga 10_1: Naredi vezje: OUTPUT poveži na XNOR; XNOR naj ima vhoda AND in XOR.', gateType: ['NOT','AND','XOR','XNOR'], points: 20, completed: false }
     ];
         
     const getRandomTaskIndex = () => {
@@ -322,8 +323,12 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         const toY = pointer.y;
 
         this.previewLine.lineStyle(3, 0xffff00, 0.7);
+        
+        const midX = fromX + (toX - fromX) / 2;
         this.previewLine.beginPath();
         this.previewLine.moveTo(fromX, fromY);
+        this.previewLine.lineTo(midX, fromY);
+        this.previewLine.lineTo(midX, toY);
         this.previewLine.lineTo(toX, toY);
         this.previewLine.strokePath();
     }
@@ -513,32 +518,8 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             const toX = toContainer.x + (toPin ? toPin.x : -36);
             const toY = toContainer.y + (toPin ? toPin.y : 0);
 
-            const gfx = this.add.graphics();
-            gfx.lineStyle(4, 0x424b55, 1);
-            gfx.beginPath();
-            gfx.moveTo(fromX, fromY);
-            gfx.lineTo(toX, toY);
-            gfx.strokePath();
-            gfx.setDepth(10);
-
-            const dx = toX - fromX;
-            const dy = toY - fromY;
-            const dist = Math.hypot(dx, dy);
-            const midX = fromX + dx / 2;
-            const midY = fromY + dy / 2;
-            const hit = this.add.zone(midX, midY, Math.max(30, dist), 16).setOrigin(0.5).setInteractive();
-            hit.on('pointerdown', () => {
-                try {
-                    const srcGate = this.logicCircuit.getGate(finalSourceId);
-                    const dstGate = this.logicCircuit.getGate(finalTargetId);
-                    if (srcGate && dstGate) srcGate.disconnectFrom(dstGate);
-                } catch (e) { }
-                try { gfx.destroy(); } catch (e) {}
-                try { hit.destroy(); } catch (e) {}
-                this.connections = this.connections.filter(c => !(c.fromId === finalSourceId && c.toId === finalTargetId && c.toPinIndex === toPinIndex));
-            });
-
-            this.connections.push({ fromId: finalSourceId, toId: finalTargetId, fromPinIndex: 0, toPinIndex, gfx, hitZone: hit });
+            this.drawConnectionWithBend(fromX, fromY, toX, toY, finalSourceId, finalTargetId, toPinIndex);
+            
             this.time.delayedCall(1200, () => this._origCheckTextSet(''));
         } else {
             this.checkText.setText('Povezava ni mogoča');
@@ -546,6 +527,51 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         }
 
         this.cancelConnection();
+    }
+
+    drawConnectionWithBend(fromX, fromY, toX, toY, fromId, toId, toPinIndex) {
+        const gfx = this.add.graphics();
+        gfx.lineStyle(4, 0x424b55, 1);
+        
+        const gridSize = this.gridSize;
+        const snapX1 = Math.round(fromX / gridSize) * gridSize;
+        const snapY1 = Math.round(fromY / gridSize) * gridSize;
+        const snapX2 = Math.round(toX / gridSize) * gridSize;
+        const snapY2 = Math.round(toY / gridSize) * gridSize;
+        
+        const midX = Math.round((fromX + toX) / 2 / gridSize) * gridSize;
+        
+        gfx.beginPath();
+        gfx.moveTo(fromX, fromY);
+        
+        gfx.lineTo(midX, fromY);
+        
+        gfx.lineTo(midX, toY);
+        
+        gfx.lineTo(toX, toY);
+        
+        gfx.strokePath();
+        gfx.setDepth(10);
+
+        const dx = toX - fromX;
+        const dy = toY - fromY;
+        const totalLength = Math.abs(midX - fromX) + Math.abs(toY - fromY) + Math.abs(toX - midX);
+        const midPointX = fromX + (midX - fromX) / 2;
+        const midPointY = fromY + (toY - fromY) / 2;
+        
+        const hit = this.add.zone(midPointX, midPointY, Math.max(30, totalLength / 2), 16).setOrigin(0.5).setInteractive();
+        hit.on('pointerdown', () => {
+            try {
+                const srcGate = this.logicCircuit.getGate(fromId);
+                const dstGate = this.logicCircuit.getGate(toId);
+                if (srcGate && dstGate) srcGate.disconnectFrom(dstGate);
+            } catch (e) { }
+            try { gfx.destroy(); } catch (e) {}
+            try { hit.destroy(); } catch (e) {}
+            this.connections = this.connections.filter(c => !(c.fromId === fromId && c.toId === toId && c.toPinIndex === toPinIndex));
+        });
+
+        this.connections.push({ fromId, toId, fromPinIndex: 0, toPinIndex, gfx, hitZone: hit });
     }
 
     setupInputOutputPins(container, type, labelText, img) {
@@ -1028,22 +1054,29 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                     const toX = toContainer.x + (toPinObj ? toPinObj.x : 0);
                     const toY = toContainer.y + (toPinObj ? toPinObj.y : 0);
 
+                    const midX = Math.round((fromX + toX) / 2 / this.gridSize) * this.gridSize;
+                    
                     conn.gfx.clear();
                     conn.gfx.lineStyle(4, 0x424b55, 1);
                     conn.gfx.beginPath();
                     conn.gfx.moveTo(fromX, fromY);
+                    conn.gfx.lineTo(midX, fromY);
+                    conn.gfx.lineTo(midX, toY);
                     conn.gfx.lineTo(toX, toY);
                     conn.gfx.strokePath();
 
                     if (conn.hitZone) {
-                        const dx = toX - fromX; const dy = toY - fromY; const dist = Math.hypot(dx, dy);
-                        const midX = fromX + dx / 2; const midY = fromY + dy / 2;
-                        conn.hitZone.setPosition(midX, midY);
-                        conn.hitZone.setSize(Math.max(30, dist), 16);
+                        const dx = toX - fromX;
+                        const dy = toY - fromY;
+                        const totalLength = Math.abs(midX - fromX) + Math.abs(toY - fromY) + Math.abs(toX - midX);
+                        const midPointX = fromX + (midX - fromX) / 2;
+                        const midPointY = fromY + (toY - fromY) / 2;
+                        
+                        conn.hitZone.setPosition(midPointX, midPointY);
+                        conn.hitZone.setSize(Math.max(30, totalLength / 2), 16);
                     }
                 }
             }
         });
     }
-
 }
