@@ -1,5 +1,4 @@
 import Phaser from 'phaser';
-import LabScene from './labScene';
 import { LogicCircuit, GateTypes } from '../logic/logic_gates';
 
 export default class WorkspaceSceneLogicGates extends Phaser.Scene {
@@ -32,24 +31,24 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         const { width, height } = this.cameras.main;
         this.gridSize = 40;
         this.cameras.main.roundPixels = true;
-        
+
         this.createModernBackground(width, height);
-        
+
         this.createSubtleGrid();
-        
+
         const panelWidth = 220;
         this.createSidePanel(panelWidth, height);
-        
-        const title = this.add.text(panelWidth / 2, 60, 'LOGIC GATES', { 
-            fontSize: '24px', 
+
+        const title = this.add.text(panelWidth / 2, 60, 'LOGIC GATES', {
+            fontSize: '24px',
             color: '#00ffcc',
             fontStyle: 'bold',
             fontFamily: 'Arial, sans-serif',
             letterSpacing: '2px'
         }).setOrigin(0.5);
-        
+
         title.setShadow(0, 0, 'rgba(0, 255, 204, 0.5)', 10, true, false);
-        
+
         const types = [
             { key: 'input', label: 'INPUT', color: 0xff5555 },
             { key: 'and', label: 'AND', color: 0x5555ff },
@@ -70,8 +69,8 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
 
         this.timerActive = false;
         this.timerCountdown = 15;
-        this.timerText = this.add.text(width - 120, 30, `⏱ ${this.timerCountdown}s`, { 
-            fontSize: '28px', 
+        this.timerText = this.add.text(width - 120, 30, `⏱ ${this.timerCountdown}s`, {
+            fontSize: '28px',
             color: '#00ffcc',
             fontStyle: 'bold',
             fontFamily: 'Arial, sans-serif',
@@ -79,9 +78,9 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             padding: { x: 20, y: 10 },
             borderRadius: 10
         }).setOrigin(0.5).setDepth(1000);
-        
+
         this.timerText.setShadow(0, 0, 'rgba(0, 255, 204, 0.5)', 5, true, false);
-        
+
         this.timerEvent = this.time.addEvent({
             delay: 1000,
             callback: this.updateTimer,
@@ -90,8 +89,8 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             paused: true
         });
 
-        this.checkText = this.add.text(width / 2, height - 50, '', { 
-            fontSize: '20px', 
+        this.checkText = this.add.text(width / 2, height - 50, '', {
+            fontSize: '20px',
             color: '#ffffff',
             fontStyle: 'bold',
             fontFamily: 'Arial, sans-serif',
@@ -99,52 +98,52 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             padding: { x: 20, y: 12 },
             borderRadius: 8
         }).setOrigin(0.5);
-        
+
         this.checkText.setShadow(2, 2, 'rgba(0, 0, 0, 0.5)', 2, true, false);
-        
+
         this._origCheckTextSet = this.checkText.setText.bind(this.checkText);
         this._suppressCheckTextClear = false;
         this._suppressCheckTextClearUntil = 0;
         this._checkTextTimer = null;
-        
+
         this.showStatus = (text, color = '#ffffff', holdMs = 2000) => {
-            try { 
-                if (this._checkTextTimer && this._checkTextTimer.remove) this._checkTextTimer.remove(false); 
-            } catch (e) {}
-            
-            try { 
-                this.checkText.setStyle({ 
+            try {
+                if (this._checkTextTimer && this._checkTextTimer.remove) this._checkTextTimer.remove(false);
+            } catch (e) { }
+
+            try {
+                this.checkText.setStyle({
                     color,
                     backgroundColor: 'rgba(0, 20, 40, 0.9)'
-                }); 
-            } catch (e) {}
-            
-            try { 
-                this._origCheckTextSet(text); 
-            } catch (e) {}
-            
+                });
+            } catch (e) { }
+
+            try {
+                this._origCheckTextSet(text);
+            } catch (e) { }
+
             let delay = holdMs;
             try {
                 if (this._suppressCheckTextClearUntil && this._suppressCheckTextClearUntil > Date.now()) {
                     const remaining = this._suppressCheckTextClearUntil - Date.now();
                     delay = Math.max(delay, remaining + 50);
                 }
-            } catch (e) {}
-            
+            } catch (e) { }
+
             try {
                 this._checkTextTimer = this.time.delayedCall(delay, () => {
-                    try { 
-                        this._origCheckTextSet(''); 
-                        this.checkText.setStyle({ 
+                    try {
+                        this._origCheckTextSet('');
+                        this.checkText.setStyle({
                             color: '#ffffff',
                             backgroundColor: 'rgba(0, 20, 40, 0.8)'
-                        }); 
-                    } catch (e) {}
+                        });
+                    } catch (e) { }
                     this._checkTextTimer = null;
                 });
-            } catch (e) {}
+            } catch (e) { }
         };
-        
+
         this.checkText.setText = (txt) => {
             try {
                 if (txt === '' && this._suppressCheckTextClear) {
@@ -165,22 +164,22 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             { id: 'nor_task', prompt: 'Naloga 5: Poveži NOR z OUTPUT', gateType: 'NOR', points: 10, completed: false },
             { id: 'xor_task', prompt: 'Naloga 6: Poveži XOR z OUTPUT', gateType: 'XOR', points: 10, completed: false },
             { id: 'xnor_task', prompt: 'Naloga 7: Poveži XNOR z OUTPUT', gateType: 'XNOR', points: 10, completed: false },
-            { id: 'mix_1', prompt: 'Naloga 8: XOR z vhodi AND in OR', gateType: ['AND','OR','XOR'], points: 20, completed: false },
-            { id: 'mix_2', prompt: 'Naloga 9: OR z vhodi NAND in NOR', gateType: ['NAND','NOR','OR'], points: 20, completed: false },
-            { id: 'mix_3', prompt: 'Naloga 10: XNOR z vhodi AND in XOR', gateType: ['AND','XOR','XNOR'], points: 20, completed: false },
-            { id: 'mix_3_1', prompt: 'Naloga 11: XNOR z vhodi NOT, AND in XOR', gateType: ['NOT','AND','XOR','XNOR'], points: 20, completed: false }
+            { id: 'mix_1', prompt: 'Naloga 8: XOR z vhodi AND in OR', gateType: ['AND', 'OR', 'XOR'], points: 20, completed: false },
+            { id: 'mix_2', prompt: 'Naloga 9: OR z vhodi NAND in NOR', gateType: ['NAND', 'NOR', 'OR'], points: 20, completed: false },
+            { id: 'mix_3', prompt: 'Naloga 10: XNOR z vhodi AND in XOR', gateType: ['AND', 'XOR', 'XNOR'], points: 20, completed: false },
+            { id: 'mix_3_1', prompt: 'Naloga 11: XNOR z vhodi NOT, AND in XOR', gateType: ['NOT', 'AND', 'XOR', 'XNOR'], points: 20, completed: false }
         ];
 
         const getRandomTaskIndex = () => {
             const uncompletedTasks = this.tasks.filter(task => !task.completed);
-            
+
             if (uncompletedTasks.length === 0) {
                 return Math.floor(Math.random() * this.tasks.length);
             }
-            
+
             const randomIndexInUncompleted = Math.floor(Math.random() * uncompletedTasks.length);
             const randomTask = uncompletedTasks[randomIndexInUncompleted];
-            
+
             return this.tasks.findIndex(task => task.id === randomTask.id);
         };
 
@@ -191,21 +190,21 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         const taskBoxHeight = 90;
         const taskBoxX = panelWidth + 40;
         const taskBoxY = 30;
-        
+
         this.taskBox = this.add.graphics();
         this.taskBox.fillGradientStyle(0x0a0a2a, 0x0a0a2a, 0x1a1a4a, 0x1a1a4a, 1);
         this.taskBox.fillRoundedRect(taskBoxX, taskBoxY, taskBoxWidth, taskBoxHeight, 15);
         this.taskBox.setDepth(1000);
-        
+
         this.taskBox.lineStyle(2, 0x00ffcc, 1);
         this.taskBox.strokeRoundedRect(taskBoxX, taskBoxY, taskBoxWidth, taskBoxHeight, 15);
-        
+
         this.taskText = this.add.text(
-            taskBoxX + 15, 
-            taskBoxY + 15, 
-            this.tasks[this.currentTaskIndex].prompt, 
-            { 
-                fontSize: '16px', 
+            taskBoxX + 15,
+            taskBoxY + 15,
+            this.tasks[this.currentTaskIndex].prompt,
+            {
+                fontSize: '16px',
                 color: '#ffffff',
                 fontFamily: 'Arial, sans-serif',
                 fontStyle: 'bold',
@@ -228,12 +227,12 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                 bg.clear();
                 bg.fillStyle(color, 1);
                 bg.fillRoundedRect(x - buttonWidth / 2, y - buttonHeight / 2, buttonWidth, buttonHeight, cornerRadius);
-                
+
                 if (isHover) {
                     bg.lineStyle(3, 0x00ffcc, 0.5);
                     bg.strokeRoundedRect(x - buttonWidth / 2, y - buttonHeight / 2, buttonWidth, buttonHeight, cornerRadius);
                 }
-                
+
                 bg.lineStyle(2, 0x00ffcc, 0.3);
                 bg.strokeRoundedRect(x - buttonWidth / 2, y - buttonHeight / 2, buttonWidth, buttonHeight, cornerRadius);
             };
@@ -257,9 +256,9 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                     }
                 });
 
-            const text = this.add.text(x, y, label, { 
-                fontFamily: 'Arial', 
-                fontSize: '20px', 
+            const text = this.add.text(x, y, label, {
+                fontFamily: 'Arial',
+                fontSize: '20px',
                 color: '#ffffff',
                 fontStyle: 'bold',
                 letterSpacing: '1px'
@@ -277,12 +276,12 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             return button;
         };
 
-        makeButton(width - 140, 100, '✅ Preveri', () => {
+        makeButton(width - 140, 100, 'Preveri', () => {
             this._suppressCheckTextClear = true;
             this._suppressCheckTextClearUntil = Date.now() + 3000;
-            this.time.delayedCall(3000, () => { 
-                this._suppressCheckTextClear = false; 
-                this._suppressCheckTextClearUntil = 0; 
+            this.time.delayedCall(3000, () => {
+                this._suppressCheckTextClear = false;
+                this._suppressCheckTextClearUntil = 0;
             });
             this.evaluateCircuit();
         });
@@ -309,7 +308,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         const bg = this.add.graphics();
         bg.fillGradientStyle(0x0a0a1a, 0x0a0a1a, 0x1a1a3a, 0x1a1a3a, 1);
         bg.fillRect(0, 0, width, height);
-        
+
         const gridPattern = this.make.graphics();
         gridPattern.lineStyle(1, 0x00ffcc, 0.05);
         for (let x = 0; x < width; x += 40) {
@@ -323,7 +322,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         gridPattern.strokePath();
         const texture = gridPattern.generateTexture('gridPattern');
         this.add.image(width / 2, height / 2, 'gridPattern').setAlpha(0.1);
-        
+
         this.add.graphics()
             .lineStyle(1, 0x00ffcc, 0.03)
             .strokeRect(50, 50, width - 100, height - 100);
@@ -334,19 +333,19 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         const g = this.add.graphics();
         g.lineStyle(1, 0x00ffcc, 0.1);
         const startX = this.gridStartX || 220;
-        
-        for (let x = startX; x < width; x += this.gridSize) { 
-            g.beginPath(); 
-            g.moveTo(x, 0); 
-            g.lineTo(x, height); 
-            g.strokePath(); 
+
+        for (let x = startX; x < width; x += this.gridSize) {
+            g.beginPath();
+            g.moveTo(x, 0);
+            g.lineTo(x, height);
+            g.strokePath();
         }
-        
-        for (let y = 0; y < height; y += this.gridSize) { 
-            g.beginPath(); 
-            g.moveTo(startX, y); 
-            g.lineTo(width, y); 
-            g.strokePath(); 
+
+        for (let y = 0; y < height; y += this.gridSize) {
+            g.beginPath();
+            g.moveTo(startX, y);
+            g.lineTo(width, y);
+            g.strokePath();
         }
     }
 
@@ -354,10 +353,10 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         const panel = this.add.graphics();
         panel.fillGradientStyle(0x1a1a3a, 0x1a1a3a, 0x0a0a2a, 0x0a0a2a, 1);
         panel.fillRect(0, 0, panelWidth, height);
-        
+
         panel.lineStyle(2, 0x00ffcc, 0.3);
         panel.strokeRect(0, 0, panelWidth, height);
-        
+
         const panelPattern = this.add.graphics();
         panelPattern.lineStyle(1, 0x00ffcc, 0.05);
         for (let y = 0; y < height; y += 20) {
@@ -371,11 +370,11 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         this.timerText.setText(`⏱ ${this.timerCountdown}s`);
         this.timerText.setColor('#00ff00');
         this.timerText.setShadow(0, 0, 'rgba(0, 255, 0, 0.5)', 5, true, false);
-        
+
         if (this.timerEvent) {
             this.timerEvent.paused = false;
         }
-        
+
         this.timerActive = true;
     }
 
@@ -395,10 +394,10 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
 
     updateTimer() {
         if (!this.timerActive) return;
-        
+
         this.timerCountdown--;
         this.timerText.setText(`⏱ ${this.timerCountdown}s`);
-        
+
         if (this.timerCountdown <= 5) {
             this.timerText.setColor('#ff0000');
             this.timerText.setShadow(0, 0, 'rgba(255, 0, 0, 0.7)', 8, true, false);
@@ -409,18 +408,18 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             this.timerText.setColor('#00ff00');
             this.timerText.setShadow(0, 0, 'rgba(0, 255, 0, 0.5)', 5, true, false);
         }
-        
+
         if (this.timerCountdown <= 0) {
             console.log("failed");
             this.stopTimer();
-            
+
             this.cameras.main.shake(300, 0.01);
             this.showStatus('Čas je potekel! Naloga ni bila rešena.', '#ff0000', 3000);
-            
+
             const flash = this.add.rectangle(0, 0, this.cameras.main.width, this.cameras.main.height, 0xff0000, 0.2)
                 .setOrigin(0)
                 .setDepth(999);
-            
+
             this.tweens.add({
                 targets: flash,
                 alpha: 0,
@@ -448,7 +447,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
 
         const { pinObject, container } = this.connectingPin;
         const pointer = this.input.activePointer;
-        
+
         if (!this.previewLine) {
             this.previewLine = this.add.graphics();
             this.previewLine.setDepth(9);
@@ -463,7 +462,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
 
         this.previewLine.lineStyle(4, 0x00ffcc, 0.8);
         this.previewLine.lineStyle(6, 0x00ffcc, 0.3);
-        
+
         const midX = fromX + (toX - fromX) / 2;
         this.previewLine.beginPath();
         this.previewLine.moveTo(fromX, fromY);
@@ -483,7 +482,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             if (this.logicCircuit && typeof this.logicCircuit.evaluate === 'function') {
                 this.logicCircuit.evaluate();
             }
-        } catch (e) {}
+        } catch (e) { }
 
         try {
             (this.placedComponents || []).forEach(c => {
@@ -521,7 +520,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             }
             const pinWorldX = container.x + pin.x;
             const pinWorldY = container.y + pin.y;
-            
+
             const tooltipBg = this.add.graphics()
                 .fillStyle(0x000000, 0.9)
                 .fillRoundedRect(pinWorldX - 40, pinWorldY - 35, 80, 30, 5)
@@ -539,7 +538,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                 .setDepth(1001);
 
             this.pinTooltip = { bg: tooltipBg, text: tooltipText };
-        } catch (e) {}
+        } catch (e) { }
     }
 
     hidePinTooltip() {
@@ -547,7 +546,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             try {
                 if (this.pinTooltip.bg && this.pinTooltip.bg.destroy) this.pinTooltip.bg.destroy();
                 if (this.pinTooltip.text && this.pinTooltip.text.destroy) this.pinTooltip.text.destroy();
-            } catch (e) {}
+            } catch (e) { }
             this.pinTooltip = null;
         }
     }
@@ -642,9 +641,9 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
 
         if (ok) {
             this.checkText.setText('Povezano');
-            
+
             this.cameras.main.shake(50, 0.005);
-            
+
             const fromPin = sourceIsOutput ? sourcePin : targetPin;
             const toPin = sourceIsOutput ? targetPin : sourcePin;
             const fromContainer = sourceIsOutput ? sourceContainer : targetContainer;
@@ -656,7 +655,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             const toY = toContainer.y + (toPin ? toPin.y : 0);
 
             this.drawConnectionWithBend(fromX, fromY, toX, toY, finalSourceId, finalTargetId, toPinIndex);
-            
+
             this.time.delayedCall(1200, () => this._origCheckTextSet(''));
         } else {
             this.checkText.setText('Povezava ni mogoča');
@@ -668,21 +667,21 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
 
     drawConnectionWithBend(fromX, fromY, toX, toY, fromId, toId, toPinIndex) {
         const gfx = this.add.graphics();
-        
+
         gfx.lineStyle(4, 0x00aaff, 1);
-        
+
         const glow = this.add.graphics();
         glow.lineStyle(8, 0x00aaff, 0.3);
         glow.setDepth(9);
-        
+
         const gridSize = this.gridSize;
         const snapX1 = Math.round(fromX / gridSize) * gridSize;
         const snapY1 = Math.round(fromY / gridSize) * gridSize;
         const snapX2 = Math.round(toX / gridSize) * gridSize;
         const snapY2 = Math.round(toY / gridSize) * gridSize;
-        
+
         const midX = Math.round((fromX + toX) / 2 / gridSize) * gridSize;
-        
+
         glow.beginPath();
         glow.moveTo(fromX, fromY);
         glow.lineTo(midX, fromY);
@@ -700,24 +699,24 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
 
         const midPointX = fromX + (midX - fromX) / 2;
         const midPointY = fromY + (toY - fromY) / 2;
-        
+
         const hit = this.add.zone(midPointX, midPointY, Math.max(40, Math.abs(toX - fromX) / 2), 20)
             .setOrigin(0.5)
             .setInteractive({ useHandCursor: true });
-            
+
         hit.on('pointerover', () => {
             gfx.clear();
             glow.clear();
             gfx.lineStyle(4, 0xffcc00, 1);
             glow.lineStyle(8, 0xffcc00, 0.3);
-            
+
             gfx.beginPath();
             gfx.moveTo(fromX, fromY);
             gfx.lineTo(midX, fromY);
             gfx.lineTo(midX, toY);
             gfx.lineTo(toX, toY);
             gfx.strokePath();
-            
+
             glow.beginPath();
             glow.moveTo(fromX, fromY);
             glow.lineTo(midX, fromY);
@@ -725,20 +724,20 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             glow.lineTo(toX, toY);
             glow.strokePath();
         });
-        
+
         hit.on('pointerout', () => {
             gfx.clear();
             glow.clear();
             gfx.lineStyle(4, 0x00aaff, 1);
             glow.lineStyle(8, 0x00aaff, 0.3);
-            
+
             gfx.beginPath();
             gfx.moveTo(fromX, fromY);
             gfx.lineTo(midX, fromY);
             gfx.lineTo(midX, toY);
             gfx.lineTo(toX, toY);
             gfx.strokePath();
-            
+
             glow.beginPath();
             glow.moveTo(fromX, fromY);
             glow.lineTo(midX, fromY);
@@ -746,22 +745,22 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             glow.lineTo(toX, toY);
             glow.strokePath();
         });
-        
+
         hit.on('pointerdown', () => {
             this.cameras.main.shake(100, 0.01);
-            
+
             try {
                 const srcGate = this.logicCircuit.getGate(fromId);
                 const dstGate = this.logicCircuit.getGate(toId);
                 if (srcGate && dstGate) srcGate.disconnectFrom(dstGate);
             } catch (e) { }
-            
-            try { gfx.destroy(); } catch (e) {}
-            try { glow.destroy(); } catch (e) {}
-            try { hit.destroy(); } catch (e) {}
-            
+
+            try { gfx.destroy(); } catch (e) { }
+            try { glow.destroy(); } catch (e) { }
+            try { hit.destroy(); } catch (e) { }
+
             this.connections = this.connections.filter(c => !(c.fromId === fromId && c.toId === toId && c.toPinIndex === toPinIndex));
-            
+
             this.checkText.setText('🔌 Povezava odstranjena');
             this.time.delayedCall(1000, () => this._origCheckTextSet(''));
         });
@@ -774,7 +773,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         const inputPinColor = 0xff5555;
         const outputPinColor = 0x55ff55;
         const highlightColor = 0xffff00;
-        
+
         let maxInputs = 2;
         if (type === 'not' || type === 'bulb') maxInputs = 1;
         if (type === 'input') maxInputs = 0;
@@ -792,7 +791,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
 
                 inPin.on('pointerdown', (pointer, localX, localY, event) => {
                     if (event && event.stopPropagation) event.stopPropagation();
-                    
+
                     if (!this.connectingPin) {
                         this.connectingPin = { pinObject: inPin, container, isOutput: false };
                         inPin.setStrokeStyle(3, highlightColor, 1);
@@ -828,7 +827,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             outputPin.setInteractive({ useHandCursor: true });
             outputPin.on('pointerdown', (pointer, localX, localY, event) => {
                 if (event && event.stopPropagation) event.stopPropagation();
-                
+
                 if (!this.connectingPin) {
                     this.connectingPin = { pinObject: outputPin, container, isOutput: true };
                     outputPin.setStrokeStyle(3, highlightColor, 1);
@@ -863,18 +862,19 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
 
         const size = 72;
         const textureName = this.getTextureName(type);
-        
-        const glow = this.add.circle(0, 0, size / 2 + 5, color, 0.2);
+
+        const glow = this.add.circle(0, 0, size / 2 + 5, color, 0.7);
         container.add(glow);
-        
+
         const img = this.add.image(0, 0, textureName)
             .setDisplaySize(size, size)
-            .setOrigin(0.5);
+            .setOrigin(0.5)
+            .setAlpha(1);
         container.add(img);
         container.setData('img', img);
 
-        const label = this.add.text(0, 40, labelText || type, { 
-            fontSize: '14px', 
+        const label = this.add.text(0, 40, labelText || type, {
+            fontSize: '14px',
             color: '#ffffff',
             backgroundColor: 'rgba(0, 0, 0, 0.6)',
             padding: { x: 8, y: 4 },
@@ -882,7 +882,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             fontFamily: 'Arial, sans-serif',
             fontStyle: 'bold'
         }).setOrigin(0.5);
-        
+
         label.setShadow(1, 1, 'rgba(0, 0, 0, 0.5)', 2, true, false);
         container.add(label);
 
@@ -892,30 +892,31 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         container.setData('originalY', y);
         container.setData('type', type);
         container.setData('isInPanel', true);
+        container.setData('glow', glow);
 
         this.input.setDraggable(container);
-        
+
         container.on('pointerover', () => {
             if (container.getData('isInPanel')) {
                 container.setScale(1.1);
-                glow.setAlpha(0.4);
-            }
-        });
-        
-        container.on('pointerout', () => {
-            if (container.getData('isInPanel')) {
-                container.setScale(1);
-                glow.setAlpha(0.2);
+                glow.setAlpha(0.6);
             }
         });
 
-        container.on('dragstart', () => { 
+        container.on('pointerout', () => {
+            if (container.getData('isInPanel')) {
+                container.setScale(1);
+                glow.setAlpha(0.3);
+            }
+        });
+
+        container.on('dragstart', () => {
             container.setData('isDragging', true);
             container.setScale(1.05);
         });
 
-        container.on('drag', (pointer, dragX, dragY) => { 
-            container.x = dragX; 
+        container.on('drag', (pointer, dragX, dragY) => {
+            container.x = dragX;
             container.y = dragY;
             this.updateConnectionsForGate(container.getData('gateId'));
         });
@@ -937,11 +938,11 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                 this.placeComponentOnGrid(container, type, labelText);
             } else if (!container.getData('isInPanel')) {
                 const snapped = this.snapToGrid(container.x, container.y);
-                container.x = snapped.x; 
+                container.x = snapped.x;
                 container.y = snapped.y;
                 this.updateConnectionsForGate(container.getData('gateId'));
             } else {
-                container.x = container.getData('originalX'); 
+                container.x = container.getData('originalX');
                 container.y = container.getData('originalY');
             }
 
@@ -963,6 +964,8 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             }
             container.setData('lastClick', now);
         });
+
+        return container;
     }
 
     getTextureName(type) {
@@ -982,7 +985,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
 
     returnComponentToPanel(container) {
         const gateId = container.getData('gateId');
-        
+
         if (this.connectingSource === container) this.connectingSource = null;
 
         try {
@@ -997,14 +1000,14 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             });
         } catch (e) { }
 
-        try { 
+        try {
             if (this.logicCircuit && typeof this.logicCircuit.removeGate === 'function') {
-                this.logicCircuit.removeGate(gateId); 
+                this.logicCircuit.removeGate(gateId);
             }
         } catch (e) { }
 
-        try { 
-            this.placedComponents = this.placedComponents.filter(c => c !== container); 
+        try {
+            this.placedComponents = this.placedComponents.filter(c => c !== container);
         } catch (e) { }
 
         try {
@@ -1012,10 +1015,10 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             const idx = container.getData('displayIndex');
             const t = container.getData('type');
             if (t === 'input' && typeof idx === 'number') {
-                try { this.inputIndices.delete(idx); } catch (e) {}
+                try { this.inputIndices.delete(idx); } catch (e) { }
             }
             if (t === 'bulb' && typeof idx === 'number') {
-                try { this.bulbIndices.delete(idx); } catch (e) {}
+                try { this.bulbIndices.delete(idx); } catch (e) { }
             }
         } catch (e) { }
 
@@ -1024,12 +1027,12 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
 
     placeComponentOnGrid(container, type, labelText) {
         const snapped = this.snapToGrid(container.x, container.y);
-        container.x = snapped.x; 
+        container.x = snapped.x;
         container.y = snapped.y;
 
         const id = `${type}_${this.getRandomInt(1000, 9999)}`;
         let gateType = this.getGateType(type);
-        
+
         const gate = this.logicCircuit.addGate(gateType, id);
         container.setData('logicGate', gate);
         container.setData('gateId', id);
@@ -1060,7 +1063,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
 
         container.setData('isInPanel', false);
         container.setDepth(20);
-        
+
         container.list[0].setAlpha(0);
 
         this.setupInputOutputPins(container, type, labelText, container.list[1]);
@@ -1088,7 +1091,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         const gate = container.getData('logicGate');
         const current = container.getData('inputValue') === undefined ? true : container.getData('inputValue');
         const newVal = !current;
-        
+
         if (gate && gate.setValue) gate.setValue(newVal);
 
         container.setData('inputValue', newVal);
@@ -1096,12 +1099,12 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         const label = container.list[2];
         label.setText(`${inputName} = ${newVal ? 'ON' : 'OFF'}`);
         label.setColor(newVal ? '#00ff00' : '#ff0000');
-        
+
         this.checkText.setText(`${inputName} = ${newVal ? 'ON' : 'OFF'}`);
         this.time.delayedCall(1200, () => this._origCheckTextSet(''));
 
         this.cameras.main.shake(30, 0.002);
-        
+
         const img = container.list[1];
         img.setTexture(newVal ? 'SWITCH_ON' : 'SWITCH_OFF');
     }
@@ -1109,7 +1112,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
     evaluateCircuit() {
         const resultsFull = this.logicCircuit.evaluate();
         const endResults = {};
-        
+
         if (this.logicCircuit && this.logicCircuit.gates) {
             for (const [id, gate] of this.logicCircuit.gates) {
                 if (!gate.outputGates || gate.outputGates.length === 0) {
@@ -1117,7 +1120,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                 }
             }
         }
-        
+
         const bulbEntries = [];
         try {
             (this.placedComponents || []).forEach(c => {
@@ -1151,33 +1154,33 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             taskCompleted = this.checkCurrentTaskCompletion();
         } catch (e) { }
 
-        const statusText = bulbEntries.length > 0 ? `📊 ${bulbEntries.join(' | ')}` : 'No OUTPUT present';
+        const statusText = bulbEntries.length > 0 ? `${bulbEntries.join(' | ')}` : 'No OUTPUT present';
 
         if (taskCompleted && this.tasks && this.tasks[this.currentTaskIndex] && !this.tasks[this.currentTaskIndex].completed) {
             this.tasks[this.currentTaskIndex].completed = true;
             this.addPoints(this.tasks[this.currentTaskIndex].points);
-            
+
             this.cameras.main.shake(200, 0.01);
             this.showStatus(`🎉 ${statusText} — Naloga opravljena! +${this.tasks[this.currentTaskIndex].points} točk`, '#00ff00', 2500);
-            
+
             this.time.delayedCall(1500, () => this.nextTask());
         } else {
-            const taskMsg = (this.tasks && this.tasks[this.currentTaskIndex] && this.tasks[this.currentTaskIndex].completed) 
-                ? 'Naloga opravljena!' 
+            const taskMsg = (this.tasks && this.tasks[this.currentTaskIndex] && this.tasks[this.currentTaskIndex].completed)
+                ? 'Naloga opravljena!'
                 : 'Naloga ni opravljena';
             const color = (taskMsg.includes('opravljena')) ? '#00aa00' : '#cc0000';
             this.showStatus(`${statusText} — ${taskMsg}`, color, 2000);
-            try { 
-                this.time.delayedCall(2000, () => { 
-                    try { 
-                        this._origCheckTextSet(''); 
-                        this.checkText.setStyle({ 
+            try {
+                this.time.delayedCall(2000, () => {
+                    try {
+                        this._origCheckTextSet('');
+                        this.checkText.setStyle({
                             color: '#ffffff',
                             backgroundColor: 'rgba(0, 20, 40, 0.8)'
-                        }); 
-                    } catch (e) {} 
-                }); 
-            } catch (e) {}
+                        });
+                    } catch (e) { }
+                });
+            } catch (e) { }
         }
     }
 
@@ -1186,9 +1189,9 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         const task = this.tasks[this.currentTaskIndex];
         if (!task) return false;
 
-        try { 
+        try {
             if (this.logicCircuit && typeof this.logicCircuit.evaluate === 'function') {
-                this.logicCircuit.evaluate(); 
+                this.logicCircuit.evaluate();
             }
         } catch (e) { }
 
@@ -1207,8 +1210,8 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                     const okStructure = (task.gateType === 'NOT' || task.gateType === 'BUFFER') ? true : (numInputs >= 1);
                     if (okStructure) {
                         task.completed = true;
-                        this.showStatus('✅ Naloga opravljena!', '#00aa00', 2000);
-                        try { this.addPoints(task.points); } catch (e) {}
+                        this.showStatus('Naloga opravljena!', '#00aa00', 2000);
+                        try { this.addPoints(task.points); } catch (e) { }
                         this.time.delayedCall(1500, () => this.nextTask());
                         return true;
                     }
@@ -1223,7 +1226,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                         if (hasChild) {
                             task.completed = true;
                             this.showStatus('✅ Naloga opravljena!', '#00aa00', 2000);
-                            try { this.addPoints(task.points); } catch (e) {}
+                            try { this.addPoints(task.points); } catch (e) { }
                             this.time.delayedCall(1500, () => this.nextTask());
                             return true;
                         }
@@ -1237,7 +1240,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                         if (hasA && hasB) {
                             task.completed = true;
                             this.showStatus('✅ Naloga opravljena!', '#00aa00', 2000);
-                            try { this.addPoints(task.points); } catch (e) {}
+                            try { this.addPoints(task.points); } catch (e) { }
                             this.time.delayedCall(1500, () => this.nextTask());
                             return true;
                         }
@@ -1257,7 +1260,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         } else {
             this.taskText.setText('Vse naloge opravljene! Bravo!');
             this.showStatus('Čestitke! Vse naloge opravljene!', '#00ffcc', 3000);
-            try { this.addPoints(50); } catch (e) {}
+            try { this.addPoints(50); } catch (e) { }
             localStorage.removeItem('logicTasksIndex');
         }
     }
@@ -1284,9 +1287,9 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         }
         this.connections = [];
         this.logicCircuit = new LogicCircuit();
-        try { this.inputIndices = new Set(); } catch (e) {}
-        try { this.bulbIndices = new Set(); } catch (e) {}
-        this._origCheckTextSet('🔄 Workspace reset');
+        try { this.inputIndices = new Set(); } catch (e) { }
+        try { this.bulbIndices = new Set(); } catch (e) { }
+        this._origCheckTextSet('Workspace reset');
         this.time.delayedCall(1500, () => this._origCheckTextSet(''));
     }
 
@@ -1326,7 +1329,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             }
 
             this.cameras.main.shake(100, 0.01);
-            
+
             container.destroy();
 
             this.checkText.setText('Vrata izbrisana');
@@ -1349,7 +1352,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                     const toY = toContainer.y + (toPinObj ? toPinObj.y : 0);
 
                     const midX = Math.round((fromX + toX) / 2 / this.gridSize) * this.gridSize;
-                    
+
                     if (conn.glow) {
                         conn.glow.clear();
                         conn.glow.lineStyle(8, 0x00aaff, 0.3);
@@ -1360,7 +1363,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                         conn.glow.lineTo(toX, toY);
                         conn.glow.strokePath();
                     }
-                    
+
                     conn.gfx.clear();
                     conn.gfx.lineStyle(4, 0x00aaff, 1);
                     conn.gfx.beginPath();
@@ -1373,7 +1376,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                     if (conn.hitZone) {
                         const midPointX = fromX + (midX - fromX) / 2;
                         const midPointY = fromY + (toY - fromY) / 2;
-                        
+
                         conn.hitZone.setPosition(midPointX, midPointY);
                         conn.hitZone.setSize(Math.max(40, Math.abs(toX - fromX) / 2), 20);
                     }
