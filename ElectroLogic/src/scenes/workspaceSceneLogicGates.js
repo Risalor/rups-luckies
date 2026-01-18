@@ -23,6 +23,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         this.load.image('XNOR', 'src/components/logic_gates/XNOR.png');
         this.load.image('XOR', 'src/components/logic_gates/XOR.png');
         this.load.image('NOT', 'src/components/logic_gates/NOT.png');
+        this.load.html('tooltip', 'src/components/ui/tooltip.html');
     }
 
     create() {
@@ -31,40 +32,55 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         const { width, height } = this.cameras.main;
         this.gridSize = 40;
         this.cameras.main.roundPixels = true;
-        this.add.rectangle(0, 0, width, height, 0xe0c9a6).setOrigin(0);
-        this.createGrid();
-        const panelWidth = 200;
-        this.add.rectangle(0, 0, panelWidth, height, 0xc0c0c0).setOrigin(0);
-        this.add.rectangle(0, 0, panelWidth, height, 0x000000, 0.2).setOrigin(0);
-        this.add.text(panelWidth / 2, 60, 'Logični elementi', { fontSize: '20px', color: '#ffffff', fontStyle: 'bold' }).setOrigin(0.5);
-
+        
+        this.createModernBackground(width, height);
+        
+        this.createSubtleGrid();
+        
+        const panelWidth = 220;
+        this.createSidePanel(panelWidth, height);
+        
+        const title = this.add.text(panelWidth / 2, 60, 'LOGIC GATES', { 
+            fontSize: '24px', 
+            color: '#00ffcc',
+            fontStyle: 'bold',
+            fontFamily: 'Arial, sans-serif',
+            letterSpacing: '2px'
+        }).setOrigin(0.5);
+        
+        title.setShadow(0, 0, 'rgba(0, 255, 204, 0.5)', 10, true, false);
+        
         const types = [
-            { key: 'input', label: 'INPUT' },
-            { key: 'and', label: 'AND' },
-            { key: 'or', label: 'OR' },
-            { key: 'not', label: 'NOT' },
-            { key: 'nand', label: 'NAND' },
-            { key: 'nor', label: 'NOR' },
-            { key: 'xor', label: 'XOR' },
-            { key: 'xnor', label: 'XNOR' },
-            { key: 'bulb', label: 'OUTPUT' }
+            { key: 'input', label: 'INPUT', color: 0xff5555 },
+            { key: 'and', label: 'AND', color: 0x5555ff },
+            { key: 'or', label: 'OR', color: 0x55ff55 },
+            { key: 'not', label: 'NOT', color: 0xff55ff },
+            { key: 'nand', label: 'NAND', color: 0xffaa55 },
+            { key: 'nor', label: 'NOR', color: 0x55ffff },
+            { key: 'xor', label: 'XOR', color: 0xffff55 },
+            { key: 'xnor', label: 'XNOR', color: 0xaa55ff },
+            { key: 'bulb', label: 'OUTPUT', color: 0xffcc00 }
         ];
 
         let y = 140;
         types.forEach(t => {
-            this.createComponent(panelWidth / 2, y, t.key, t.label);
-            y += 80;
+            this.createComponent(panelWidth / 2, y, t.key, t.label, t.color);
+            y += 90;
         });
 
         this.timerActive = false;
         this.timerCountdown = 15;
-        this.timerText = this.add.text(width - 100, 20, `Time: ${this.timerCountdown}`, { 
-            fontSize: '24px', 
-            color: '#ff0000',
+        this.timerText = this.add.text(width - 120, 30, `⏱ ${this.timerCountdown}s`, { 
+            fontSize: '28px', 
+            color: '#00ffcc',
             fontStyle: 'bold',
-            backgroundColor: '#000000',
-            padding: { x: 10, y: 5 }
+            fontFamily: 'Arial, sans-serif',
+            backgroundColor: 'rgba(0, 0, 30, 0.8)',
+            padding: { x: 20, y: 10 },
+            borderRadius: 10
         }).setOrigin(0.5).setDepth(1000);
+        
+        this.timerText.setShadow(0, 0, 'rgba(0, 255, 204, 0.5)', 5, true, false);
         
         this.timerEvent = this.time.addEvent({
             delay: 1000,
@@ -74,15 +90,39 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             paused: true
         });
 
-        this.checkText = this.add.text(width / 2, height - 70, '', { fontSize: '18px', color: '#000000', fontStyle: 'bold', padding: { x: 15, y: 8 } }).setOrigin(0.5);
+        this.checkText = this.add.text(width / 2, height - 50, '', { 
+            fontSize: '20px', 
+            color: '#ffffff',
+            fontStyle: 'bold',
+            fontFamily: 'Arial, sans-serif',
+            backgroundColor: 'rgba(0, 20, 40, 0.8)',
+            padding: { x: 20, y: 12 },
+            borderRadius: 8
+        }).setOrigin(0.5);
+        
+        this.checkText.setShadow(2, 2, 'rgba(0, 0, 0, 0.5)', 2, true, false);
+        
         this._origCheckTextSet = this.checkText.setText.bind(this.checkText);
         this._suppressCheckTextClear = false;
         this._suppressCheckTextClearUntil = 0;
         this._checkTextTimer = null;
-        this.showStatus = (text, color = '#000000', holdMs = 2000) => {
-            try { if (this._checkTextTimer && this._checkTextTimer.remove) this._checkTextTimer.remove(false); } catch (e) {}
-            try { this.checkText.setStyle({ color }); } catch (e) {}
-            try { this._origCheckTextSet(text); } catch (e) {}
+        
+        this.showStatus = (text, color = '#ffffff', holdMs = 2000) => {
+            try { 
+                if (this._checkTextTimer && this._checkTextTimer.remove) this._checkTextTimer.remove(false); 
+            } catch (e) {}
+            
+            try { 
+                this.checkText.setStyle({ 
+                    color,
+                    backgroundColor: 'rgba(0, 20, 40, 0.9)'
+                }); 
+            } catch (e) {}
+            
+            try { 
+                this._origCheckTextSet(text); 
+            } catch (e) {}
+            
             let delay = holdMs;
             try {
                 if (this._suppressCheckTextClearUntil && this._suppressCheckTextClearUntil > Date.now()) {
@@ -90,103 +130,126 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                     delay = Math.max(delay, remaining + 50);
                 }
             } catch (e) {}
+            
             try {
                 this._checkTextTimer = this.time.delayedCall(delay, () => {
-                    try { this._origCheckTextSet(''); } catch (e) {}
-                    try { this.checkText.setStyle({ color: '#000000' }); } catch (e) {}
+                    try { 
+                        this._origCheckTextSet(''); 
+                        this.checkText.setStyle({ 
+                            color: '#ffffff',
+                            backgroundColor: 'rgba(0, 20, 40, 0.8)'
+                        }); 
+                    } catch (e) {}
                     this._checkTextTimer = null;
                 });
             } catch (e) {}
         };
+        
         this.checkText.setText = (txt) => {
             try {
                 if (txt === '' && this._suppressCheckTextClear) {
                     return this.checkText;
                 }
-            } catch (e) {  }
+            } catch (e) { }
             return this._origCheckTextSet(txt), this.checkText;
         };
 
-    this.inputIndices = new Set();
-    this.bulbIndices = new Set();
+        this.inputIndices = new Set();
+        this.bulbIndices = new Set();
 
-    this.tasks = [
-        { id: 'and_task', prompt: 'Naloga 1: Poveži AND z OUTPUT (preveri osnovna AND vrata).', gateType: 'AND', points: 10, completed: false },
-        { id: 'or_task', prompt: 'Naloga 2: Poveži OR z OUTPUT (preveri osnovna OR vrata).', gateType: 'OR', points: 10, completed: false },
-        { id: 'not_task', prompt: 'Naloga 3: Poveži NOT z OUTPUT (preveri negacijo).', gateType: 'NOT', points: 10, completed: false },
-        { id: 'nand_task', prompt: 'Naloga 4: Poveži NAND z OUTPUT.', gateType: 'NAND', points: 10, completed: false },
-        { id: 'nor_task', prompt: 'Naloga 5: Poveži NOR z OUTPUT.', gateType: 'NOR', points: 10, completed: false },
-        { id: 'xor_task', prompt: 'Naloga 6: Poveži XOR z OUTPUT.', gateType: 'XOR', points: 10, completed: false },
-        { id: 'xnor_task', prompt: 'Naloga 7: Poveži XNOR z OUTPUT.', gateType: 'XNOR', points: 10, completed: false },
-        { id: 'mix_1', prompt: 'Naloga 8: Naredi vezje: OUTPUT poveži na XOR; XOR naj ima vhoda AND in OR.', gateType: ['AND','OR','XOR'], points: 20, completed: false },
-        { id: 'mix_2', prompt: 'Naloga 9: Naredi vezje: OUTPUT poveži na OR; OR naj ima vhoda NAND in NOR.', gateType: ['NAND','NOR','OR'], points: 20, completed: false },
-        { id: 'mix_3', prompt: 'Naloga 10: Naredi vezje: OUTPUT poveži na XNOR; XNOR naj ima vhoda AND in XOR.', gateType: ['AND','XOR','XNOR'], points: 20, completed: false },
-        { id: 'mix_3_1', prompt: 'Naloga 10_1: Naredi vezje: OUTPUT poveži na XNOR; XNOR naj ima vhoda AND in XOR.', gateType: ['NOT','AND','XOR','XNOR'], points: 20, completed: false }
-    ];
-        
-    const getRandomTaskIndex = () => {
-        const uncompletedTasks = this.tasks.filter(task => !task.completed);
-        
-        if (uncompletedTasks.length === 0) {
-            return Math.floor(Math.random() * this.tasks.length);
-        }
-        
-        const randomIndexInUncompleted = Math.floor(Math.random() * uncompletedTasks.length);
-        const randomTask = uncompletedTasks[randomIndexInUncompleted];
-        
-        return this.tasks.findIndex(task => task.id === randomTask.id);
-    };
+        this.tasks = [
+            { id: 'and_task', prompt: 'Naloga 1: Poveži AND z OUTPUT', gateType: 'AND', points: 10, completed: false },
+            { id: 'or_task', prompt: 'Naloga 2: Poveži OR z OUTPUT', gateType: 'OR', points: 10, completed: false },
+            { id: 'not_task', prompt: 'Naloga 3: Poveži NOT z OUTPUT', gateType: 'NOT', points: 10, completed: false },
+            { id: 'nand_task', prompt: 'Naloga 4: Poveži NAND z OUTPUT', gateType: 'NAND', points: 10, completed: false },
+            { id: 'nor_task', prompt: 'Naloga 5: Poveži NOR z OUTPUT', gateType: 'NOR', points: 10, completed: false },
+            { id: 'xor_task', prompt: 'Naloga 6: Poveži XOR z OUTPUT', gateType: 'XOR', points: 10, completed: false },
+            { id: 'xnor_task', prompt: 'Naloga 7: Poveži XNOR z OUTPUT', gateType: 'XNOR', points: 10, completed: false },
+            { id: 'mix_1', prompt: 'Naloga 8: XOR z vhodi AND in OR', gateType: ['AND','OR','XOR'], points: 20, completed: false },
+            { id: 'mix_2', prompt: 'Naloga 9: OR z vhodi NAND in NOR', gateType: ['NAND','NOR','OR'], points: 20, completed: false },
+            { id: 'mix_3', prompt: 'Naloga 10: XNOR z vhodi AND in XOR', gateType: ['AND','XOR','XNOR'], points: 20, completed: false },
+            { id: 'mix_3_1', prompt: 'Naloga 11: XNOR z vhodi NOT, AND in XOR', gateType: ['NOT','AND','XOR','XNOR'], points: 20, completed: false }
+        ];
 
-    this.currentTaskIndex = getRandomTaskIndex();
-    this.startTimer();
+        const getRandomTaskIndex = () => {
+            const uncompletedTasks = this.tasks.filter(task => !task.completed);
+            
+            if (uncompletedTasks.length === 0) {
+                return Math.floor(Math.random() * this.tasks.length);
+            }
+            
+            const randomIndexInUncompleted = Math.floor(Math.random() * uncompletedTasks.length);
+            const randomTask = uncompletedTasks[randomIndexInUncompleted];
+            
+            return this.tasks.findIndex(task => task.id === randomTask.id);
+        };
 
-    const taskBoxWidth = Math.min(420, width - panelWidth - 80);
-    const taskBoxHeight = 80;
-    const taskBoxX = panelWidth + 20;
-    const taskBoxY = 20;
-    this.taskBox = this.add.rectangle(taskBoxX, taskBoxY, taskBoxWidth, taskBoxHeight, 0x222222, 0.95).setOrigin(0, 0).setDepth(1000);
-    this.taskBox.setStrokeStyle(2, 0xffffff);
-    this.taskText = this.add.text(taskBoxX + 10, taskBoxY + 10, this.tasks[this.currentTaskIndex].prompt, { fontSize: '14px', color: '#ffffff', wordWrap: { width: taskBoxWidth - 20 } }).setDepth(1001).setOrigin(0,0);
+        this.currentTaskIndex = getRandomTaskIndex();
+        this.startTimer();
+
+        const taskBoxWidth = Math.min(450, width - panelWidth - 100);
+        const taskBoxHeight = 90;
+        const taskBoxX = panelWidth + 40;
+        const taskBoxY = 30;
+        
+        this.taskBox = this.add.graphics();
+        this.taskBox.fillGradientStyle(0x0a0a2a, 0x0a0a2a, 0x1a1a4a, 0x1a1a4a, 1);
+        this.taskBox.fillRoundedRect(taskBoxX, taskBoxY, taskBoxWidth, taskBoxHeight, 15);
+        this.taskBox.setDepth(1000);
+        
+        this.taskBox.lineStyle(2, 0x00ffcc, 1);
+        this.taskBox.strokeRoundedRect(taskBoxX, taskBoxY, taskBoxWidth, taskBoxHeight, 15);
+        
+        this.taskText = this.add.text(
+            taskBoxX + 15, 
+            taskBoxY + 15, 
+            this.tasks[this.currentTaskIndex].prompt, 
+            { 
+                fontSize: '16px', 
+                color: '#ffffff',
+                fontFamily: 'Arial, sans-serif',
+                fontStyle: 'bold',
+                wordWrap: { width: taskBoxWidth - 30 },
+                lineSpacing: 5
+            }
+        ).setDepth(1001).setOrigin(0, 0);
 
         const buttonWidth = 180;
-        const buttonHeight = 45;
-        const cornerRadius = 10;
+        const buttonHeight = 50;
+        const cornerRadius = 25;
 
         const makeButton = (x, y, label, onClick, opts = {}) => {
             const bg = this.add.graphics();
-            const defaultColor = 0x3399ff;
-            const hoverColor = 0x0f5cad;
-            const activeColor = opts.activeColor || null;
+            const defaultColor = 0x0066cc;
+            const hoverColor = 0x0088ff;
+            const activeColor = opts.activeColor || 0x004488;
 
-            const drawBg = (color) => {
+            const drawBg = (color, isHover = false) => {
                 bg.clear();
                 bg.fillStyle(color, 1);
                 bg.fillRoundedRect(x - buttonWidth / 2, y - buttonHeight / 2, buttonWidth, buttonHeight, cornerRadius);
+                
+                if (isHover) {
+                    bg.lineStyle(3, 0x00ffcc, 0.5);
+                    bg.strokeRoundedRect(x - buttonWidth / 2, y - buttonHeight / 2, buttonWidth, buttonHeight, cornerRadius);
+                }
+                
+                bg.lineStyle(2, 0x00ffcc, 0.3);
+                bg.strokeRoundedRect(x - buttonWidth / 2, y - buttonHeight / 2, buttonWidth, buttonHeight, cornerRadius);
             };
 
             drawBg(defaultColor);
 
             const button = { bg, active: false, activeColor };
 
-            const shadeColor = (hex, factor) => {
-                if (hex == null) return null;
-                const h = typeof hex === 'number' ? hex : parseInt(hex);
-                const r = Math.min(255, Math.max(0, Math.round(((h >> 16) & 0xff) * factor)));
-                const g = Math.min(255, Math.max(0, Math.round(((h >> 8) & 0xff) * factor)));
-                const b = Math.min(255, Math.max(0, Math.round((h & 0xff) * factor)));
-                return (r << 16) | (g << 8) | b;
-            };
-
-            const activeHoverColor = activeColor ? shadeColor(activeColor, 0.85) : null;
             const hitZone = this.add.zone(x, y, buttonWidth, buttonHeight)
                 .setOrigin(0.5)
                 .setInteractive({ useHandCursor: true })
                 .on('pointerover', () => {
-                    const hover = (button.active && button.activeColor) ? (activeHoverColor || hoverColor) : hoverColor;
-                    drawBg(hover);
+                    drawBg(button.active && button.activeColor ? button.activeColor : hoverColor, true);
                 })
                 .on('pointerout', () => {
-                    drawBg(button.active && button.activeColor ? button.activeColor : defaultColor);
+                    drawBg(button.active && button.activeColor ? button.activeColor : defaultColor, false);
                 })
                 .on('pointerdown', () => {
                     if (typeof onClick === 'function') {
@@ -194,7 +257,15 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                     }
                 });
 
-            const text = this.add.text(x, y, label, { fontFamily: 'Arial', fontSize: '20px', color: '#ffffff' }).setOrigin(0.5);
+            const text = this.add.text(x, y, label, { 
+                fontFamily: 'Arial', 
+                fontSize: '20px', 
+                color: '#ffffff',
+                fontStyle: 'bold',
+                letterSpacing: '1px'
+            }).setOrigin(0.5);
+
+            text.setShadow(1, 1, 'rgba(0, 0, 0, 0.5)', 2, true, false);
 
             button.text = text;
             button.hitZone = hitZone;
@@ -206,25 +277,15 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             return button;
         };
 
-        //makeButton(width - 140, 75, 'Lestvica', () => this.scene.start('ScoreboardScene'));
-        makeButton(width - 140, 125, 'Preveri', () => {
+        makeButton(width - 140, 100, '✅ Preveri', () => {
             this._suppressCheckTextClear = true;
             this._suppressCheckTextClearUntil = Date.now() + 3000;
-            this.time.delayedCall(3000, () => { this._suppressCheckTextClear = false; this._suppressCheckTextClearUntil = 0; });
+            this.time.delayedCall(3000, () => { 
+                this._suppressCheckTextClear = false; 
+                this._suppressCheckTextClearUntil = 0; 
+            });
             this.evaluateCircuit();
         });
-        //makeButton(width - 140, 175, 'Reset', () => this.resetWorkspace());
-
-        const backButton = this.add.text(Math.round(panelWidth / 2), 20, '↩ Nazaj', { fontFamily: 'Arial', fontSize: '20px', color: '#387affff', padding: { x: 20, y: 10 } })
-            .setOrigin(0.5, 0.5)
-            .setInteractive({ useHandCursor: true })
-            .on('pointerover', () => backButton.setStyle({ color: '#0054fdff' }))
-            .on('pointerout', () => backButton.setStyle({ color: '#387affff' }))
-            .on('pointerdown', () => {
-                try { this.resetWorkspace(); } catch (e) { }
-                this.cameras.main.fade(300, 0, 0, 0);
-                this.time.delayedCall(300, () => { this.scene.start('LabScene'); });
-            });
 
         this.placedComponents = [];
         this.connections = [];
@@ -244,10 +305,72 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         });
     }
 
-        startTimer() {
+    createModernBackground(width, height) {
+        const bg = this.add.graphics();
+        bg.fillGradientStyle(0x0a0a1a, 0x0a0a1a, 0x1a1a3a, 0x1a1a3a, 1);
+        bg.fillRect(0, 0, width, height);
+        
+        const gridPattern = this.make.graphics();
+        gridPattern.lineStyle(1, 0x00ffcc, 0.05);
+        for (let x = 0; x < width; x += 40) {
+            gridPattern.moveTo(x, 0);
+            gridPattern.lineTo(x, height);
+        }
+        for (let y = 0; y < height; y += 40) {
+            gridPattern.moveTo(0, y);
+            gridPattern.lineTo(width, y);
+        }
+        gridPattern.strokePath();
+        const texture = gridPattern.generateTexture('gridPattern');
+        this.add.image(width / 2, height / 2, 'gridPattern').setAlpha(0.1);
+        
+        this.add.graphics()
+            .lineStyle(1, 0x00ffcc, 0.03)
+            .strokeRect(50, 50, width - 100, height - 100);
+    }
+
+    createSubtleGrid() {
+        const { width, height } = this.cameras.main;
+        const g = this.add.graphics();
+        g.lineStyle(1, 0x00ffcc, 0.1);
+        const startX = this.gridStartX || 220;
+        
+        for (let x = startX; x < width; x += this.gridSize) { 
+            g.beginPath(); 
+            g.moveTo(x, 0); 
+            g.lineTo(x, height); 
+            g.strokePath(); 
+        }
+        
+        for (let y = 0; y < height; y += this.gridSize) { 
+            g.beginPath(); 
+            g.moveTo(startX, y); 
+            g.lineTo(width, y); 
+            g.strokePath(); 
+        }
+    }
+
+    createSidePanel(panelWidth, height) {
+        const panel = this.add.graphics();
+        panel.fillGradientStyle(0x1a1a3a, 0x1a1a3a, 0x0a0a2a, 0x0a0a2a, 1);
+        panel.fillRect(0, 0, panelWidth, height);
+        
+        panel.lineStyle(2, 0x00ffcc, 0.3);
+        panel.strokeRect(0, 0, panelWidth, height);
+        
+        const panelPattern = this.add.graphics();
+        panelPattern.lineStyle(1, 0x00ffcc, 0.05);
+        for (let y = 0; y < height; y += 20) {
+            panelPattern.moveTo(0, y);
+            panelPattern.lineTo(panelWidth, y);
+        }
+    }
+
+    startTimer() {
         this.timerCountdown = 15;
-        this.timerText.setText(`Time: ${this.timerCountdown}`);
+        this.timerText.setText(`⏱ ${this.timerCountdown}s`);
         this.timerText.setColor('#00ff00');
+        this.timerText.setShadow(0, 0, 'rgba(0, 255, 0, 0.5)', 5, true, false);
         
         if (this.timerEvent) {
             this.timerEvent.paused = false;
@@ -265,29 +388,45 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
 
     resetTimer() {
         this.timerCountdown = 15;
-        this.timerText.setText(`Time: ${this.timerCountdown}`);
+        this.timerText.setText(`⏱ ${this.timerCountdown}s`);
         this.timerText.setColor('#ff0000');
+        this.timerText.setShadow(0, 0, 'rgba(255, 0, 0, 0.5)', 5, true, false);
     }
 
     updateTimer() {
         if (!this.timerActive) return;
         
         this.timerCountdown--;
-        this.timerText.setText(`Time: ${this.timerCountdown}`);
+        this.timerText.setText(`⏱ ${this.timerCountdown}s`);
         
         if (this.timerCountdown <= 5) {
             this.timerText.setColor('#ff0000');
+            this.timerText.setShadow(0, 0, 'rgba(255, 0, 0, 0.7)', 8, true, false);
         } else if (this.timerCountdown <= 10) {
             this.timerText.setColor('#ff9900');
+            this.timerText.setShadow(0, 0, 'rgba(255, 153, 0, 0.5)', 5, true, false);
         } else {
             this.timerText.setColor('#00ff00');
+            this.timerText.setShadow(0, 0, 'rgba(0, 255, 0, 0.5)', 5, true, false);
         }
         
         if (this.timerCountdown <= 0) {
             console.log("failed");
             this.stopTimer();
             
-            this.showStatus('Čas je potekel! Naloga ni bila rešena v danem času.', '#ff0000', 3000);
+            this.cameras.main.shake(300, 0.01);
+            this.showStatus('Čas je potekel! Naloga ni bila rešena.', '#ff0000', 3000);
+            
+            const flash = this.add.rectangle(0, 0, this.cameras.main.width, this.cameras.main.height, 0xff0000, 0.2)
+                .setOrigin(0)
+                .setDepth(999);
+            
+            this.tweens.add({
+                targets: flash,
+                alpha: 0,
+                duration: 500,
+                onComplete: () => flash.destroy()
+            });
         }
     }
 
@@ -322,7 +461,8 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         const toX = pointer.x;
         const toY = pointer.y;
 
-        this.previewLine.lineStyle(3, 0xffff00, 0.7);
+        this.previewLine.lineStyle(4, 0x00ffcc, 0.8);
+        this.previewLine.lineStyle(6, 0x00ffcc, 0.3);
         
         const midX = fromX + (toX - fromX) / 2;
         this.previewLine.beginPath();
@@ -343,9 +483,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             if (this.logicCircuit && typeof this.logicCircuit.evaluate === 'function') {
                 this.logicCircuit.evaluate();
             }
-        } catch (e) {
-            //console.error('Circuit evaluation error:', e);
-        }
+        } catch (e) {}
 
         try {
             (this.placedComponents || []).forEach(c => {
@@ -355,7 +493,9 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                     const displayName = c.getData('displayName') || 'OUTPUT';
                     if (gate && label) {
                         const val = !!gate.getOutput();
-                        label.setText(`${displayName} = ${val ? 'true' : 'false'}`);
+                        const color = val ? '#00ff00' : '#ff0000';
+                        label.setText(`${displayName} = ${val ? 'ON' : 'OFF'}`);
+                        label.setStyle({ color });
                     }
                 }
             });
@@ -381,15 +521,19 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             }
             const pinWorldX = container.x + pin.x;
             const pinWorldY = container.y + pin.y;
-            const tooltipBg = this.add.rectangle(pinWorldX, pinWorldY - 25, 80, 30, 0x000000, 0.9)
-                .setStrokeStyle(2, 0xffffff)
-                .setOrigin(0.5)
+            
+            const tooltipBg = this.add.graphics()
+                .fillStyle(0x000000, 0.9)
+                .fillRoundedRect(pinWorldX - 40, pinWorldY - 35, 80, 30, 5)
+                .lineStyle(2, 0x00ffcc, 1)
+                .strokeRoundedRect(pinWorldX - 40, pinWorldY - 35, 80, 30, 5)
                 .setDepth(1000);
 
-            const tooltipText = this.add.text(pinWorldX, pinWorldY - 25, pinValue ? 'true' : 'false', {
-                fontSize: '14px',
-                color: '#ffffff',
-                fontStyle: 'bold'
+            const tooltipText = this.add.text(pinWorldX, pinWorldY - 20, pinValue ? 'TRUE' : 'FALSE', {
+                fontSize: '16px',
+                color: pinValue ? '#00ff00' : '#ff5555',
+                fontStyle: 'bold',
+                fontFamily: 'Arial, sans-serif'
             })
                 .setOrigin(0.5)
                 .setDepth(1001);
@@ -408,17 +552,8 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         }
     }
 
-    createGrid() {
-        const { width, height } = this.cameras.main;
-        const g = this.add.graphics();
-        g.lineStyle(2, 0x8b7355, 0.4);
-        const startX = this.gridStartX || 200;
-        for (let x = startX; x < width; x += this.gridSize) { g.beginPath(); g.moveTo(x, 0); g.lineTo(x, height); g.strokePath(); }
-        for (let y = 0; y < height; y += this.gridSize) { g.beginPath(); g.moveTo(startX, y); g.lineTo(width, y); g.strokePath(); }
-    }
-
     snapToGrid(x, y) {
-        const startX = this.gridStartX || 200;
+        const startX = this.gridStartX || 220;
         const snappedX = Math.round((x - startX) / this.gridSize) * this.gridSize + startX;
         const snappedY = Math.round(y / this.gridSize) * this.gridSize;
         return { x: snappedX, y: snappedY };
@@ -464,7 +599,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         }
 
         if (sourceIsOutput === targetIsOutput) {
-            this.checkText.setText('Ne morete povezati ' + (sourceIsOutput ? 'dveh izhodov' : 'dveh vhodov'));
+            this.checkText.setText(`Ne morete povezati ${sourceIsOutput ? 'dveh izhodov' : 'dveh vhodov'}`);
             this.time.delayedCall(1200, () => this._origCheckTextSet(''));
             this.cancelConnection();
             return;
@@ -508,6 +643,8 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         if (ok) {
             this.checkText.setText('Povezano');
             
+            this.cameras.main.shake(50, 0.005);
+            
             const fromPin = sourceIsOutput ? sourcePin : targetPin;
             const toPin = sourceIsOutput ? targetPin : sourcePin;
             const fromContainer = sourceIsOutput ? sourceContainer : targetContainer;
@@ -531,7 +668,12 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
 
     drawConnectionWithBend(fromX, fromY, toX, toY, fromId, toId, toPinIndex) {
         const gfx = this.add.graphics();
-        gfx.lineStyle(4, 0x424b55, 1);
+        
+        gfx.lineStyle(4, 0x00aaff, 1);
+        
+        const glow = this.add.graphics();
+        glow.lineStyle(8, 0x00aaff, 0.3);
+        glow.setDepth(9);
         
         const gridSize = this.gridSize;
         const snapX1 = Math.round(fromX / gridSize) * gridSize;
@@ -541,43 +683,96 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         
         const midX = Math.round((fromX + toX) / 2 / gridSize) * gridSize;
         
+        glow.beginPath();
+        glow.moveTo(fromX, fromY);
+        glow.lineTo(midX, fromY);
+        glow.lineTo(midX, toY);
+        glow.lineTo(toX, toY);
+        glow.strokePath();
+
         gfx.beginPath();
         gfx.moveTo(fromX, fromY);
-        
         gfx.lineTo(midX, fromY);
-        
         gfx.lineTo(midX, toY);
-        
         gfx.lineTo(toX, toY);
-        
         gfx.strokePath();
         gfx.setDepth(10);
 
-        const dx = toX - fromX;
-        const dy = toY - fromY;
-        const totalLength = Math.abs(midX - fromX) + Math.abs(toY - fromY) + Math.abs(toX - midX);
         const midPointX = fromX + (midX - fromX) / 2;
         const midPointY = fromY + (toY - fromY) / 2;
         
-        const hit = this.add.zone(midPointX, midPointY, Math.max(30, totalLength / 2), 16).setOrigin(0.5).setInteractive();
+        const hit = this.add.zone(midPointX, midPointY, Math.max(40, Math.abs(toX - fromX) / 2), 20)
+            .setOrigin(0.5)
+            .setInteractive({ useHandCursor: true });
+            
+        hit.on('pointerover', () => {
+            gfx.clear();
+            glow.clear();
+            gfx.lineStyle(4, 0xffcc00, 1);
+            glow.lineStyle(8, 0xffcc00, 0.3);
+            
+            gfx.beginPath();
+            gfx.moveTo(fromX, fromY);
+            gfx.lineTo(midX, fromY);
+            gfx.lineTo(midX, toY);
+            gfx.lineTo(toX, toY);
+            gfx.strokePath();
+            
+            glow.beginPath();
+            glow.moveTo(fromX, fromY);
+            glow.lineTo(midX, fromY);
+            glow.lineTo(midX, toY);
+            glow.lineTo(toX, toY);
+            glow.strokePath();
+        });
+        
+        hit.on('pointerout', () => {
+            gfx.clear();
+            glow.clear();
+            gfx.lineStyle(4, 0x00aaff, 1);
+            glow.lineStyle(8, 0x00aaff, 0.3);
+            
+            gfx.beginPath();
+            gfx.moveTo(fromX, fromY);
+            gfx.lineTo(midX, fromY);
+            gfx.lineTo(midX, toY);
+            gfx.lineTo(toX, toY);
+            gfx.strokePath();
+            
+            glow.beginPath();
+            glow.moveTo(fromX, fromY);
+            glow.lineTo(midX, fromY);
+            glow.lineTo(midX, toY);
+            glow.lineTo(toX, toY);
+            glow.strokePath();
+        });
+        
         hit.on('pointerdown', () => {
+            this.cameras.main.shake(100, 0.01);
+            
             try {
                 const srcGate = this.logicCircuit.getGate(fromId);
                 const dstGate = this.logicCircuit.getGate(toId);
                 if (srcGate && dstGate) srcGate.disconnectFrom(dstGate);
             } catch (e) { }
+            
             try { gfx.destroy(); } catch (e) {}
+            try { glow.destroy(); } catch (e) {}
             try { hit.destroy(); } catch (e) {}
+            
             this.connections = this.connections.filter(c => !(c.fromId === fromId && c.toId === toId && c.toPinIndex === toPinIndex));
+            
+            this.checkText.setText('🔌 Povezava odstranjena');
+            this.time.delayedCall(1000, () => this._origCheckTextSet(''));
         });
 
-        this.connections.push({ fromId, toId, fromPinIndex: 0, toPinIndex, gfx, hitZone: hit });
+        this.connections.push({ fromId, toId, fromPinIndex: 0, toPinIndex, gfx, glow, hitZone: hit });
     }
 
     setupInputOutputPins(container, type, labelText, img) {
-        const pinRadius = 6;
-        const inputPinColor = 0xff6600;
-        const outputPinColor = 0x00ff00;
+        const pinRadius = 8;
+        const inputPinColor = 0xff5555;
+        const outputPinColor = 0x55ff55;
         const highlightColor = 0xffff00;
         
         let maxInputs = 2;
@@ -590,7 +785,9 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
 
             for (let i = 0; i < maxInputs; i++) {
                 const yOff = (maxInputs === 1) ? 0 : (i === 0 ? -10 : 10);
-                const inPin = this.add.circle(-36, yOff, pinRadius, inputPinColor).setStrokeStyle(2, 0xffffff).setOrigin(0.5);
+                const inPin = this.add.circle(-36, yOff, pinRadius, inputPinColor)
+                    .setStrokeStyle(2, 0xffffff, 0.8)
+                    .setOrigin(0.5);
                 inPin.setInteractive({ useHandCursor: true });
 
                 inPin.on('pointerdown', (pointer, localX, localY, event) => {
@@ -598,8 +795,8 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                     
                     if (!this.connectingPin) {
                         this.connectingPin = { pinObject: inPin, container, isOutput: false };
-                        inPin.setStrokeStyle(3, highlightColor);
-                        this.checkText.setText('Izberi izhod za povezavo');
+                        inPin.setStrokeStyle(3, highlightColor, 1);
+                        this.checkText.setText('🔌 Izberi izhod za povezavo');
                         return;
                     }
 
@@ -612,9 +809,11 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                 });
 
                 inPin.on('pointerover', () => {
+                    inPin.setScale(1.2);
                     this.showPinTooltip(inPin, container, false);
                 });
                 inPin.on('pointerout', () => {
+                    inPin.setScale(1);
                     this.hidePinTooltip();
                 });
                 container.add(inPin);
@@ -623,15 +822,17 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         }
         let outputPin = container.getData('outputPin') || null;
         if (type !== 'bulb' && !outputPin) {
-            outputPin = this.add.circle(36, 0, pinRadius, outputPinColor).setStrokeStyle(2, 0xffffff).setOrigin(0.5);
+            outputPin = this.add.circle(36, 0, pinRadius, outputPinColor)
+                .setStrokeStyle(2, 0xffffff, 0.8)
+                .setOrigin(0.5);
             outputPin.setInteractive({ useHandCursor: true });
             outputPin.on('pointerdown', (pointer, localX, localY, event) => {
                 if (event && event.stopPropagation) event.stopPropagation();
                 
                 if (!this.connectingPin) {
                     this.connectingPin = { pinObject: outputPin, container, isOutput: true };
-                    outputPin.setStrokeStyle(3, highlightColor);
-                    this.checkText.setText('Izberi vhod za povezavo');
+                    outputPin.setStrokeStyle(3, highlightColor, 1);
+                    this.checkText.setText('🔌 Izberi vhod za povezavo');
                     return;
                 }
                 if (this.connectingPin.pinObject === outputPin) {
@@ -642,9 +843,11 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             });
 
             outputPin.on('pointerover', () => {
+                outputPin.setScale(1.2);
                 this.showPinTooltip(outputPin, container, true);
             });
             outputPin.on('pointerout', () => {
+                outputPin.setScale(1);
                 this.hidePinTooltip();
             });
             container.add(outputPin);
@@ -654,29 +857,33 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         container.setData('outputPin', outputPin);
     }
 
-    createComponent(x, y, type, labelText) {
+    createComponent(x, y, type, labelText, color) {
         const container = this.add.container(x, y);
         container.setDepth(5);
 
-        var size = 80;
-        var textureName = '';
-        switch (type) {
-            case 'bulb': textureName = 'BULB'; break;
-            case 'and': textureName = 'AND'; break;
-            case 'or': textureName = 'OR'; break;
-            case 'not': textureName = 'NOT'; break;
-            case 'nand': textureName = 'NAND'; break;
-            case 'nor': textureName = 'NOR'; break;
-            case 'xor': textureName = 'XOR'; break;
-            case 'xnor': textureName = 'XNOR'; break;
-            case 'input': textureName = 'SWITCH_ON'; break;
-        }
-
-        const img = this.add.image(0, 0, textureName).setDisplaySize(size, size).setOrigin(0.5);
+        const size = 72;
+        const textureName = this.getTextureName(type);
+        
+        const glow = this.add.circle(0, 0, size / 2 + 5, color, 0.2);
+        container.add(glow);
+        
+        const img = this.add.image(0, 0, textureName)
+            .setDisplaySize(size, size)
+            .setOrigin(0.5);
         container.add(img);
         container.setData('img', img);
 
-        const label = this.add.text(0, 36, labelText || type, { fontSize: '12px', color: '#fff', backgroundColor: '#00000088', padding: { x: 4, y: 2 } }).setOrigin(0.5);
+        const label = this.add.text(0, 40, labelText || type, { 
+            fontSize: '14px', 
+            color: '#ffffff',
+            backgroundColor: 'rgba(0, 0, 0, 0.6)',
+            padding: { x: 8, y: 4 },
+            borderRadius: 4,
+            fontFamily: 'Arial, sans-serif',
+            fontStyle: 'bold'
+        }).setOrigin(0.5);
+        
+        label.setShadow(1, 1, 'rgba(0, 0, 0, 0.5)', 2, true, false);
         container.add(label);
 
         container.setSize(64, 64);
@@ -687,10 +894,25 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         container.setData('isInPanel', true);
 
         this.input.setDraggable(container);
-        container.on('pointerover', () => {});
-        container.on('pointerout', () => {});
+        
+        container.on('pointerover', () => {
+            if (container.getData('isInPanel')) {
+                container.setScale(1.1);
+                glow.setAlpha(0.4);
+            }
+        });
+        
+        container.on('pointerout', () => {
+            if (container.getData('isInPanel')) {
+                container.setScale(1);
+                glow.setAlpha(0.2);
+            }
+        });
 
-        container.on('dragstart', () => { container.setData('isDragging', true); });
+        container.on('dragstart', () => { 
+            container.setData('isDragging', true);
+            container.setScale(1.05);
+        });
 
         container.on('drag', (pointer, dragX, dragY) => { 
             container.x = dragX; 
@@ -708,105 +930,22 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         });
 
         container.on('dragend', () => {
-            const isInPanel = container.x < (this.gridStartX || 200);
+            const isInPanel = container.x < (this.gridStartX || 220);
             if (isInPanel && !container.getData('isInPanel')) {
-                const gateId = container.getData('gateId');
-
-                if (this.connectingSource === container) this.connectingSource = null;
-
-                try {
-                    this.connections = this.connections.filter(conn => {
-                        if (conn.fromId === gateId || conn.toId === gateId) {
-                            try { if (conn.gfx) conn.gfx.destroy(); } catch (e) { }
-                            try { if (conn.hitZone) conn.hitZone.destroy(); } catch (e) { }
-                            return false;
-                        }
-                        return true;
-                    });
-                } catch (e) { }
-
-                try { if (this.logicCircuit && typeof this.logicCircuit.removeGate === 'function') this.logicCircuit.removeGate(gateId); } catch (e) { }
-
-                try { this.placedComponents = this.placedComponents.filter(c => c !== container); } catch (e) { }
-
-                try {
-                    const name = container.getData('displayName');
-                    const idx = container.getData('displayIndex');
-                    const t = container.getData('type');
-                    if (t === 'input' && typeof idx === 'number') {
-                        try { this.inputIndices.delete(idx); } catch (e) {}
-                    }
-                    if (t === 'bulb' && typeof idx === 'number') {
-                        try { this.bulbIndices.delete(idx); } catch (e) {}
-                    }
-                } catch (e) { }
-
-                container.destroy();
+                this.returnComponentToPanel(container);
             } else if (!isInPanel && container.getData('isInPanel')) {
-                const snapped = this.snapToGrid(container.x, container.y);
-                container.x = snapped.x; container.y = snapped.y;
-
-                const id = `${type}_${this.getRandomInt(1000, 9999)}`;
-                let gateType = null;
-                switch (type) {
-                    case 'input': gateType = GateTypes.input; break;
-                    case 'and': gateType = GateTypes.and; break;
-                    case 'or': gateType = GateTypes.or; break;
-                    case 'not': gateType = GateTypes.not; break;
-                    case 'nand': gateType = GateTypes.nand; break;
-                    case 'nor': gateType = GateTypes.nor; break;
-                    case 'xor': gateType = GateTypes.xor; break;
-                    case 'xnor': gateType = GateTypes.xnor; break;
-                    case 'bulb': gateType = GateTypes.bulb; break;
-                    default: gateType = GateTypes.and;
-                }
-
-                const gate = this.logicCircuit.addGate(gateType, id);
-                container.setData('logicGate', gate);
-                container.setData('gateId', id);
-                container.setData('img', img);
-                container.setData('labelTextObj', label);
-
-                if (type === 'input') {
-                    container.setData('inputValue', true);
-                    let idx = 1;
-                    while (this.inputIndices.has(idx)) idx++;
-                    this.inputIndices.add(idx);
-                    const inputName = `INPUT ${idx}`;
-                    container.setData('displayName', inputName);
-                    container.setData('displayIndex', idx);
-                    label.setText(`${inputName} = true`);
-                }
-
-                if (type === 'bulb') {
-                    container.setData('isBulb', true);
-                    let bidx = 1;
-                    while (this.bulbIndices.has(bidx)) bidx++;
-                    this.bulbIndices.add(bidx);
-                    const displayName = `OUTPUT ${bidx}`;
-                    label.setText(displayName);
-                    container.setData('displayName', displayName);
-                    container.setData('displayIndex', bidx);
-                }
-
-                container.setData('isInPanel', false);
-                container.setDepth(20);
-
-                this.setupInputOutputPins(container, type, labelText, img);
-
-                this.placedComponents.push(container);
-
-                this.createComponent(container.getData('originalX'), container.getData('originalY'), container.getData('type'), labelText);
-
+                this.placeComponentOnGrid(container, type, labelText);
             } else if (!container.getData('isInPanel')) {
                 const snapped = this.snapToGrid(container.x, container.y);
-                container.x = snapped.x; container.y = snapped.y;
-
+                container.x = snapped.x; 
+                container.y = snapped.y;
                 this.updateConnectionsForGate(container.getData('gateId'));
             } else {
-                container.x = container.getData('originalX'); container.y = container.getData('originalY');
+                container.x = container.getData('originalX'); 
+                container.y = container.getData('originalY');
             }
 
+            container.setScale(1);
             this.time.delayedCall(200, () => container.setData('isDragging', false));
         });
 
@@ -817,19 +956,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             const last = container.getData('lastClick') || 0;
             if (now - last < 300) {
                 if (container.getData('type') === 'input') {
-                    const gate = container.getData('logicGate');
-                    const current = container.getData('inputValue') === undefined ? true : container.getData('inputValue');
-                    const newVal = !current;
-                    
-                    if (gate && gate.setValue) gate.setValue(newVal);
-
-                    container.setData('inputValue', newVal);
-                    const inputName = container.getData('displayName') || labelText || `INPUT`;
-                    label.setText(`${inputName} = ${newVal ? 'true' : 'false'}`);
-                    this.checkText.setText(`${inputName} = ${newVal ? 'true' : 'false'}`);
-                    this.time.delayedCall(1200, () => this._origCheckTextSet(''));
-
-                    img.setTexture(newVal ? 'SWITCH_ON' : 'SWITCH_OFF');
+                    this.toggleInputSwitch(container);
                 }
                 container.setData('lastClick', 0);
                 return;
@@ -838,9 +965,151 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         });
     }
 
+    getTextureName(type) {
+        switch (type) {
+            case 'bulb': return 'BULB';
+            case 'and': return 'AND';
+            case 'or': return 'OR';
+            case 'not': return 'NOT';
+            case 'nand': return 'NAND';
+            case 'nor': return 'NOR';
+            case 'xor': return 'XOR';
+            case 'xnor': return 'XNOR';
+            case 'input': return 'SWITCH_ON';
+            default: return 'AND';
+        }
+    }
+
+    returnComponentToPanel(container) {
+        const gateId = container.getData('gateId');
+        
+        if (this.connectingSource === container) this.connectingSource = null;
+
+        try {
+            this.connections = this.connections.filter(conn => {
+                if (conn.fromId === gateId || conn.toId === gateId) {
+                    try { if (conn.gfx) conn.gfx.destroy(); } catch (e) { }
+                    try { if (conn.glow) conn.glow.destroy(); } catch (e) { }
+                    try { if (conn.hitZone) conn.hitZone.destroy(); } catch (e) { }
+                    return false;
+                }
+                return true;
+            });
+        } catch (e) { }
+
+        try { 
+            if (this.logicCircuit && typeof this.logicCircuit.removeGate === 'function') {
+                this.logicCircuit.removeGate(gateId); 
+            }
+        } catch (e) { }
+
+        try { 
+            this.placedComponents = this.placedComponents.filter(c => c !== container); 
+        } catch (e) { }
+
+        try {
+            const name = container.getData('displayName');
+            const idx = container.getData('displayIndex');
+            const t = container.getData('type');
+            if (t === 'input' && typeof idx === 'number') {
+                try { this.inputIndices.delete(idx); } catch (e) {}
+            }
+            if (t === 'bulb' && typeof idx === 'number') {
+                try { this.bulbIndices.delete(idx); } catch (e) {}
+            }
+        } catch (e) { }
+
+        container.destroy();
+    }
+
+    placeComponentOnGrid(container, type, labelText) {
+        const snapped = this.snapToGrid(container.x, container.y);
+        container.x = snapped.x; 
+        container.y = snapped.y;
+
+        const id = `${type}_${this.getRandomInt(1000, 9999)}`;
+        let gateType = this.getGateType(type);
+        
+        const gate = this.logicCircuit.addGate(gateType, id);
+        container.setData('logicGate', gate);
+        container.setData('gateId', id);
+        container.setData('labelTextObj', container.list[2]);
+
+        if (type === 'input') {
+            container.setData('inputValue', true);
+            let idx = 1;
+            while (this.inputIndices.has(idx)) idx++;
+            this.inputIndices.add(idx);
+            const inputName = `INPUT ${idx}`;
+            container.setData('displayName', inputName);
+            container.setData('displayIndex', idx);
+            container.list[2].setText(`${inputName} = ON`);
+            container.list[2].setColor('#00ff00');
+        }
+
+        if (type === 'bulb') {
+            container.setData('isBulb', true);
+            let bidx = 1;
+            while (this.bulbIndices.has(bidx)) bidx++;
+            this.bulbIndices.add(bidx);
+            const displayName = `OUTPUT ${bidx}`;
+            container.list[2].setText(displayName);
+            container.setData('displayName', displayName);
+            container.setData('displayIndex', bidx);
+        }
+
+        container.setData('isInPanel', false);
+        container.setDepth(20);
+        
+        container.list[0].setAlpha(0);
+
+        this.setupInputOutputPins(container, type, labelText, container.list[1]);
+        this.placedComponents.push(container);
+
+        this.createComponent(container.getData('originalX'), container.getData('originalY'), container.getData('type'), labelText, 0xffffff);
+    }
+
+    getGateType(type) {
+        switch (type) {
+            case 'input': return GateTypes.input;
+            case 'and': return GateTypes.and;
+            case 'or': return GateTypes.or;
+            case 'not': return GateTypes.not;
+            case 'nand': return GateTypes.nand;
+            case 'nor': return GateTypes.nor;
+            case 'xor': return GateTypes.xor;
+            case 'xnor': return GateTypes.xnor;
+            case 'bulb': return GateTypes.bulb;
+            default: return GateTypes.and;
+        }
+    }
+
+    toggleInputSwitch(container) {
+        const gate = container.getData('logicGate');
+        const current = container.getData('inputValue') === undefined ? true : container.getData('inputValue');
+        const newVal = !current;
+        
+        if (gate && gate.setValue) gate.setValue(newVal);
+
+        container.setData('inputValue', newVal);
+        const inputName = container.getData('displayName') || `INPUT`;
+        const label = container.list[2];
+        label.setText(`${inputName} = ${newVal ? 'ON' : 'OFF'}`);
+        label.setColor(newVal ? '#00ff00' : '#ff0000');
+        
+        this.checkText.setText(`${inputName} = ${newVal ? 'ON' : 'OFF'}`);
+        this.time.delayedCall(1200, () => this._origCheckTextSet(''));
+
+        this.cameras.main.shake(30, 0.002);
+        
+        const img = container.list[1];
+        img.setTexture(newVal ? 'SWITCH_ON' : 'SWITCH_OFF');
+    }
+
     evaluateCircuit() {
         const resultsFull = this.logicCircuit.evaluate();
         const endResults = {};
+        
         if (this.logicCircuit && this.logicCircuit.gates) {
             for (const [id, gate] of this.logicCircuit.gates) {
                 if (!gate.outputGates || gate.outputGates.length === 0) {
@@ -848,6 +1117,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                 }
             }
         }
+        
         const bulbEntries = [];
         try {
             (this.placedComponents || []).forEach(c => {
@@ -856,7 +1126,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                     const gate = c.getData('logicGate');
                     let val = false;
                     try { val = !!(gate && gate.getOutput()); } catch (e) { val = false; }
-                    bulbEntries.push(`${name}: ${val ? 'true' : 'false'}`);
+                    bulbEntries.push(`${name}: ${val ? 'ON 🟢' : 'OFF 🔴'}`);
                 }
             });
         } catch (e) { }
@@ -869,7 +1139,8 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                     const displayName = c.getData('displayName') || 'OUTPUT';
                     if (gate && label) {
                         const val = !!gate.getOutput();
-                        label.setText(`${displayName} = ${val ? 'true' : 'false'}`);
+                        label.setText(`${displayName} = ${val ? 'ON' : 'OFF'}`);
+                        label.setColor(val ? '#00ff00' : '#ff0000');
                     }
                 }
             });
@@ -880,18 +1151,33 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             taskCompleted = this.checkCurrentTaskCompletion();
         } catch (e) { }
 
-    const statusText = bulbEntries.length > 0 ? `OUTPUT values: ${bulbEntries.join(', ')}` : 'No OUTPUT present';
+        const statusText = bulbEntries.length > 0 ? `📊 ${bulbEntries.join(' | ')}` : 'No OUTPUT present';
 
         if (taskCompleted && this.tasks && this.tasks[this.currentTaskIndex] && !this.tasks[this.currentTaskIndex].completed) {
             this.tasks[this.currentTaskIndex].completed = true;
             this.addPoints(this.tasks[this.currentTaskIndex].points);
-            this.showStatus(`${statusText} — Naloga opravljena! (+${this.tasks[this.currentTaskIndex].points})`, '#00aa00', 2000);
+            
+            this.cameras.main.shake(200, 0.01);
+            this.showStatus(`🎉 ${statusText} — Naloga opravljena! +${this.tasks[this.currentTaskIndex].points} točk`, '#00ff00', 2500);
+            
             this.time.delayedCall(1500, () => this.nextTask());
         } else {
-            const taskMsg = (this.tasks && this.tasks[this.currentTaskIndex] && this.tasks[this.currentTaskIndex].completed) ? 'Naloga opravljena!' : 'Naloga ni opravljena';
-            const color = (taskMsg === 'Naloga opravljena!') ? '#00aa00' : '#cc0000';
+            const taskMsg = (this.tasks && this.tasks[this.currentTaskIndex] && this.tasks[this.currentTaskIndex].completed) 
+                ? 'Naloga opravljena!' 
+                : 'Naloga ni opravljena';
+            const color = (taskMsg.includes('opravljena')) ? '#00aa00' : '#cc0000';
             this.showStatus(`${statusText} — ${taskMsg}`, color, 2000);
-            try { this.time.delayedCall(2000, () => { try { this._origCheckTextSet(''); this.checkText.setStyle({ color: '#000000' }); } catch (e) {} }); } catch (e) {}
+            try { 
+                this.time.delayedCall(2000, () => { 
+                    try { 
+                        this._origCheckTextSet(''); 
+                        this.checkText.setStyle({ 
+                            color: '#ffffff',
+                            backgroundColor: 'rgba(0, 20, 40, 0.8)'
+                        }); 
+                    } catch (e) {} 
+                }); 
+            } catch (e) {}
         }
     }
 
@@ -900,7 +1186,11 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         const task = this.tasks[this.currentTaskIndex];
         if (!task) return false;
 
-        try { if (this.logicCircuit && typeof this.logicCircuit.evaluate === 'function') this.logicCircuit.evaluate(); } catch (e) { }
+        try { 
+            if (this.logicCircuit && typeof this.logicCircuit.evaluate === 'function') {
+                this.logicCircuit.evaluate(); 
+            }
+        } catch (e) { }
 
         for (const [id, gate] of this.logicCircuit.gates) {
             if (gate.operation !== 'LIGHT') continue;
@@ -917,7 +1207,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                     const okStructure = (task.gateType === 'NOT' || task.gateType === 'BUFFER') ? true : (numInputs >= 1);
                     if (okStructure) {
                         task.completed = true;
-                        this.showStatus('Naloga opravljena!', '#00aa00', 2000);
+                        this.showStatus('✅ Naloga opravljena!', '#00aa00', 2000);
                         try { this.addPoints(task.points); } catch (e) {}
                         this.time.delayedCall(1500, () => this.nextTask());
                         return true;
@@ -932,7 +1222,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                         const hasChild = inputs.some(g => g && g.operation === child);
                         if (hasChild) {
                             task.completed = true;
-                            this.showStatus('Naloga opravljena!', '#00aa00', 2000);
+                            this.showStatus('✅ Naloga opravljena!', '#00aa00', 2000);
                             try { this.addPoints(task.points); } catch (e) {}
                             this.time.delayedCall(1500, () => this.nextTask());
                             return true;
@@ -946,7 +1236,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                         const hasB = inputs.some(g => g && g.operation === childB);
                         if (hasA && hasB) {
                             task.completed = true;
-                            this.showStatus('Naloga opravljena!', '#00aa00', 2000);
+                            this.showStatus('✅ Naloga opravljena!', '#00aa00', 2000);
                             try { this.addPoints(task.points); } catch (e) {}
                             this.time.delayedCall(1500, () => this.nextTask());
                             return true;
@@ -966,8 +1256,8 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             this.taskText.setText(this.tasks[this.currentTaskIndex].prompt);
         } else {
             this.taskText.setText('Vse naloge opravljene! Bravo!');
-            this.showStatus('Čestitke! Vse naloge opravljene!', '#00aa00', 3000);
-            try { this.addPoints(20); } catch (e) {}
+            this.showStatus('Čestitke! Vse naloge opravljene!', '#00ffcc', 3000);
+            try { this.addPoints(50); } catch (e) {}
             localStorage.removeItem('logicTasksIndex');
         }
     }
@@ -988,6 +1278,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         if (this.connections && this.connections.length > 0) {
             this.connections.forEach(conn => {
                 try { if (conn.gfx) conn.gfx.destroy(); } catch (e) { }
+                try { if (conn.glow) conn.glow.destroy(); } catch (e) { }
                 try { if (conn.hitZone) conn.hitZone.destroy(); } catch (e) { }
             });
         }
@@ -995,7 +1286,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         this.logicCircuit = new LogicCircuit();
         try { this.inputIndices = new Set(); } catch (e) {}
         try { this.bulbIndices = new Set(); } catch (e) {}
-        this._origCheckTextSet('Workspace reset');
+        this._origCheckTextSet('🔄 Workspace reset');
         this.time.delayedCall(1500, () => this._origCheckTextSet(''));
     }
 
@@ -1004,6 +1295,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             this.connections = this.connections.filter(conn => {
                 if (conn.fromId === gateId || conn.toId === gateId) {
                     try { if (conn.gfx) conn.gfx.destroy(); } catch (e) { }
+                    try { if (conn.glow) conn.glow.destroy(); } catch (e) { }
                     try { if (conn.hitZone) conn.hitZone.destroy(); } catch (e) { }
                     return false;
                 }
@@ -1033,9 +1325,11 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                 this.cancelConnection();
             }
 
+            this.cameras.main.shake(100, 0.01);
+            
             container.destroy();
 
-            this.checkText.setText('Gate deleted');
+            this.checkText.setText('Vrata izbrisana');
             this.time.delayedCall(1000, () => this._origCheckTextSet(''));
         } catch (e) { }
     }
@@ -1056,8 +1350,19 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
 
                     const midX = Math.round((fromX + toX) / 2 / this.gridSize) * this.gridSize;
                     
+                    if (conn.glow) {
+                        conn.glow.clear();
+                        conn.glow.lineStyle(8, 0x00aaff, 0.3);
+                        conn.glow.beginPath();
+                        conn.glow.moveTo(fromX, fromY);
+                        conn.glow.lineTo(midX, fromY);
+                        conn.glow.lineTo(midX, toY);
+                        conn.glow.lineTo(toX, toY);
+                        conn.glow.strokePath();
+                    }
+                    
                     conn.gfx.clear();
-                    conn.gfx.lineStyle(4, 0x424b55, 1);
+                    conn.gfx.lineStyle(4, 0x00aaff, 1);
                     conn.gfx.beginPath();
                     conn.gfx.moveTo(fromX, fromY);
                     conn.gfx.lineTo(midX, fromY);
@@ -1066,14 +1371,11 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                     conn.gfx.strokePath();
 
                     if (conn.hitZone) {
-                        const dx = toX - fromX;
-                        const dy = toY - fromY;
-                        const totalLength = Math.abs(midX - fromX) + Math.abs(toY - fromY) + Math.abs(toX - midX);
                         const midPointX = fromX + (midX - fromX) / 2;
                         const midPointY = fromY + (toY - fromY) / 2;
                         
                         conn.hitZone.setPosition(midPointX, midPointY);
-                        conn.hitZone.setSize(Math.max(30, totalLength / 2), 16);
+                        conn.hitZone.setSize(Math.max(40, Math.abs(toX - fromX) / 2), 20);
                     }
                 }
             }
