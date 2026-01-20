@@ -68,8 +68,8 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         });
 
         this.timerActive = false;
-        this.timerCountdown = 15;
-        this.timerText = this.add.text(width - 120, 30, `⏱ ${this.timerCountdown}s`, {
+        this.timerCountdown = 180;
+        this.timerText = this.add.text(width - 120, 30, `⏱ ${this.formatTime(this.timerCountdown)}`, {
             fontSize: '28px',
             color: '#00ffcc',
             fontStyle: 'bold',
@@ -155,39 +155,274 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
 
         this.inputIndices = new Set();
         this.bulbIndices = new Set();
+        this.bulbGlows = new Map();
 
-        this.tasks = [
-            { id: 'and_task', prompt: 'Naloga 1: Poveži AND z OUTPUT', gateType: 'AND', points: 10, completed: false },
-            { id: 'or_task', prompt: 'Naloga 2: Poveži OR z OUTPUT', gateType: 'OR', points: 10, completed: false },
-            { id: 'not_task', prompt: 'Naloga 3: Poveži NOT z OUTPUT', gateType: 'NOT', points: 10, completed: false },
-            { id: 'nand_task', prompt: 'Naloga 4: Poveži NAND z OUTPUT', gateType: 'NAND', points: 10, completed: false },
-            { id: 'nor_task', prompt: 'Naloga 5: Poveži NOR z OUTPUT', gateType: 'NOR', points: 10, completed: false },
-            { id: 'xor_task', prompt: 'Naloga 6: Poveži XOR z OUTPUT', gateType: 'XOR', points: 10, completed: false },
-            { id: 'xnor_task', prompt: 'Naloga 7: Poveži XNOR z OUTPUT', gateType: 'XNOR', points: 10, completed: false },
-            { id: 'mix_1', prompt: 'Naloga 8: XOR z vhodi AND in OR', gateType: ['AND', 'OR', 'XOR'], points: 20, completed: false },
-            { id: 'mix_2', prompt: 'Naloga 9: OR z vhodi NAND in NOR', gateType: ['NAND', 'NOR', 'OR'], points: 20, completed: false },
-            { id: 'mix_3', prompt: 'Naloga 10: XNOR z vhodi AND in XOR', gateType: ['AND', 'XOR', 'XNOR'], points: 20, completed: false },
-            { id: 'mix_3_1', prompt: 'Naloga 11: XNOR z vhodi NOT, AND in XOR', gateType: ['NOT', 'AND', 'XOR', 'XNOR'], points: 20, completed: false }
+        this.challenges = [
+            {
+                id: 'challenge_1',
+                prompt: 'Naloga 1: Ustvari vezje, kjer je izhod prižgan, če sta oba vhoda prižgana',
+                solutionCheck: (circuit) => {
+                    const bulbs = this.getOutputGates(circuit);
+                    if (bulbs.length === 0) return false;
+
+                    const bulb = bulbs[0];
+                    const inputs = this.getInputGates(circuit);
+                    if (inputs.length < 2) return false;
+
+                    const input1 = inputs[0];
+                    const input2 = inputs[1];
+
+                    const testCases = [
+                        { a: true, b: true, expected: true },
+                        { a: false, b: true, expected: false },
+                        { a: true, b: false, expected: false },
+                        { a: false, b: false, expected: false }
+                    ];
+
+                    for (const test of testCases) {
+                        input1.setValue(test.a);
+                        input2.setValue(test.b);
+                        circuit.evaluate();
+
+                        if (bulb.getOutput() !== test.expected) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
+            },
+            {
+                id: 'challenge_2',
+                prompt: 'Naloga 2: Ustvari vezje, kjer je izhod prižgan, če je vsaj en vhod prižgan',
+                solutionCheck: (circuit) => {
+                    const bulbs = this.getOutputGates(circuit);
+                    if (bulbs.length === 0) return false;
+
+                    const bulb = bulbs[0];
+                    const inputs = this.getInputGates(circuit);
+                    if (inputs.length < 2) return false;
+
+                    const input1 = inputs[0];
+                    const input2 = inputs[1];
+
+                    const testCases = [
+                        { a: true, b: true, expected: true },
+                        { a: false, b: true, expected: true },
+                        { a: true, b: false, expected: true },
+                        { a: false, b: false, expected: false }
+                    ];
+
+                    for (const test of testCases) {
+                        input1.setValue(test.a);
+                        input2.setValue(test.b);
+                        circuit.evaluate();
+
+                        if (bulb.getOutput() !== test.expected) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
+            },
+            {
+                id: 'challenge_3',
+                prompt: 'Naloga 3: Ustvari vezje XOR (izhod prižgan, če sta vhoda različna)',
+                solutionCheck: (circuit) => {
+                    const bulbs = this.getOutputGates(circuit);
+                    if (bulbs.length === 0) return false;
+
+                    const bulb = bulbs[0];
+                    const inputs = this.getInputGates(circuit);
+                    if (inputs.length < 2) return false;
+
+                    const input1 = inputs[0];
+                    const input2 = inputs[1];
+
+                    const testCases = [
+                        { a: true, b: true, expected: false },
+                        { a: false, b: true, expected: true },
+                        { a: true, b: false, expected: true },
+                        { a: false, b: false, expected: false }
+                    ];
+
+                    for (const test of testCases) {
+                        input1.setValue(test.a);
+                        input2.setValue(test.b);
+                        circuit.evaluate();
+
+                        if (bulb.getOutput() !== test.expected) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
+            },
+            {
+                id: 'challenge_4',
+                prompt: 'Naloga 4: Ustvari pol-seštevalnik (vsota in prenos) z uporabo AND in XOR vrat',
+                solutionCheck: (circuit) => {
+                    const bulbs = this.getOutputGates(circuit);
+                    if (bulbs.length < 2) return false;
+
+                    const sortedBulbs = bulbs.sort((a, b) => {
+                        const aContainer = this.placedComponents.find(c => c.getData('gateId') === a.id);
+                        const bContainer = this.placedComponents.find(c => c.getData('gateId') === b.id);
+                        const aIdx = aContainer ? aContainer.getData('displayIndex') || 0 : 0;
+                        const bIdx = bContainer ? bContainer.getData('displayIndex') || 0 : 0;
+                        return aIdx - bIdx;
+                    });
+
+                    const sumBulb = sortedBulbs[0];
+                    const carryBulb = sortedBulbs[1];
+
+                    const inputs = this.getInputGates(circuit);
+                    if (inputs.length < 2) return false;
+
+                    const A = inputs[0];
+                    const B = inputs[1];
+
+                    const testCases = [
+                        { a: false, b: false, sum: false, carry: false },
+                        { a: false, b: true, sum: true, carry: false },
+                        { a: true, b: false, sum: true, carry: false },
+                        { a: true, b: true, sum: false, carry: true }
+                    ];
+
+                    for (const test of testCases) {
+                        A.setValue(test.a);
+                        B.setValue(test.b);
+                        circuit.evaluate();
+
+                        if (sumBulb.getOutput() !== test.sum) return false;
+                        if (carryBulb.getOutput() !== test.carry) return false;
+                    }
+
+                    return true;
+                }
+            },
+            {
+                id: 'challenge_5',
+                prompt: 'Naloga 5: Ustvari vezje, ki invertira vhod (NOT)',
+                solutionCheck: (circuit) => {
+                    const bulbs = this.getOutputGates(circuit);
+                    if (bulbs.length === 0) return false;
+
+                    const bulb = bulbs[0];
+                    const inputs = this.getInputGates(circuit);
+                    if (inputs.length < 1) return false;
+
+                    const input = inputs[0];
+
+                    const testCases = [
+                        { a: true, expected: false },
+                        { a: false, expected: true }
+                    ];
+
+                    for (const test of testCases) {
+                        input.setValue(test.a);
+                        circuit.evaluate();
+
+                        if (bulb.getOutput() !== test.expected) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
+            },
+            {
+                id: 'challenge_6',
+                prompt: 'Naloga 6: Ustvari NAND z uporabo AND in NOT vrat',
+                solutionCheck: (circuit) => {
+                    const bulbs = this.getOutputGates(circuit);
+                    if (bulbs.length === 0) return false;
+
+                    const bulb = bulbs[0];
+                    const inputs = this.getInputGates(circuit);
+                    if (inputs.length < 2) return false;
+
+                    const input1 = inputs[0];
+                    const input2 = inputs[1];
+
+                    const testCases = [
+                        { a: true, b: true, expected: false },
+                        { a: false, b: true, expected: true },
+                        { a: true, b: false, expected: true },
+                        { a: false, b: false, expected: true }
+                    ];
+
+                    for (const test of testCases) {
+                        input1.setValue(test.a);
+                        input2.setValue(test.b);
+                        circuit.evaluate();
+
+                        if (bulb.getOutput() !== test.expected) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
+            },
+            {
+                id: 'challenge_7',
+                prompt: 'Naloga 7: Ustvari 3-vhodno AND vezje',
+                solutionCheck: (circuit) => {
+                    const bulbs = this.getOutputGates(circuit);
+                    if (bulbs.length === 0) return false;
+
+                    const bulb = bulbs[0];
+                    const inputs = this.getInputGates(circuit);
+                    if (inputs.length < 3) return false;
+
+                    const [A, B, C] = inputs;
+
+                    const testCases = [
+                        { a: true, b: true, c: true, expected: true },
+                        { a: false, b: true, c: true, expected: false },
+                        { a: true, b: false, c: true, expected: false },
+                        { a: true, b: true, c: false, expected: false },
+                        { a: false, b: false, c: true, expected: false },
+                        { a: true, b: false, c: false, expected: false },
+                        { a: false, b: true, c: false, expected: false },
+                        { a: false, b: false, c: false, expected: false }
+                    ];
+
+                    const criticalTests = [
+                        testCases[0],
+                        testCases[1],
+                        testCases[2],
+                        testCases[3]
+                    ];
+
+                    for (const test of criticalTests) {
+                        A.setValue(test.a);
+                        B.setValue(test.b);
+                        C.setValue(test.c);
+                        circuit.evaluate();
+
+                        if (bulb.getOutput() !== test.expected) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
+            }
         ];
 
-        const getRandomTaskIndex = () => {
-            const uncompletedTasks = this.tasks.filter(task => !task.completed);
-
-            if (uncompletedTasks.length === 0) {
-                return Math.floor(Math.random() * this.tasks.length);
-            }
-
-            const randomIndexInUncompleted = Math.floor(Math.random() * uncompletedTasks.length);
-            const randomTask = uncompletedTasks[randomIndexInUncompleted];
-
-            return this.tasks.findIndex(task => task.id === randomTask.id);
+        const getRandomChallengeIndex = () => {
+            return Math.floor(Math.random() * this.challenges.length);
         };
 
-        this.currentTaskIndex = getRandomTaskIndex();
+        this.currentChallengeIndex = getRandomChallengeIndex();
         this.startTimer();
 
         const taskBoxWidth = Math.min(450, width - panelWidth - 100);
-        const taskBoxHeight = 90;
+        const taskBoxHeight = 120;
         const taskBoxX = panelWidth + 40;
         const taskBoxY = 30;
 
@@ -202,7 +437,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         this.taskText = this.add.text(
             taskBoxX + 15,
             taskBoxY + 15,
-            this.tasks[this.currentTaskIndex].prompt,
+            this.challenges[this.currentChallengeIndex].prompt,
             {
                 fontSize: '16px',
                 color: '#ffffff',
@@ -218,7 +453,8 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         const cornerRadius = 25;
 
         const makeButton = (x, y, label, onClick, opts = {}) => {
-            const bg = this.add.graphics();
+            const bg = this.add.graphics().setDepth(1000);
+
             const defaultColor = 0x0066cc;
             const hoverColor = 0x0088ff;
             const activeColor = opts.activeColor || 0x004488;
@@ -244,6 +480,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             const hitZone = this.add.zone(x, y, buttonWidth, buttonHeight)
                 .setOrigin(0.5)
                 .setInteractive({ useHandCursor: true })
+                .setDepth(1001)
                 .on('pointerover', () => {
                     drawBg(button.active && button.activeColor ? button.activeColor : hoverColor, true);
                 })
@@ -258,11 +495,14 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
 
             const text = this.add.text(x, y, label, {
                 fontFamily: 'Arial',
-                fontSize: '20px',
+                fontSize: 20,
                 color: '#ffffff',
                 fontStyle: 'bold',
-                letterSpacing: '1px'
-            }).setOrigin(0.5);
+                letterSpacing: 1,
+                align: 'center'
+            })
+                .setOrigin(0.5)
+                .setDepth(1002);
 
             text.setShadow(1, 1, 'rgba(0, 0, 0, 0.5)', 2, true, false);
 
@@ -276,14 +516,14 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             return button;
         };
 
-        makeButton(width - 140, 100, 'Preveri', () => {
+        const checkBtn = makeButton(width - 140, 100, 'Preveri', () => {
             this._suppressCheckTextClear = true;
             this._suppressCheckTextClearUntil = Date.now() + 3000;
             this.time.delayedCall(3000, () => {
                 this._suppressCheckTextClear = false;
                 this._suppressCheckTextClearUntil = 0;
             });
-            this.evaluateCircuit();
+            this.evaluateChallenge();
         });
 
         this.placedComponents = [];
@@ -366,8 +606,8 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
     }
 
     startTimer() {
-        this.timerCountdown = 15;
-        this.timerText.setText(`⏱ ${this.timerCountdown}s`);
+        this.timerCountdown = 25;
+        this.timerText.setText(`⏱ ${this.formatTime(this.timerCountdown)}`);
         this.timerText.setColor('#00ff00');
         this.timerText.setShadow(0, 0, 'rgba(0, 255, 0, 0.5)', 5, true, false);
 
@@ -385,23 +625,22 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         }
     }
 
-    resetTimer() {
-        this.timerCountdown = 15;
-        this.timerText.setText(`⏱ ${this.timerCountdown}s`);
-        this.timerText.setColor('#ff0000');
-        this.timerText.setShadow(0, 0, 'rgba(255, 0, 0, 0.5)', 5, true, false);
+    formatTime(seconds) {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins}:${secs < 10 ? '0' : ''}${secs}`;
     }
 
     updateTimer() {
         if (!this.timerActive) return;
 
         this.timerCountdown--;
-        this.timerText.setText(`⏱ ${this.timerCountdown}s`);
+        this.timerText.setText(`⏱ ${this.formatTime(this.timerCountdown)}`);
 
-        if (this.timerCountdown <= 5) {
+        if (this.timerCountdown <= 30) {
             this.timerText.setColor('#ff0000');
             this.timerText.setShadow(0, 0, 'rgba(255, 0, 0, 0.7)', 8, true, false);
-        } else if (this.timerCountdown <= 10) {
+        } else if (this.timerCountdown <= 60) {
             this.timerText.setColor('#ff9900');
             this.timerText.setShadow(0, 0, 'rgba(255, 153, 0, 0.5)', 5, true, false);
         } else {
@@ -410,7 +649,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         }
 
         if (this.timerCountdown <= 0) {
-            console.log("failed");
+            console.log("Time's up!");
             this.stopTimer();
 
             this.cameras.main.shake(300, 0.01);
@@ -495,10 +734,55 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                         const color = val ? '#00ff00' : '#ff0000';
                         label.setText(`${displayName} = ${val ? 'ON' : 'OFF'}`);
                         label.setStyle({ color });
+
+                        this.updateBulbAppearance(c, val);
                     }
                 }
             });
         } catch (e) { }
+    }
+
+    updateBulbAppearance(container, isOn) {
+        const img = container.getData('img');
+        const gateId = container.getData('gateId');
+
+        if (!img) return;
+
+        img.setTexture(isOn ? 'BULB' : 'BULB');
+
+        if (isOn) {
+            if (!this.bulbGlows.has(gateId)) {
+                const glow = this.add.circle(0, 0, 50, 0xffff00, 0.3)
+                    .setDepth(-1);
+
+                container.add(glow);
+
+                this.tweens.add({
+                    targets: glow,
+                    scale: { from: 0.8, to: 1.2 },
+                    alpha: { from: 0.2, to: 0.4 },
+                    duration: 1000,
+                    yoyo: true,
+                    repeat: -1,
+                    ease: 'Sine.easeInOut'
+                });
+
+                this.bulbGlows.set(gateId, glow);
+            }
+        } else {
+            if (this.bulbGlows.has(gateId)) {
+                const glow = this.bulbGlows.get(gateId);
+                if (glow) {
+                    this.tweens.killTweensOf(glow);
+                    const index = container.list.indexOf(glow);
+                    if (index !== -1) {
+                        container.list.splice(index, 1);
+                    }
+                    glow.destroy();
+                }
+                this.bulbGlows.delete(gateId);
+            }
+        }
     }
 
     showPinTooltip(pin, container, isOutput) {
@@ -761,7 +1045,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
 
             this.connections = this.connections.filter(c => !(c.fromId === fromId && c.toId === toId && c.toPinIndex === toPinIndex));
 
-            this.checkText.setText('🔌 Povezava odstranjena');
+            this.checkText.setText('Povezava odstranjena');
             this.time.delayedCall(1000, () => this._origCheckTextSet(''));
         });
 
@@ -795,7 +1079,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                     if (!this.connectingPin) {
                         this.connectingPin = { pinObject: inPin, container, isOutput: false };
                         inPin.setStrokeStyle(3, highlightColor, 1);
-                        this.checkText.setText('🔌 Izberi izhod za povezavo');
+                        this.checkText.setText('Izberi izhod za povezavo');
                         return;
                     }
 
@@ -831,7 +1115,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                 if (!this.connectingPin) {
                     this.connectingPin = { pinObject: outputPin, container, isOutput: true };
                     outputPin.setStrokeStyle(3, highlightColor, 1);
-                    this.checkText.setText('🔌 Izberi vhod za povezavo');
+                    this.checkText.setText('Izberi vhod za povezavo');
                     return;
                 }
                 if (this.connectingPin.pinObject === outputPin) {
@@ -856,7 +1140,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         container.setData('outputPin', outputPin);
     }
 
-    createComponent(x, y, type, labelText, color) {
+        createComponent(x, y, type, labelText, color) {
         const container = this.add.container(x, y);
         container.setDepth(5);
 
@@ -893,6 +1177,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         container.setData('type', type);
         container.setData('isInPanel', true);
         container.setData('glow', glow);
+        container.setData('originalGlowAlpha', 1);
 
         this.input.setDraggable(container);
 
@@ -906,7 +1191,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         container.on('pointerout', () => {
             if (container.getData('isInPanel')) {
                 container.setScale(1);
-                glow.setAlpha(0.3);
+                glow.setAlpha(container.getData('originalGlowAlpha'));
             }
         });
 
@@ -988,6 +1273,15 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
 
         if (this.connectingSource === container) this.connectingSource = null;
 
+        if (this.bulbGlows.has(gateId)) {
+            const glow = this.bulbGlows.get(gateId);
+            if (glow) {
+                this.tweens.killTweensOf(glow);
+                glow.destroy();
+            }
+            this.bulbGlows.delete(gateId);
+        }
+
         try {
             this.connections = this.connections.filter(conn => {
                 if (conn.fromId === gateId || conn.toId === gateId) {
@@ -1059,6 +1353,8 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             container.list[2].setText(displayName);
             container.setData('displayName', displayName);
             container.setData('displayIndex', bidx);
+
+            this.updateBulbAppearance(container, false);
         }
 
         container.setData('isInPanel', false);
@@ -1109,17 +1405,19 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         img.setTexture(newVal ? 'SWITCH_ON' : 'SWITCH_OFF');
     }
 
-    evaluateCircuit() {
-        const resultsFull = this.logicCircuit.evaluate();
-        const endResults = {};
+    evaluateChallenge() {
+        const currentChallenge = this.challenges[this.currentChallengeIndex];
 
-        if (this.logicCircuit && this.logicCircuit.gates) {
-            for (const [id, gate] of this.logicCircuit.gates) {
-                if (!gate.outputGates || gate.outputGates.length === 0) {
-                    endResults[id] = gate.getOutput();
-                }
-            }
+        if (!currentChallenge) {
+            this.showStatus('Ni aktivne naloge!', '#ff0000', 2000);
+            return;
         }
+
+        try {
+            if (this.logicCircuit && typeof this.logicCircuit.evaluate === 'function') {
+                this.logicCircuit.evaluate();
+            }
+        } catch (e) { }
 
         const bulbEntries = [];
         try {
@@ -1144,138 +1442,68 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                         const val = !!gate.getOutput();
                         label.setText(`${displayName} = ${val ? 'ON' : 'OFF'}`);
                         label.setColor(val ? '#00ff00' : '#ff0000');
+                        this.updateBulbAppearance(c, val);
                     }
                 }
             });
         } catch (e) { }
 
-        let taskCompleted = false;
-        try {
-            taskCompleted = this.checkCurrentTaskCompletion();
-        } catch (e) { }
+        const isValid = currentChallenge.solutionCheck(this.logicCircuit);
 
-        const statusText = bulbEntries.length > 0 ? `${bulbEntries.join(' | ')}` : 'No OUTPUT present';
+        const statusText = bulbEntries.length > 0 ? `${bulbEntries.join(' | ')}` : 'Ni OUTPUT vrat';
 
-        if (taskCompleted && this.tasks && this.tasks[this.currentTaskIndex] && !this.tasks[this.currentTaskIndex].completed) {
-            this.tasks[this.currentTaskIndex].completed = true;
-            this.addPoints(this.tasks[this.currentTaskIndex].points);
+        if (isValid) {
+            this.stopTimer();
 
             this.cameras.main.shake(200, 0.01);
-            this.showStatus(`🎉 ${statusText} — Naloga opravljena! +${this.tasks[this.currentTaskIndex].points} točk`, '#00ff00', 2500);
+            this.showStatus(`${statusText} — Naloga opravljena!`, '#00ff00', 2500);
 
-            this.time.delayedCall(1500, () => this.nextTask());
+            console.log("CORRECT");
+
+            this.time.delayedCall(1500, () => this.nextChallenge());
         } else {
-            const taskMsg = (this.tasks && this.tasks[this.currentTaskIndex] && this.tasks[this.currentTaskIndex].completed)
-                ? 'Naloga opravljena!'
-                : 'Naloga ni opravljena';
-            const color = (taskMsg.includes('opravljena')) ? '#00aa00' : '#cc0000';
-            this.showStatus(`${statusText} — ${taskMsg}`, color, 2000);
-            try {
-                this.time.delayedCall(2000, () => {
-                    try {
-                        this._origCheckTextSet('');
-                        this.checkText.setStyle({
-                            color: '#ffffff',
-                            backgroundColor: 'rgba(0, 20, 40, 0.8)'
-                        });
-                    } catch (e) { }
-                });
-            } catch (e) { }
+            this.showStatus(`${statusText} — Naloga ni pravilno rešena!`, '#cc0000', 2000);
+            console.log("WRONG");
         }
     }
 
-    checkCurrentTaskCompletion() {
-        if (!this.tasks || this.currentTaskIndex == null) return false;
-        const task = this.tasks[this.currentTaskIndex];
-        if (!task) return false;
+    nextChallenge() {
+        this.resetWorkspace();
+        this.currentChallengeIndex = Math.floor(Math.random() * this.challenges.length);
+        this.taskText.setText(this.challenges[this.currentChallengeIndex].prompt);
+        this.startTimer();
+        this.showStatus('Nova naloga!', '#00ffcc', 2000);
+    }
 
-        try {
-            if (this.logicCircuit && typeof this.logicCircuit.evaluate === 'function') {
-                this.logicCircuit.evaluate();
-            }
-        } catch (e) { }
-
-        for (const [id, gate] of this.logicCircuit.gates) {
-            if (gate.operation !== 'LIGHT') continue;
-            let bulbVal = false;
-            try { bulbVal = !!(gate && gate.getOutput && gate.getOutput()); } catch (e) { bulbVal = false; }
-            if (!bulbVal) continue;
-
-            const src = gate.inputGates[0];
-            if (!src) continue;
-
-            if (typeof task.gateType === 'string') {
-                if (src.operation === task.gateType) {
-                    const numInputs = src.inputGates ? src.inputGates.filter(Boolean).length : 0;
-                    const okStructure = (task.gateType === 'NOT' || task.gateType === 'BUFFER') ? true : (numInputs >= 1);
-                    if (okStructure) {
-                        task.completed = true;
-                        this.showStatus('Naloga opravljena!', '#00aa00', 2000);
-                        try { this.addPoints(task.points); } catch (e) { }
-                        this.time.delayedCall(1500, () => this.nextTask());
-                        return true;
-                    }
-                }
-            } else if (Array.isArray(task.gateType)) {
-                const req = task.gateType;
-                if (req.length === 2) {
-                    const child = req[0]; const top = req[1];
-                    if (src.operation === top) {
-                        const inputs = src.inputGates ? src.inputGates.filter(Boolean) : [];
-                        const hasChild = inputs.some(g => g && g.operation === child);
-                        if (hasChild) {
-                            task.completed = true;
-                            this.showStatus('✅ Naloga opravljena!', '#00aa00', 2000);
-                            try { this.addPoints(task.points); } catch (e) { }
-                            this.time.delayedCall(1500, () => this.nextTask());
-                            return true;
-                        }
-                    }
-                } else if (req.length >= 3) {
-                    const childA = req[0]; const childB = req[1]; const top = req[2];
-                    if (src.operation === top) {
-                        const inputs = src.inputGates ? src.inputGates.filter(Boolean) : [];
-                        const hasA = inputs.some(g => g && g.operation === childA);
-                        const hasB = inputs.some(g => g && g.operation === childB);
-                        if (hasA && hasB) {
-                            task.completed = true;
-                            this.showStatus('✅ Naloga opravljena!', '#00aa00', 2000);
-                            try { this.addPoints(task.points); } catch (e) { }
-                            this.time.delayedCall(1500, () => this.nextTask());
-                            return true;
-                        }
-                    }
-                }
+    getInputGates(circuit) {
+        const inputs = [];
+        for (const [id, gate] of circuit.gates) {
+            if (gate.operation === 'BUFFER') {
+                inputs.push(gate);
             }
         }
-
-        return false;
+        return inputs;
     }
 
-    nextTask() {
-        this.currentTaskIndex++;
-        localStorage.setItem('logicTasksIndex', this.currentTaskIndex.toString());
-        if (this.currentTaskIndex < this.tasks.length) {
-            this.taskText.setText(this.tasks[this.currentTaskIndex].prompt);
-        } else {
-            this.taskText.setText('Vse naloge opravljene! Bravo!');
-            this.showStatus('Čestitke! Vse naloge opravljene!', '#00ffcc', 3000);
-            try { this.addPoints(50); } catch (e) { }
-            localStorage.removeItem('logicTasksIndex');
+    getOutputGates(circuit) {
+        const outputs = [];
+        for (const [id, gate] of circuit.gates) {
+            if (gate.operation === 'LIGHT') {
+                outputs.push(gate);
+            }
         }
-    }
-
-    addPoints(points) {
-        const user = localStorage.getItem('username');
-        const users = JSON.parse(localStorage.getItem('users')) || [];
-        const userData = users.find(u => u.username === user);
-        if (userData) {
-            userData.score = (userData.score || 0) + points;
-        }
-        localStorage.setItem('users', JSON.stringify(users));
+        return outputs;
     }
 
     resetWorkspace() {
+        this.bulbGlows.forEach((glow, gateId) => {
+            if (glow) {
+                this.tweens.killTweensOf(glow);
+                glow.destroy();
+            }
+        });
+        this.bulbGlows.clear();
+
         this.placedComponents.forEach(c => c.destroy());
         this.placedComponents = [];
         if (this.connections && this.connections.length > 0) {
@@ -1295,6 +1523,15 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
 
     deleteGate(container, gateId) {
         try {
+            if (this.bulbGlows.has(gateId)) {
+                const glow = this.bulbGlows.get(gateId);
+                if (glow) {
+                    this.tweens.killTweensOf(glow);
+                    glow.destroy();
+                }
+                this.bulbGlows.delete(gateId);
+            }
+
             this.connections = this.connections.filter(conn => {
                 if (conn.fromId === gateId || conn.toId === gateId) {
                     try { if (conn.gfx) conn.gfx.destroy(); } catch (e) { }
