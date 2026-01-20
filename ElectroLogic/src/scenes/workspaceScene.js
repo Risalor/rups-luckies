@@ -14,8 +14,14 @@ export default class WorkspaceScene extends Phaser.Scene {
   }
 
   init() {
-    const savedIndex = localStorage.getItem("currentChallengeIndex");
-    this.currentChallengeIndex = savedIndex !== null ? parseInt(savedIndex) : 0;
+    this.currentChallengeIndex = 0;
+  }
+
+  getRandomChallengeIndex() {
+    if (this.challenges && this.challenges.length > 0) {
+      return Math.floor(Math.random() * this.challenges.length);
+    }
+    return 0;
   }
 
   preload() {
@@ -61,7 +67,7 @@ export default class WorkspaceScene extends Phaser.Scene {
 
     // dot textura za animacjo toka
     const flowGfx = this.add.graphics();
-    flowGfx.fillStyle(0xffff66, 1); 
+    flowGfx.fillStyle(0xffff66, 1);
     flowGfx.fillCircle(4, 4, 4);
     flowGfx.generateTexture("flow-dot", 8, 8);
     flowGfx.destroy();
@@ -87,7 +93,7 @@ export default class WorkspaceScene extends Phaser.Scene {
       .image(
         this.cameras.main.width - 80,
         this.cameras.main.height - 80,
-        "trash"
+        "trash",
       )
       .setOrigin(0.5)
       .setDisplaySize(90, 90)
@@ -103,57 +109,151 @@ export default class WorkspaceScene extends Phaser.Scene {
 
     this.challenges = [
       {
-        prompt: "Sestavi preprosti električni krog z baterijo in svetilko.",
+        prompt:
+          "Connect a battery and a bulb in a closed loop to make it light up.",
+        requiredComponents: ["baterija", "svetilka"],
+        theory:
+          "Electric current only flows in a closed circuit from the positive to the negative terminal of the battery.",
+      },
+      {
+        prompt:
+          "Connect a bulb in series with a resistor to limit the current.",
+        requiredComponents: ["baterija", "svetilka", "upor"],
+        theory:
+          "In a series connection, a resistor reduces the total current flowing through the circuit.",
+      },
+      {
+        prompt:
+          "The bulb must be connected in series with two switches (both must be closed).",
         requiredComponents: [
           "baterija",
           "svetilka",
-          "žica",
-          "žica",
-          "žica",
-          "žica",
-          "žica",
-          "žica",
+          "stikalo-on",
+          "stikalo-on",
         ],
-        theory: [
-          "Osnovni električni krog potrebuje vir, to je v našem primeru baterija. Potrebuje tudi porabnike, to je svetilka. Električni krog je v našem primeru sklenjen, kar je nujno potrebno, da električni tok teče preko prevodnikov oziroma žic.",
-        ],
+        theory:
+          "In a series switch arrangement, the entire path must be closed for current to flow. This represents a Logical AND.",
       },
       {
         prompt:
-          "Sestavi preprosti sklenjeni električni krog z baterijo, svetilko in stikalom.",
-        requiredComponents: ["baterija", "svetilka", "žica", "stikalo-on"],
-        theory: [
-          "V sklenjenem krogu je stikalo zaprto, kar pomeni, da lahko električni tok teče neovirano. Torej v tem primeru so vrata zaprta.",
-        ],
+          " Connect two bulbs in series. In real life they would shine dimmer than a single bulb.",
+        requiredComponents: ["baterija", "svetilka", "svetilka"],
+        theory:
+          "In a series circuit, the battery's voltage is split between the bulbs, reducing their brightness.",
       },
       {
         prompt:
-          "V električni krog zaporedno poveži dve svetilki, ki ju priključiš na baterijo. ",
-        requiredComponents: ["baterija", "svetilka", "svetilka", "žica"],
-        theory: [
-          "V zaporedni vezavi teče isti električni tok skozi vse svetilke. Napetost baterije se porazdeli. Če imamo primer, da ena svetilka preneha delovati, bo ta prekinila tok skozi drugo svetilko.",
+          "Connect two bulbs in parallel to the battery so both shine at full brightness.",
+        requiredComponents: ["baterija", "svetilka", "svetilka"],
+        theory:
+          "In a parallel circuit, each component receives the full voltage of the source.",
+      },
+      {
+        prompt:
+          "The bulb should light up if either of the two parallel switches is closed.",
+        requiredComponents: [
+          "baterija",
+          "svetilka",
+          "stikalo-on",
+          "stikalo-on",
         ],
+        theory:
+          "Parallel switches provide multiple paths for electricity. This represents a Logical OR.",
+      },
+      {
+        prompt:
+          "Create a series chain of two resistors. Connect a bulb in parallel to the second resistor only.",
+        requiredComponents: ["baterija", "upor", "upor", "svetilka"],
+        theory:
+          "This is a classic voltage divider. The bulb only receives a fraction of the total battery voltage, determined by the ratio of the two resistors.",
       },
 
       {
         prompt:
-          "V električni krog vzporedno poveži dve svetilki, ki ju priključiš na baterijo. ",
-        requiredComponents: ["baterija", "svetilka", "svetilka", "žica"],
-        theory: [
-          "V vzporedni vezavi ima vsaka svetilka enako napetost kot baterija. Eletrični tok se porazdeli med svetilkami. Če ena svetilka preneha delovati, bo druga še vedno delovala.",
+          "8. Connect a bulb so it is controlled by a 'Master Switch' in series, but has two 'Operational Switches' in parallel with each other.",
+        requiredComponents: [
+          "baterija",
+          "svetilka",
+          "stikalo-on",
+          "stikalo-on",
+          "stikalo-on",
         ],
+        theory:
+          "This simulates a real-world safety system. The Master switch can kill the power, but either operational switch can activate the load (Master AND (Op1 OR Op2)).",
       },
+
       {
-        prompt: "Sestavi električni krog s svetilko in uporom. ",
-        requiredComponents: ["baterija", "svetilka", "žica", "upor"],
-        theory: [
-          "Upor omejuje tok v krogu. Večji kot je upor, manjši je tok. Spoznajmo Ohmov zakon: tok (I) = napetost (U) / upornost (R). Svetilka bo svetila manj intenzivno, saj skozi njo teče manjši tok.",
+        prompt:
+          "Create two parallel branches. Each branch must contain one resistor and one bulb in series.",
+        requiredComponents: [
+          "baterija",
+          "upor",
+          "upor",
+          "svetilka",
+          "svetilka",
         ],
+        theory:
+          "In this configuration, each branch is independent. The total current from the battery is the sum of the currents through both branches.",
+      },
+
+      {
+        prompt:
+          " Place one resistor immediately after the battery, then connect two bulbs in parallel with each other after that resistor.",
+        requiredComponents: ["baterija", "upor", "svetilka", "svetilka"],
+        theory:
+          "The single resistor acts as a current limiter for the entire parallel network. If one bulb is removed, the voltage across the remaining bulb will actually increase.",
+      },
+
+      {
+        prompt:
+          " Connect a resistor in series with the battery. Then, connect a bulb and a switch such that closing the switch turns the bulb OFF.",
+        requiredComponents: ["baterija", "upor", "svetilka", "stikalo-on"],
+        theory:
+          "By placing the switch in parallel with the bulb (and using a series resistor to prevent a dead short), the switch 'steals' the current, simulating a NOT gate logic.",
+      },
+
+      {
+        prompt:
+          "Connect two resistors in parallel. Then, connect this parallel pair in series with a single bulb.",
+        requiredComponents: ["baterija", "upor", "upor", "svetilka"],
+        theory:
+          "Two parallel resistors have a lower total resistance than one. This 'equivalent resistance' determines the brightness of the series bulb.",
+      },
+
+      {
+        prompt:
+          " Construct a circuit where two bulbs are in parallel, and each bulb has its own dedicated switch in series within its branch.",
+        requiredComponents: [
+          "baterija",
+          "svetilka",
+          "svetilka",
+          "stikalo-on",
+          "stikalo-on",
+        ],
+        theory:
+          "This is the fundamental design of home wiring. Each load (bulb) can be operated without affecting the state of the other.",
+      },
+
+      {
+        prompt:
+          " Connect three bulbs in parallel, but place a switch in the 'Main Branch' so it controls all three simultaneously.",
+        requiredComponents: [
+          "baterija",
+          "stikalo-on",
+          "svetilka",
+          "svetilka",
+          "svetilka",
+        ],
+        theory:
+          "This demonstrates a main circuit breaker or master power switch. Despite the complexity of the parallel loads, the master switch interrupts the total current $I_{total}$.",
       },
     ];
 
+    this.currentChallengeIndex = this.getRandomChallengeIndex();
+
     // this.currentChallengeIndex = 0;
 
+    this.currentChallengeIndex = this.getRandomChallengeIndex();
     this.promptText = this.add
       .text(
         width / 1.8,
@@ -165,18 +265,26 @@ export default class WorkspaceScene extends Phaser.Scene {
           fontStyle: "bold",
           backgroundColor: "#ffffff88",
           padding: { x: 15, y: 8 },
-        }
+          wordWrap: { width: 700 },
+        },
       )
       .setOrigin(0.5);
 
     this.checkText = this.add
       .text(width / 2, height - 70, "", {
         fontSize: "18px",
-        color: "#cc0000",
+        color: "#000000",
         fontStyle: "bold",
         padding: { x: 15, y: 8 },
       })
       .setOrigin(0.5);
+
+    this.nextRandomChallenge = () => {
+      this.currentChallengeIndex = this.getRandomChallengeIndex();
+      this.promptText.setText(
+        this.challenges[this.currentChallengeIndex].prompt,
+      );
+    };
 
     const buttonWidth = 180;
     const buttonHeight = 45;
@@ -190,7 +298,7 @@ export default class WorkspaceScene extends Phaser.Scene {
         y - buttonHeight / 2,
         buttonWidth,
         buttonHeight,
-        cornerRadius
+        cornerRadius,
       );
 
       const text = this.add
@@ -209,7 +317,7 @@ export default class WorkspaceScene extends Phaser.Scene {
             y - buttonHeight / 2,
             buttonWidth,
             buttonHeight,
-            cornerRadius
+            cornerRadius,
           );
         })
         .on("pointerout", () => {
@@ -220,7 +328,7 @@ export default class WorkspaceScene extends Phaser.Scene {
             y - buttonHeight / 2,
             buttonWidth,
             buttonHeight,
-            cornerRadius
+            cornerRadius,
           );
         })
         .on("pointerdown", onClick);
@@ -228,11 +336,11 @@ export default class WorkspaceScene extends Phaser.Scene {
       return { bg, text };
     };
 
-    makeButton(width - 140, 75, "Lestvica", () =>
-      this.scene.start("ScoreboardScene", { cameFromMenu: false })
-    );
-    makeButton(width - 140, 125, "Preveri krog", () => this.checkCircuit());
-    makeButton(width - 140, 175, "Simulacija", () => {
+    /* makeButton(width - 140, 75, "Lestvica", () =>
+      this.scene.start("ScoreboardScene", { cameFromMenu: false }),
+    );*/
+    makeButton(width - 140, 125, "Check Circuit", () => this.checkCircuit());
+    makeButton(width - 140, 175, "Simulation", () => {
       this.connected = this.graph.simulate();
 
       this.sim = this.connected === 1;
@@ -259,7 +367,7 @@ export default class WorkspaceScene extends Phaser.Scene {
           try {
             c.list[0].setTexture(this.sim ? "svetilka-on" : "svetilka");
           } catch (e) {
-            console.warn("Failed to update bulb texture", e);
+            //console.warn("Failed to update bulb texture", e);
           }
         }
       });
@@ -271,7 +379,7 @@ export default class WorkspaceScene extends Phaser.Scene {
     this.add.rectangle(0, 0, panelWidth, height, 0x000000, 0.2).setOrigin(0);
 
     this.add
-      .text(panelWidth / 2, 60, "Komponente", {
+      .text(panelWidth / 2, 60, "Components", {
         fontSize: "18px",
         color: "#ffffff",
         fontStyle: "bold",
@@ -289,7 +397,7 @@ export default class WorkspaceScene extends Phaser.Scene {
     // this.createComponent(panelWidth / 2, 660, 'voltmeter', 0x00cc66);
 
     const backButton = this.add
-      .text(12, 10, "↩ Nazaj", {
+      .text(12, 10, "↩ Back", {
         fontFamily: "Arial",
         fontSize: "20px",
         color: "#387affff",
@@ -309,8 +417,8 @@ export default class WorkspaceScene extends Phaser.Scene {
     this.add
       .text(
         width / 2 + 50,
-        30,
-        "Povleci komponente na mizo in zgradi svoj električni krog!",
+        60,
+        "Drag components on the table and build your own electric circuit",
         {
           fontSize: "20px",
           color: "#333",
@@ -318,7 +426,7 @@ export default class WorkspaceScene extends Phaser.Scene {
           align: "center",
           backgroundColor: "#ffffff88",
           padding: { x: 15, y: 8 },
-        }
+        },
       )
       .setOrigin(0.5);
 
@@ -326,38 +434,48 @@ export default class WorkspaceScene extends Phaser.Scene {
     this.placedComponents = [];
     this.gridSize = 40;
 
-    // const scoreButton = this.add.text(this.scale.width / 1.1, 25, 'Lestvica', {
-    //   fontFamily: 'Arial',
-    //   fontSize: '18px',
-    //   color: '#0066ff',
-    //   backgroundColor: '#e1e9ff',
-    //   padding: { x: 20, y: 10 }
-    // })
-    //   .setOrigin(0.5)
-    //   .setInteractive({ useHandCursor: true })
-    //   .on('pointerover', () => scoreButton.setStyle({ color: '#0044cc' }))
-    //   .on('pointerout', () => scoreButton.setStyle({ color: '#0066ff' }))
-    //   .on('pointerdown', () => {
-    //     this.scene.start('ScoreboardScene');
-    //   });
+    this.timeLimit = 3 * 60; //change adjust time
+    this.timeRemaining = this.timeLimit;
 
-    // const simulate = this.add.text(this.scale.width / 1.1, 25, 'Simulacija', {
-    //   fontFamily: 'Arial',
-    //   fontSize: '18px',
-    //   color: '#0066ff',
-    //   backgroundColor: '#e1e9ff',
-    //   padding: { x: 20, y: 10 }
-    // })
-    //   .setOrigin(0.5, -1)
-    //   .setInteractive({ useHandCursor: true })
-    //   .on('pointerover', () => simulate.setStyle({ color: '#0044cc' }))
-    //   .on('pointerout', () => simulate.setStyle({ color: '#0066ff' }))
-    //   .on('pointerdown', () => {
-    //     //console.log(this.graph);
-    //     this.graph.simulate();
-    //   });
+    this.timerText = this.add
+      .text(this.cameras.main.width / 2, 20, "Time: 00:00", {
+        fontSize: "24px",
+        fill: "#ff0000",
+        fontStyle: "bold",
+        backgroundColor: "#ffffffaa",
+        padding: { x: 10, y: 5 },
+      })
+      .setOrigin(0.5)
+      .setDepth(2000);
 
-    //console.log(JSON.parse(localStorage.getItem("users")));
+    this.timerEvent = this.time.addEvent({
+      delay: 1000,
+      callback: this.updateTimer,
+      callbackScope: this,
+      loop: true,
+    });
+  }
+
+  updateTimer() {
+    this.timeRemaining--;
+
+    const minutes = Math.floor(this.timeRemaining / 60);
+    const seconds = this.timeRemaining % 60;
+    const timeString = `Time: ${minutes.toString().padStart(2, "0")}:${seconds.toString().padStart(2, "0")}`;
+
+    this.timerText.setText(timeString);
+
+    if (this.timeRemaining <= 0) {
+      this.timerEvent.remove();
+      this.handleTimeUp();
+    }
+  }
+
+  handleTimeUp() {
+    this.checkText.setText("Čas se je iztekel!");
+    this.checkText.setStyle({ color: "#ff0000" });
+
+    console.log("FAILED TASK ", this.currentChallengeIndex);
   }
 
   getComponentDetails(type) {
@@ -487,8 +605,7 @@ export default class WorkspaceScene extends Phaser.Scene {
           item.follower.stopFollow();
         if (item.follower && item.follower.destroy) item.follower.destroy();
         if (item.sprite && item.sprite.destroy) item.sprite.destroy();
-      } catch (e) {
-      }
+      } catch (e) {}
     }
     this.currentFlows = [];
   }
@@ -497,9 +614,9 @@ export default class WorkspaceScene extends Phaser.Scene {
     this.cleanupFlows();
     if (!paths || paths.length === 0) return;
 
-    const baseSpeedPxPerSec = 160; 
+    const baseSpeedPxPerSec = 160;
     const minDots = 2;
-    const maxDots = 20; 
+    const maxDots = 20;
 
     for (const pathNodes of paths) {
       if (!pathNodes || pathNodes.length < 2) continue;
@@ -536,12 +653,12 @@ export default class WorkspaceScene extends Phaser.Scene {
 
       const count = Math.min(
         maxDots,
-        Math.max(minDots, Math.ceil(totalDist / 120))
-      ); 
+        Math.max(minDots, Math.ceil(totalDist / 120)),
+      );
 
       const curve = new Phaser.Curves.Path(
         detailedPoints[0].x,
-        detailedPoints[0].y
+        detailedPoints[0].y,
       );
       for (let i = 1; i < detailedPoints.length; i++) {
         curve.lineTo(detailedPoints[i].x, detailedPoints[i].y);
@@ -554,9 +671,9 @@ export default class WorkspaceScene extends Phaser.Scene {
           curve,
           detailedPoints[0].x,
           detailedPoints[0].y,
-          "flow-dot"
+          "flow-dot",
         );
-        sprite.setDepth(1500); 
+        sprite.setDepth(1500);
         const delay = Math.round((i / count) * duration);
 
         sprite.startFollow({
@@ -584,8 +701,7 @@ export default class WorkspaceScene extends Phaser.Scene {
         if (img && img.setTexture) {
           try {
             img.setTexture(this.sim ? "svetilka-on" : "svetilka");
-          } catch (e) {
-          }
+          } catch (e) {}
         }
       }
     });
@@ -595,7 +711,7 @@ export default class WorkspaceScene extends Phaser.Scene {
       const paths = this.graph.getConductivePaths(
         battery.start,
         battery.end,
-        4
+        4,
       );
       this.startFlows(paths);
     } else {
@@ -619,7 +735,7 @@ export default class WorkspaceScene extends Phaser.Scene {
           id,
           new Node(id + "_start", -40, 0),
           new Node(id + "_end", 40, 0),
-          3.3
+          3.3,
         );
         comp.type = "battery";
         comp.localStart = { x: -40, y: 0 };
@@ -637,7 +753,7 @@ export default class WorkspaceScene extends Phaser.Scene {
         comp = new Bulb(
           id,
           new Node(id + "_start", -40, 0),
-          new Node(id + "_end", 40, 0)
+          new Node(id + "_end", 40, 0),
         );
         comp.type = "bulb";
         comp.localStart = { x: -40, y: 0 };
@@ -656,7 +772,7 @@ export default class WorkspaceScene extends Phaser.Scene {
           id,
           new Node(id + "_start", -40, 0),
           new Node(id + "_end", 40, 0),
-          true
+          true,
         );
         comp.type = "switch";
         comp.localStart = { x: -40, y: 0 };
@@ -675,7 +791,7 @@ export default class WorkspaceScene extends Phaser.Scene {
           id,
           new Node(id + "_start", -40, 0),
           new Node(id + "_end", 40, 0),
-          false
+          false,
         );
         comp.type = "switch";
         comp.localStart = { x: -40, y: 0 };
@@ -693,7 +809,7 @@ export default class WorkspaceScene extends Phaser.Scene {
         comp = new Wire(
           id,
           new Node(id + "_start", -40, 0),
-          new Node(id + "_end", 40, 0)
+          new Node(id + "_end", 40, 0),
         );
         comp.type = "wire";
         comp.localStart = { x: -40, y: 0 };
@@ -728,7 +844,7 @@ export default class WorkspaceScene extends Phaser.Scene {
           id,
           new Node(id + "_start", -40, 0),
           new Node(id + "_end", 40, 0),
-          1.5
+          1.5,
         );
         comp.type = "resistor";
         comp.localStart = { x: -40, y: 0 };
@@ -742,7 +858,7 @@ export default class WorkspaceScene extends Phaser.Scene {
         break;
     }
 
-    component.on("pointerover", () => {
+    /*component.on("pointerover", () => {
       if (component.getData("isInPanel")) {
         // prikaži info okno
         const details = this.getComponentDetails(type);
@@ -754,7 +870,7 @@ export default class WorkspaceScene extends Phaser.Scene {
         this.infoWindow.setVisible(true);
       }
       component.setScale(1.1);
-    });
+    });*/
 
     component.on("pointerout", () => {
       if (component.getData("isInPanel")) {
@@ -765,12 +881,12 @@ export default class WorkspaceScene extends Phaser.Scene {
 
     // Label
     const displayNames = {
-      baterija: "baterija",
-      svetilka: "svetilka",
-      "stikalo-on": "stikalo",
-      "stikalo-off": "stikalo",
-      žica: "žica",
-      upor: "upor",
+      baterija: "battery",
+      svetilka: "bulb",
+      "stikalo-on": "switch",
+      "stikalo-off": "switch",
+      žica: "wire",
+      upor: "resistor",
     };
 
     const label = this.add
@@ -810,7 +926,7 @@ export default class WorkspaceScene extends Phaser.Scene {
         component.x,
         component.y,
         this.trash.x,
-        this.trash.y
+        this.trash.y,
       );
       if (dist < 70) {
         this.trash.setAlpha(1);
@@ -830,13 +946,16 @@ export default class WorkspaceScene extends Phaser.Scene {
         component.x,
         component.y,
         this.trash.x,
-        this.trash.y
+        this.trash.y,
       );
       if (dist < 70 && !component.getData("isInPanel")) {
         const comp = component.getData("logicComponent");
         if (comp && typeof this.graph.removeComponent === "function") {
           this.graph.removeComponent(comp);
         }
+        this.placedComponents = this.placedComponents.filter(
+          (c) => c !== component,
+        );
 
         component.disableInteractive();
         component.setVisible(false);
@@ -882,7 +1001,7 @@ export default class WorkspaceScene extends Phaser.Scene {
           component.getData("originalX"),
           component.getData("originalY"),
           component.getData("type"),
-          component.getData("color")
+          component.getData("color"),
         );
 
         this.placedComponents.push(component);
@@ -976,15 +1095,58 @@ export default class WorkspaceScene extends Phaser.Scene {
 
   checkCircuit() {
     const currentChallenge = this.challenges[this.currentChallengeIndex];
+
+    const activeComponents = this.placedComponents.filter((c) => c && c.active);
+    const placedTypes = activeComponents.map((c) => c.getData("type"));
+
+    const getCounts = (arr) =>
+      arr.reduce((acc, val) => {
+        acc[val] = (acc[val] || 0) + 1;
+        return acc;
+      }, {});
+
+    const requiredCounts = getCounts(currentChallenge.requiredComponents);
+    const placedCounts = getCounts(placedTypes);
+
+    for (let type in requiredCounts) {
+      if ((placedCounts[type] || 0) < requiredCounts[type]) {
+        this.checkText
+          .setText(`Missing component: ${type} (needs ${requiredCounts[type]})`)
+          .setStyle({ color: "#ff0000" });
+        return;
+      }
+    }
+
+    if (!this.sim) {
+      this.checkText
+        .setText("Circuit is not closed or power is off!")
+        .setStyle({ color: "#ff0000" });
+      return;
+    }
+
+    console.log("SUCCESSFUL TASK", this.currentChallengeIndex);
+    this.checkText
+      .setText("Task completed.")
+      .setStyle({ color: "#17a417" })
+      .setStyle({ fontSize: "24px" })
+      .setStyle({ fontWeight: "bold" });
+
+    if (this.timerEvent) this.timerEvent.remove();
+
+    this.time.delayedCall(1000, () => this.showTheory(currentChallenge.theory));
+  }
+  /*
+  checkCircuit() {
+    const currentChallenge = this.challenges[this.currentChallengeIndex];
     const placedTypes = this.placedComponents.map((comp) =>
-      comp.getData("type")
+      comp.getData("type"),
     );
     //console.log("components", placedTypes);
     this.checkText.setStyle({ color: "#cc0000" });
     // preverjas ce so vse komponente na mizi
     if (
       !currentChallenge.requiredComponents.every((req) =>
-        placedTypes.includes(req)
+        placedTypes.includes(req),
       )
     ) {
       this.checkText.setText("Manjkajo komponente za krog.");
@@ -999,16 +1161,26 @@ export default class WorkspaceScene extends Phaser.Scene {
 
     if (this.sim == false) {
       this.checkText.setText(
-        "Električni krog ni sklenjen. Preveri kako si ga sestavil"
+        "Električni krog ni sklenjen. Preveri kako si ga sestavil",
       );
       return;
     }
 
     // je zaprt krog
 
+    console.log("SUCCESSFUL TASK ", this.currentChallengeIndex);
     this.checkText.setStyle({ color: "#00aa00" });
     this.checkText.setText("Čestitke! Krog je pravilen.");
     this.addPoints(10);
+
+    if (this.timerEvent) {
+      this.timerEvent.remove();
+      this.timerEvent = null;
+    }
+    if (this.timerText) {
+      this.timerText.destroy(); // Popolnoma odstrani iz zaslona
+      this.timerText = null;
+    }
 
     if (currentChallenge.theory) {
       this.showTheory(currentChallenge.theory);
@@ -1030,22 +1202,49 @@ export default class WorkspaceScene extends Phaser.Scene {
     // else {
     //   this.checkText.setText('Krog ni pravilen. Poskusi znova.');
     // }
-  }
+  }*/
 
   nextChallenge() {
     this.currentChallengeIndex++;
     localStorage.setItem(
       "currentChallengeIndex",
-      this.currentChallengeIndex.toString()
+      this.currentChallengeIndex.toString(),
     );
     this.checkText.setText("");
 
+    // Remove old timer if exists
+    if (this.timerEvent) {
+      this.timerEvent.remove();
+      this.timerEvent = null;
+    }
+    if (this.timerText) {
+      this.timerText.destroy();
+      this.timerText = null;
+    }
+
+    // Reset and start timer for new challenge if there are more
     if (this.currentChallengeIndex < this.challenges.length) {
       this.promptText.setText(
-        this.challenges[this.currentChallengeIndex].prompt
+        this.challenges[this.currentChallengeIndex].prompt,
       );
+      this.timeRemaining = this.timeLimit;
+      this.timerText = this.add
+        .text(this.cameras.main.width / 2, 20, "Time: 00:00", {
+          fontSize: "24px",
+          fill: "#ff0000",
+          fontStyle: "bold",
+          backgroundColor: "#ffffffaa",
+          padding: { x: 10, y: 5 },
+        })
+        .setOrigin(0.5)
+        .setDepth(2000);
+      this.timerEvent = this.time.addEvent({
+        delay: 1000,
+        callback: this.updateTimer,
+        callbackScope: this,
+        loop: true,
+      });
     } else {
-      this.promptText.setText("Vse naloge so uspešno opravljene! Čestitke!");
       localStorage.removeItem("currentChallengeIndex");
     }
   }
@@ -1070,7 +1269,7 @@ export default class WorkspaceScene extends Phaser.Scene {
 
     this.theoryText = this.add
       .text(width / 2, height / 2, theoryText, {
-        fontSize: "16px",
+        fontSize: "22px",
         color: "#ffffff",
         fontStyle: "bold",
         align: "center",
@@ -1080,7 +1279,7 @@ export default class WorkspaceScene extends Phaser.Scene {
       .setDepth(11);
 
     this.continueButton = this.add
-      .text(width / 2, height / 2 + 70, "Nadaljuj", {
+      .text(width / 2, height / 2 + 70, "Continue", {
         fontSize: "18px",
         color: "#0066ff",
         backgroundColor: "#ffffff",
@@ -1090,10 +1289,10 @@ export default class WorkspaceScene extends Phaser.Scene {
       .setDepth(11)
       .setInteractive({ useHandCursor: true })
       .on("pointerover", () =>
-        this.continueButton.setStyle({ color: "#0044cc" })
+        this.continueButton.setStyle({ color: "#0044cc" }),
       )
       .on("pointerout", () =>
-        this.continueButton.setStyle({ color: "#0066ff" })
+        this.continueButton.setStyle({ color: "#0066ff" }),
       )
       .on("pointerdown", () => {
         this.cleanupFlows();
