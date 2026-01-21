@@ -1398,7 +1398,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
         }
 
         if (this.timerCountdown <= 0) {
-            console.log("Time's up!");
+            console.log("FAIL");
             this.stopTimer();
 
             this.cameras.main.shake(300, 0.01);
@@ -2205,14 +2205,13 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             this.stopTimer();
 
             this.cameras.main.shake(200, 0.01);
+            console.log("SUCCESS");
             this.showStatus(`${statusText} — Naloga opravljena!`, '#00ff00', 2500);
-
-            console.log("CORRECT");
 
             this.time.delayedCall(1500, () => this.nextChallenge());
         } else {
+            console.log("FAIL");
             this.showStatus(`${statusText} — Naloga ni pravilno rešena!`, '#cc0000', 2000);
-            console.log("WRONG");
         }
     }
 
@@ -2457,9 +2456,7 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                     }
                 }
             }
-        } catch (e) {
-            console.error('Error connecting gates:', e);
-        }
+        } catch (e) { }
         return false;
     }
 
@@ -2469,7 +2466,6 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                 this.showStatus('Ustvarjam rešitev...', '#00ffcc', 2000);
                 this.challengeSolutions[this.currentChallengeIndex]();
             } catch (error) {
-                console.error('Error creating solution:', error);
                 this.showStatus('Napaka pri ustvarjanju rešitve', '#ff0000', 2000);
             }
         } else {
