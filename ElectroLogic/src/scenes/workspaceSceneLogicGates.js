@@ -785,6 +785,380 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             }
         ];
 
+        const sX = 600;
+        const sY = 600;
+
+        this.challengeSolutions = [
+            () => {
+                const startX = sX, startY = sX;
+                this.resetWorkspace();
+                
+                const input1 = this.createGateOnGrid(startX, startY - 50, 'input', 'INPUT 1');
+                const input2 = this.createGateOnGrid(startX, startY + 50, 'input', 'INPUT 2');
+                
+                const andGate = this.createGateOnGrid(startX + 150, startY, 'and', 'AND');
+                
+                const outputBulb = this.createGateOnGrid(startX + 300, startY, 'bulb', 'OUTPUT 1');
+                
+                this.connectGates(input1.getData('gateId'), andGate.getData('gateId'), 0);
+                this.connectGates(input2.getData('gateId'), andGate.getData('gateId'), 1);
+                
+                this.connectGates(andGate.getData('gateId'), outputBulb.getData('gateId'), 0);
+            },
+            
+            () => {
+                const startX = sX, startY = sX;
+                this.resetWorkspace();
+                
+                const input1 = this.createGateOnGrid(startX, startY - 50, 'input', 'INPUT 1');
+                const input2 = this.createGateOnGrid(startX, startY + 50, 'input', 'INPUT 2');
+                const orGate = this.createGateOnGrid(startX + 150, startY, 'or', 'OR');
+                const outputBulb = this.createGateOnGrid(startX + 300, startY, 'bulb', 'OUTPUT 1');
+                
+                this.connectGates(input1.getData('gateId'), orGate.getData('gateId'), 0);
+                this.connectGates(input2.getData('gateId'), orGate.getData('gateId'), 1);
+                this.connectGates(orGate.getData('gateId'), outputBulb.getData('gateId'), 0);
+            },
+            
+            () => {
+                const startX = sX, startY = sX;
+                this.resetWorkspace();
+                
+                const input1 = this.createGateOnGrid(startX, startY - 50, 'input', 'INPUT 1');
+                const input2 = this.createGateOnGrid(startX, startY + 50, 'input', 'INPUT 2');
+                const xorGate = this.createGateOnGrid(startX + 150, startY, 'xor', 'XOR');
+                const outputBulb = this.createGateOnGrid(startX + 300, startY, 'bulb', 'OUTPUT 1');
+                
+                this.connectGates(input1.getData('gateId'), xorGate.getData('gateId'), 0);
+                this.connectGates(input2.getData('gateId'), xorGate.getData('gateId'), 1);
+                this.connectGates(xorGate.getData('gateId'), outputBulb.getData('gateId'), 0);
+            },
+            
+            () => {
+                const startX = sX, startY = sX;
+                this.resetWorkspace();
+                
+                const inputA = this.createGateOnGrid(startX, startY - 50, 'input', 'INPUT A');
+                const inputB = this.createGateOnGrid(startX, startY + 50, 'input', 'INPUT B');
+                
+                const xorGate = this.createGateOnGrid(startX + 150, startY - 50, 'xor', 'XOR');
+                const andGate = this.createGateOnGrid(startX + 150, startY + 50, 'and', 'AND');
+                
+                const sumBulb = this.createGateOnGrid(startX + 300, startY - 50, 'bulb', 'SUM');
+                const carryBulb = this.createGateOnGrid(startX + 300, startY + 50, 'bulb', 'CARRY');
+                
+                this.connectGates(inputA.getData('gateId'), xorGate.getData('gateId'), 0);
+                this.connectGates(inputB.getData('gateId'), xorGate.getData('gateId'), 1);
+                this.connectGates(inputA.getData('gateId'), andGate.getData('gateId'), 0);
+                this.connectGates(inputB.getData('gateId'), andGate.getData('gateId'), 1);
+                this.connectGates(xorGate.getData('gateId'), sumBulb.getData('gateId'), 0);
+                this.connectGates(andGate.getData('gateId'), carryBulb.getData('gateId'), 0);
+            },
+            
+            () => {
+                const startX = sX, startY = sX;
+                this.resetWorkspace();
+                
+                const input = this.createGateOnGrid(startX, startY, 'input', 'INPUT');
+                const notGate = this.createGateOnGrid(startX + 150, startY, 'not', 'NOT');
+                const outputBulb = this.createGateOnGrid(startX + 300, startY, 'bulb', 'OUTPUT');
+                
+                this.connectGates(input.getData('gateId'), notGate.getData('gateId'), 0);
+                this.connectGates(notGate.getData('gateId'), outputBulb.getData('gateId'), 0);
+            },
+            
+            () => {
+                const startX = sX, startY = sX;
+                this.resetWorkspace();
+                
+                const input1 = this.createGateOnGrid(startX, startY - 50, 'input', 'INPUT 1');
+                const input2 = this.createGateOnGrid(startX, startY + 50, 'input', 'INPUT 2');
+                const andGate = this.createGateOnGrid(startX + 150, startY, 'and', 'AND');
+                const notGate = this.createGateOnGrid(startX + 300, startY, 'not', 'NOT');
+                const outputBulb = this.createGateOnGrid(startX + 450, startY, 'bulb', 'OUTPUT');
+                
+                this.connectGates(input1.getData('gateId'), andGate.getData('gateId'), 0);
+                this.connectGates(input2.getData('gateId'), andGate.getData('gateId'), 1);
+                this.connectGates(andGate.getData('gateId'), notGate.getData('gateId'), 0);
+                this.connectGates(notGate.getData('gateId'), outputBulb.getData('gateId'), 0);
+            },
+            
+            () => {
+                const startX = sX, startY = sX;
+                this.resetWorkspace();
+                
+                const input1 = this.createGateOnGrid(startX, startY - 80, 'input', 'INPUT 1');
+                const input2 = this.createGateOnGrid(startX, startY, 'input', 'INPUT 2');
+                const input3 = this.createGateOnGrid(startX, startY + 80, 'input', 'INPUT 3');
+                const andGate1 = this.createGateOnGrid(startX + 150, startY - 40, 'and', 'AND1');
+                const andGate2 = this.createGateOnGrid(startX + 300, startY, 'and', 'AND2');
+                const outputBulb = this.createGateOnGrid(startX + 450, startY, 'bulb', 'OUTPUT');
+                
+                this.connectGates(input1.getData('gateId'), andGate1.getData('gateId'), 0);
+                this.connectGates(input2.getData('gateId'), andGate1.getData('gateId'), 1);
+                this.connectGates(andGate1.getData('gateId'), andGate2.getData('gateId'), 0);
+                this.connectGates(input3.getData('gateId'), andGate2.getData('gateId'), 1);
+                this.connectGates(andGate2.getData('gateId'), outputBulb.getData('gateId'), 0);
+            },
+            
+            () => {
+                const startX = sX, startY = sX;
+                this.resetWorkspace();
+                
+                const inputA = this.createGateOnGrid(startX, startY - 50, 'input', 'INPUT A');
+                const inputB = this.createGateOnGrid(startX, startY + 50, 'input', 'INPUT B');
+                const xorGate = this.createGateOnGrid(startX + 150, startY - 50, 'xor', 'XOR');
+                const andGate = this.createGateOnGrid(startX + 150, startY + 50, 'and', 'AND');
+                const sumBulb = this.createGateOnGrid(startX + 300, startY - 50, 'bulb', 'SUM');
+                const carryBulb = this.createGateOnGrid(startX + 300, startY + 50, 'bulb', 'CARRY');
+                
+                this.connectGates(inputA.getData('gateId'), xorGate.getData('gateId'), 0);
+                this.connectGates(inputB.getData('gateId'), xorGate.getData('gateId'), 1);
+                this.connectGates(inputA.getData('gateId'), andGate.getData('gateId'), 0);
+                this.connectGates(inputB.getData('gateId'), andGate.getData('gateId'), 1);
+                this.connectGates(xorGate.getData('gateId'), sumBulb.getData('gateId'), 0);
+                this.connectGates(andGate.getData('gateId'), carryBulb.getData('gateId'), 0);
+            },
+            
+            () => {
+                const startX = sX, startY = sX;
+                this.resetWorkspace();
+                
+                const inputA = this.createGateOnGrid(startX, startY - 80, 'input', 'INPUT A');
+                const inputB = this.createGateOnGrid(startX, startY + 80, 'input', 'INPUT B');
+                
+                const nand1 = this.createGateOnGrid(startX + 150, startY - 40, 'nand', 'NAND1');
+                const nand2 = this.createGateOnGrid(startX + 150, startY + 40, 'nand', 'NAND2');
+                const nand3 = this.createGateOnGrid(startX + 300, startY - 40, 'nand', 'NAND3');
+                const nand4 = this.createGateOnGrid(startX + 300, startY + 40, 'nand', 'NAND4');
+                const nand5 = this.createGateOnGrid(startX + 450, startY, 'nand', 'NAND5');
+                const outputBulb = this.createGateOnGrid(startX + 600, startY, 'bulb', 'OUTPUT');
+                
+                this.connectGates(inputA.getData('gateId'), nand1.getData('gateId'), 0);
+                this.connectGates(inputA.getData('gateId'), nand1.getData('gateId'), 1);
+                this.connectGates(inputB.getData('gateId'), nand2.getData('gateId'), 0);
+                this.connectGates(inputB.getData('gateId'), nand2.getData('gateId'), 1);
+                
+                this.connectGates(inputA.getData('gateId'), nand3.getData('gateId'), 0);
+                this.connectGates(inputB.getData('gateId'), nand3.getData('gateId'), 1);
+                
+                this.connectGates(nand1.getData('gateId'), nand4.getData('gateId'), 0);
+                this.connectGates(nand3.getData('gateId'), nand4.getData('gateId'), 1);
+                this.connectGates(nand2.getData('gateId'), nand5.getData('gateId'), 0);
+                this.connectGates(nand3.getData('gateId'), nand5.getData('gateId'), 1);
+                
+                this.connectGates(nand4.getData('gateId'), outputBulb.getData('gateId'), 0);
+                this.connectGates(nand5.getData('gateId'), outputBulb.getData('gateId'), 0);
+            },
+            
+            () => {
+                const startX = sX, startY = sX;
+                this.resetWorkspace();
+                
+                const inputs = [
+                    this.createGateOnGrid(startX, startY - 120, 'input', 'INPUT A'),
+                    this.createGateOnGrid(startX, startY - 40, 'input', 'INPUT B'),
+                    this.createGateOnGrid(startX, startY + 40, 'input', 'INPUT C'),
+                    this.createGateOnGrid(startX, startY + 120, 'input', 'INPUT D')
+                ];
+                
+                const and1 = this.createGateOnGrid(startX + 150, startY - 80, 'and', 'AND1');
+                const and2 = this.createGateOnGrid(startX + 150, startY - 40, 'and', 'AND2');
+                const and3 = this.createGateOnGrid(startX + 150, startY, 'and', 'AND3');
+                const and4 = this.createGateOnGrid(startX + 150, startY + 40, 'and', 'AND4');
+                const and5 = this.createGateOnGrid(startX + 150, startY + 80, 'and', 'AND5');
+                
+                const or1 = this.createGateOnGrid(startX + 300, startY - 20, 'or', 'OR1');
+                const or2 = this.createGateOnGrid(startX + 300, startY + 20, 'or', 'OR2');
+                const or3 = this.createGateOnGrid(startX + 450, startY, 'or', 'OR3');
+                const outputBulb = this.createGateOnGrid(startX + 600, startY, 'bulb', 'OUTPUT');
+                
+                this.connectGates(inputs[0].getData('gateId'), and1.getData('gateId'), 0);
+                this.connectGates(inputs[1].getData('gateId'), and1.getData('gateId'), 1);
+                this.connectGates(inputs[0].getData('gateId'), and2.getData('gateId'), 0);
+                this.connectGates(inputs[2].getData('gateId'), and2.getData('gateId'), 1);
+                this.connectGates(inputs[0].getData('gateId'), and3.getData('gateId'), 0);
+                this.connectGates(inputs[3].getData('gateId'), and3.getData('gateId'), 1);
+                this.connectGates(inputs[1].getData('gateId'), and4.getData('gateId'), 0);
+                this.connectGates(inputs[2].getData('gateId'), and4.getData('gateId'), 1);
+                
+                this.connectGates(and1.getData('gateId'), or1.getData('gateId'), 0);
+                this.connectGates(and2.getData('gateId'), or1.getData('gateId'), 1);
+                this.connectGates(and3.getData('gateId'), or2.getData('gateId'), 0);
+                this.connectGates(and4.getData('gateId'), or2.getData('gateId'), 1);
+                this.connectGates(or1.getData('gateId'), or3.getData('gateId'), 0);
+                this.connectGates(or2.getData('gateId'), or3.getData('gateId'), 1);
+                this.connectGates(or3.getData('gateId'), outputBulb.getData('gateId'), 0);
+            },
+            
+            () => {
+                const startX = sX, startY = sX;
+                this.resetWorkspace();
+                
+                const inputA = this.createGateOnGrid(startX, startY - 80, 'input', 'INPUT A');
+                const inputB = this.createGateOnGrid(startX, startY, 'input', 'INPUT B');
+                const inputCin = this.createGateOnGrid(startX, startY + 80, 'input', 'CARRY IN');
+                
+                const xor1 = this.createGateOnGrid(startX + 150, startY - 40, 'xor', 'XOR1');
+                const and1 = this.createGateOnGrid(startX + 150, startY + 40, 'and', 'AND1');
+                const xor2 = this.createGateOnGrid(startX + 300, startY - 40, 'xor', 'XOR2');
+                const and2 = this.createGateOnGrid(startX + 300, startY + 40, 'and', 'AND2');
+                const orGate = this.createGateOnGrid(startX + 450, startY + 40, 'or', 'OR');
+                
+                const sumBulb = this.createGateOnGrid(startX + 450, startY - 40, 'bulb', 'SUM');
+                const carryBulb = this.createGateOnGrid(startX + 600, startY + 40, 'bulb', 'CARRY OUT');
+                
+                this.connectGates(inputA.getData('gateId'), xor1.getData('gateId'), 0);
+                this.connectGates(inputB.getData('gateId'), xor1.getData('gateId'), 1);
+                this.connectGates(inputA.getData('gateId'), and1.getData('gateId'), 0);
+                this.connectGates(inputB.getData('gateId'), and1.getData('gateId'), 1);
+                
+                this.connectGates(xor1.getData('gateId'), xor2.getData('gateId'), 0);
+                this.connectGates(inputCin.getData('gateId'), xor2.getData('gateId'), 1);
+                this.connectGates(xor1.getData('gateId'), and2.getData('gateId'), 0);
+                this.connectGates(inputCin.getData('gateId'), and2.getData('gateId'), 1);
+                
+                this.connectGates(and1.getData('gateId'), orGate.getData('gateId'), 0);
+                this.connectGates(and2.getData('gateId'), orGate.getData('gateId'), 1);
+                
+                this.connectGates(xor2.getData('gateId'), sumBulb.getData('gateId'), 0);
+                this.connectGates(orGate.getData('gateId'), carryBulb.getData('gateId'), 0);
+            },
+            
+            () => {
+                const startX = sX, startY = sX;
+                this.resetWorkspace();
+                
+                const inputA = this.createGateOnGrid(startX, startY - 50, 'input', 'INPUT A');
+                const inputB = this.createGateOnGrid(startX, startY + 50, 'input', 'INPUT B');
+                
+                const notB = this.createGateOnGrid(startX + 150, startY + 50, 'not', 'NOT B');
+                const greaterAnd = this.createGateOnGrid(startX + 300, startY - 50, 'and', 'AND1');
+                const greaterBulb = this.createGateOnGrid(startX + 450, startY - 50, 'bulb', 'A > B');
+                
+                const notA = this.createGateOnGrid(startX + 150, startY - 50, 'not', 'NOT A');
+                const lessAnd = this.createGateOnGrid(startX + 300, startY + 50, 'and', 'AND2');
+                const lessBulb = this.createGateOnGrid(startX + 450, startY + 50, 'bulb', 'A < B');
+                
+                const xorGate = this.createGateOnGrid(startX + 150, startY, 'xor', 'XOR');
+                const equalNot = this.createGateOnGrid(startX + 300, startY, 'not', 'NOT');
+                const equalBulb = this.createGateOnGrid(startX + 450, startY, 'bulb', 'A = B');
+                
+                this.connectGates(inputA.getData('gateId'), greaterAnd.getData('gateId'), 0);
+                this.connectGates(inputB.getData('gateId'), notB.getData('gateId'), 0);
+                this.connectGates(notB.getData('gateId'), greaterAnd.getData('gateId'), 1);
+                this.connectGates(greaterAnd.getData('gateId'), greaterBulb.getData('gateId'), 0);
+                
+                this.connectGates(inputA.getData('gateId'), notA.getData('gateId'), 0);
+                this.connectGates(notA.getData('gateId'), lessAnd.getData('gateId'), 0);
+                this.connectGates(inputB.getData('gateId'), lessAnd.getData('gateId'), 1);
+                this.connectGates(lessAnd.getData('gateId'), lessBulb.getData('gateId'), 0);
+                
+                this.connectGates(inputA.getData('gateId'), xorGate.getData('gateId'), 0);
+                this.connectGates(inputB.getData('gateId'), xorGate.getData('gateId'), 1);
+                this.connectGates(xorGate.getData('gateId'), equalNot.getData('gateId'), 0);
+                this.connectGates(equalNot.getData('gateId'), equalBulb.getData('gateId'), 0);
+            },
+            
+            () => {
+                const startX = sX, startY = sX;
+                this.resetWorkspace();
+                
+                const inputA = this.createGateOnGrid(startX, startY - 80, 'input', 'INPUT A');
+                const inputB = this.createGateOnGrid(startX, startY, 'input', 'INPUT B');
+                const select = this.createGateOnGrid(startX, startY + 80, 'input', 'SELECT S');
+                
+                const notS = this.createGateOnGrid(startX + 150, startY + 80, 'not', 'NOT S');
+                const and1 = this.createGateOnGrid(startX + 300, startY - 40, 'and', 'AND1');
+                const and2 = this.createGateOnGrid(startX + 300, startY + 40, 'and', 'AND2');
+                const orGate = this.createGateOnGrid(startX + 450, startY, 'or', 'OR');
+                const outputBulb = this.createGateOnGrid(startX + 600, startY, 'bulb', 'OUTPUT');
+                
+                this.connectGates(inputA.getData('gateId'), and1.getData('gateId'), 0);
+                this.connectGates(select.getData('gateId'), notS.getData('gateId'), 0);
+                this.connectGates(notS.getData('gateId'), and1.getData('gateId'), 1);
+                
+                this.connectGates(inputB.getData('gateId'), and2.getData('gateId'), 0);
+                this.connectGates(select.getData('gateId'), and2.getData('gateId'), 1);
+                
+                this.connectGates(and1.getData('gateId'), orGate.getData('gateId'), 0);
+                this.connectGates(and2.getData('gateId'), orGate.getData('gateId'), 1);
+                this.connectGates(orGate.getData('gateId'), outputBulb.getData('gateId'), 0);
+            },
+            
+            () => {
+                const startX = sX, startY = sX;
+                this.resetWorkspace();
+                
+                const inputA = this.createGateOnGrid(startX, startY - 80, 'input', 'INPUT A');
+                const inputB = this.createGateOnGrid(startX, startY, 'input', 'INPUT B');
+                const inputC = this.createGateOnGrid(startX, startY + 80, 'input', 'INPUT C');
+                
+                const xor1 = this.createGateOnGrid(startX + 150, startY - 40, 'xor', 'XOR1');
+                const xor2 = this.createGateOnGrid(startX + 300, startY, 'xor', 'XOR2');
+                const outputBulb = this.createGateOnGrid(startX + 450, startY, 'bulb', 'OUTPUT');
+                
+                this.connectGates(inputA.getData('gateId'), xor1.getData('gateId'), 0);
+                this.connectGates(inputB.getData('gateId'), xor1.getData('gateId'), 1);
+                this.connectGates(xor1.getData('gateId'), xor2.getData('gateId'), 0);
+                this.connectGates(inputC.getData('gateId'), xor2.getData('gateId'), 1);
+                this.connectGates(xor2.getData('gateId'), outputBulb.getData('gateId'), 0);
+            },
+            
+            () => {
+                const startX = sX, startY = sX;
+                this.resetWorkspace();
+                
+                const A1 = this.createGateOnGrid(startX, startY - 120, 'input', 'A1');
+                const A0 = this.createGateOnGrid(startX, startY - 40, 'input', 'A0');
+                const B1 = this.createGateOnGrid(startX, startY + 40, 'input', 'B1');
+                const B0 = this.createGateOnGrid(startX, startY + 120, 'input', 'B0');
+                
+                const xor1 = this.createGateOnGrid(startX + 150, startY - 80, 'xor', 'XOR1');
+                const xor2 = this.createGateOnGrid(startX + 150, startY - 40, 'xor', 'XOR2');
+                const xor3 = this.createGateOnGrid(startX + 150, startY, 'xor', 'XOR3');
+                const xor4 = this.createGateOnGrid(startX + 150, startY + 40, 'xor', 'XOR4');
+                
+                const and1 = this.createGateOnGrid(startX + 300, startY - 60, 'and', 'AND1');
+                const and2 = this.createGateOnGrid(startX + 300, startY + 20, 'and', 'AND2');
+                const orGate = this.createGateOnGrid(startX + 450, startY - 20, 'or', 'OR');
+                const notGate = this.createGateOnGrid(startX + 600, startY - 20, 'not', 'NOT');
+                const outputBulb = this.createGateOnGrid(startX + 750, startY - 20, 'bulb', 'VALID?');
+
+                this.connectGates(A0.getData('gateId'), xor1.getData('gateId'), 0);
+                this.connectGates(B0.getData('gateId'), xor1.getData('gateId'), 1);
+                this.connectGates(A1.getData('gateId'), xor2.getData('gateId'), 0);
+                this.connectGates(B1.getData('gateId'), xor2.getData('gateId'), 1);
+                
+                this.connectGates(xor1.getData('gateId'), and1.getData('gateId'), 0);
+                this.connectGates(xor2.getData('gateId'), and1.getData('gateId'), 1);
+                this.connectGates(and1.getData('gateId'), orGate.getData('gateId'), 0);
+                this.connectGates(orGate.getData('gateId'), notGate.getData('gateId'), 0);
+                this.connectGates(notGate.getData('gateId'), outputBulb.getData('gateId'), 0);
+            },
+            
+            () => {
+                const startX = sX, startY = sX;
+                this.resetWorkspace();
+                
+                const inputA = this.createGateOnGrid(startX, startY - 80, 'input', 'INPUT A');
+                const inputB = this.createGateOnGrid(startX, startY, 'input', 'INPUT B');
+                const inputC = this.createGateOnGrid(startX, startY + 80, 'input', 'INPUT C');
+                
+                const andGate = this.createGateOnGrid(startX + 150, startY - 40, 'and', 'AND');
+                const notC = this.createGateOnGrid(startX + 150, startY + 40, 'not', 'NOT C');
+                const orGate = this.createGateOnGrid(startX + 300, startY, 'or', 'OR');
+                const outputBulb = this.createGateOnGrid(startX + 450, startY, 'bulb', 'OUTPUT F');
+                
+                this.connectGates(inputA.getData('gateId'), andGate.getData('gateId'), 0);
+                this.connectGates(inputB.getData('gateId'), andGate.getData('gateId'), 1);
+                this.connectGates(inputC.getData('gateId'), notC.getData('gateId'), 0);
+                this.connectGates(andGate.getData('gateId'), orGate.getData('gateId'), 0);
+                this.connectGates(notC.getData('gateId'), orGate.getData('gateId'), 1);
+                this.connectGates(orGate.getData('gateId'), outputBulb.getData('gateId'), 0);
+            }
+        ];
+
         const getRandomChallengeIndex = () => {
             return Math.floor(Math.random() * this.challenges.length);
         };
@@ -896,6 +1270,10 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
             });
             this.evaluateChallenge();
         });
+
+        const solveBtn = makeButton(width - 140, 170, 'Rešitev', () => {
+            this.createSolution();
+        }, { activeColor: 0x00aa00 });
 
         this.placedComponents = [];
         this.connections = [];
@@ -1991,5 +2369,111 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
                 }
             }
         });
+    }
+
+    createGateOnGrid(x, y, type, labelText) {
+        const snapped = this.snapToGrid(x, y);
+        const container = this.add.container(snapped.x, snapped.y);
+        container.setDepth(20);
+
+        const size = 72;
+        const textureName = this.getTextureName(type);
+
+        const img = this.add.image(0, 0, textureName)
+            .setDisplaySize(size, size)
+            .setOrigin(0.5)
+            .setAlpha(1);
+        container.add(img);
+        container.setData('img', img);
+
+        const label = this.add.text(0, 40, labelText || type, {
+            fontSize: '14px',
+            color: '#ffffff',
+            backgroundColor: 'rgba(0, 0, 0, 0.6)',
+            padding: { x: 8, y: 4 },
+            borderRadius: 4,
+            fontFamily: 'Arial, sans-serif',
+            fontStyle: 'bold'
+        }).setOrigin(0.5);
+        label.setShadow(1, 1, 'rgba(0, 0, 0, 0.5)', 2, true, false);
+        container.add(label);
+
+        const id = `${type}_${this.getRandomInt(1000, 9999)}`;
+        const gateType = this.getGateType(type);
+        const gate = this.logicCircuit.addGate(gateType, id);
+        
+        container.setData('logicGate', gate);
+        container.setData('gateId', id);
+        container.setData('labelTextObj', label);
+        container.setData('type', type);
+        container.setData('isInPanel', false);
+        container.setData('displayName', labelText || type);
+
+        if (type === 'input') {
+            container.setData('inputValue', true);
+            let idx = 1;
+            while (this.inputIndices.has(idx)) idx++;
+            this.inputIndices.add(idx);
+            container.setData('displayIndex', idx);
+            label.setText(`${labelText} = ON`);
+            label.setColor('#00ff00');
+        }
+
+        if (type === 'bulb') {
+            container.setData('isBulb', true);
+            let bidx = 1;
+            while (this.bulbIndices.has(bidx)) bidx++;
+            this.bulbIndices.add(bidx);
+            container.setData('displayIndex', bidx);
+            this.updateBulbAppearance(container, false);
+        }
+
+        this.setupInputOutputPins(container, type, labelText, img);
+        this.placedComponents.push(container);
+
+        return container;
+    }
+
+    connectGates(fromGateId, toGateId, toPinIndex) {
+        try {
+            const ok = this.logicCircuit.connectGatesWithIndex(fromGateId, toGateId, toPinIndex);
+            if (ok) {
+                const fromContainer = this.placedComponents.find(c => c.getData('gateId') === fromGateId);
+                const toContainer = this.placedComponents.find(c => c.getData('gateId') === toGateId);
+                
+                if (fromContainer && toContainer) {
+                    const fromPin = fromContainer.getData('outputPin');
+                    const toPins = toContainer.getData('inputPins') || [];
+                    const toPin = toPins[toPinIndex];
+                    
+                    if (fromPin && toPin) {
+                        const fromX = fromContainer.x + fromPin.x;
+                        const fromY = fromContainer.y + fromPin.y;
+                        const toX = toContainer.x + toPin.x;
+                        const toY = toContainer.y + toPin.y;
+                        
+                        this.drawConnectionWithBend(fromX, fromY, toX, toY, fromGateId, toGateId, toPinIndex);
+                        return true;
+                    }
+                }
+            }
+        } catch (e) {
+            console.error('Error connecting gates:', e);
+        }
+        return false;
+    }
+
+    createSolution() {
+        if (this.currentChallengeIndex >= 0 && this.currentChallengeIndex < this.challengeSolutions.length) {
+            try {
+                this.showStatus('Ustvarjam rešitev...', '#00ffcc', 2000);
+                this.challengeSolutions[this.currentChallengeIndex]();
+            } catch (error) {
+                console.error('Error creating solution:', error);
+                this.showStatus('Napaka pri ustvarjanju rešitve', '#ff0000', 2000);
+            }
+        } else {
+            this.showStatus('Rešitev za to nalogo ni na voljo', '#ff9900', 2000);
+        }
     }
 }
