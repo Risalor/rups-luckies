@@ -411,6 +411,377 @@ export default class WorkspaceSceneLogicGates extends Phaser.Scene {
 
                     return true;
                 }
+            },
+            {
+                id: 'challenge_8',
+                prompt: 'Naloga 8: Ustvari pol-seštevalnik (vsota in prenos) z uporabo AND in XOR vrat',
+                solutionCheck: (circuit) => {
+                    const bulbs = this.getOutputGates(circuit);
+                    if (bulbs.length < 2) return false;
+
+                    const sortedBulbs = bulbs.sort((a, b) => {
+                        const aContainer = this.placedComponents.find(c => c.getData('gateId') === a.id);
+                        const bContainer = this.placedComponents.find(c => c.getData('gateId') === b.id);
+                        const aIdx = aContainer ? aContainer.getData('displayIndex') || 0 : 0;
+                        const bIdx = bContainer ? bContainer.getData('displayIndex') || 0 : 0;
+                        return aIdx - bIdx;
+                    });
+
+                    const sumBulb = sortedBulbs[0];
+                    const carryBulb = sortedBulbs[1];
+
+                    const inputs = this.getInputGates(circuit);
+                    if (inputs.length < 2) return false;
+
+                    const A = inputs[0];
+                    const B = inputs[1];
+
+                    const testCases = [
+                        { a: false, b: false, sum: false, carry: false },
+                        { a: false, b: true, sum: true, carry: false },
+                        { a: true, b: false, sum: true, carry: false },
+                        { a: true, b: true, sum: false, carry: true }
+                    ];
+
+                    for (const test of testCases) {
+                        A.setValue(test.a);
+                        B.setValue(test.b);
+                        circuit.evaluate();
+
+                        if (sumBulb.getOutput() !== test.sum) return false;
+                        if (carryBulb.getOutput() !== test.carry) return false;
+                    }
+
+                    return true;
+                }
+            },
+            {
+                id: 'challenge_9',
+                prompt: 'Naloga 9: Ustvari XOR samo z uporabo NAND vrat (brez XOR, AND, OR, NOT)',
+                solutionCheck: (circuit) => {
+                    const bulbs = this.getOutputGates(circuit);
+                    if (bulbs.length === 0) return false;
+
+                    const bulb = bulbs[0];
+                    const inputs = this.getInputGates(circuit);
+                    if (inputs.length < 2) return false;
+
+                    const input1 = inputs[0];
+                    const input2 = inputs[1];
+
+                    for (const [id, gate] of circuit.gates) {
+                        if (gate.operation === 'XOR' || gate.operation === 'AND' || 
+                            gate.operation === 'OR' || gate.operation === 'NOT') {
+                            return false;
+                        }
+                    }
+
+                    const testCases = [
+                        { a: true, b: true, expected: false },
+                        { a: false, b: true, expected: true },
+                        { a: true, b: false, expected: true },
+                        { a: false, b: false, expected: false }
+                    ];
+
+                    for (const test of testCases) {
+                        input1.setValue(test.a);
+                        input2.setValue(test.b);
+                        circuit.evaluate();
+
+                        if (bulb.getOutput() !== test.expected) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
+            },
+            {
+                id: 'challenge_10',
+                prompt: 'Naloga 10: Ustvari 4-vhodno glasovalno vezje (izhod ON, če so vsaj 3 vhodi ON)',
+                solutionCheck: (circuit) => {
+                    const bulbs = this.getOutputGates(circuit);
+                    if (bulbs.length === 0) return false;
+
+                    const bulb = bulbs[0];
+                    const inputs = this.getInputGates(circuit);
+                    if (inputs.length < 4) return false;
+
+                    const [A, B, C, D] = inputs;
+
+                    const testCases = [
+                        { a: true, b: true, c: true, d: true, expected: true },
+                        { a: false, b: true, c: true, d: true, expected: true },
+                        { a: true, b: false, c: true, d: true, expected: true },
+                        { a: true, b: true, c: false, d: true, expected: true },
+                        { a: true, b: true, c: true, d: false, expected: true },
+                        { a: true, b: true, c: false, d: false, expected: false },
+                        { a: true, b: false, c: true, d: false, expected: false },
+                        { a: true, b: false, c: false, d: false, expected: false },
+                        { a: false, b: false, c: false, d: false, expected: false }
+                    ];
+
+                    for (const test of testCases) {
+                        A.setValue(test.a);
+                        B.setValue(test.b);
+                        C.setValue(test.c);
+                        D.setValue(test.d);
+                        circuit.evaluate();
+
+                        if (bulb.getOutput() !== test.expected) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
+            },
+            {
+                id: 'challenge_11',
+                prompt: 'Naloga 11: Ustvari popolni seštevalnik (3 vhodi: A, B, Cin; izhoda: vsota in Cout)',
+                solutionCheck: (circuit) => {
+                    const bulbs = this.getOutputGates(circuit);
+                    if (bulbs.length < 2) return false;
+
+                    const sortedBulbs = bulbs.sort((a, b) => {
+                        const aContainer = this.placedComponents.find(c => c.getData('gateId') === a.id);
+                        const bContainer = this.placedComponents.find(c => c.getData('gateId') === b.id);
+                        const aIdx = aContainer ? aContainer.getData('displayIndex') || 0 : 0;
+                        const bIdx = bContainer ? bContainer.getData('displayIndex') || 0 : 0;
+                        return aIdx - bIdx;
+                    });
+
+                    const sumBulb = sortedBulbs[0];
+                    const carryBulb = sortedBulbs[1];
+
+                    const inputs = this.getInputGates(circuit);
+                    if (inputs.length < 3) return false;
+
+                    const [A, B, Cin] = inputs;
+
+                    const testCases = [
+                        { a: false, b: false, cin: false, sum: false, cout: false },
+                        { a: false, b: false, cin: true, sum: true, cout: false },
+                        { a: false, b: true, cin: false, sum: true, cout: false },
+                        { a: false, b: true, cin: true, sum: false, cout: true },
+                        { a: true, b: false, cin: false, sum: true, cout: false },
+                        { a: true, b: false, cin: true, sum: false, cout: true },
+                        { a: true, b: true, cin: false, sum: false, cout: true },
+                        { a: true, b: true, cin: true, sum: true, cout: true }
+                    ];
+
+                    const criticalTests = [
+                        testCases[0], testCases[1], testCases[2], testCases[3],
+                        testCases[4], testCases[6], testCases[7]
+                    ];
+
+                    for (const test of criticalTests) {
+                        A.setValue(test.a);
+                        B.setValue(test.b);
+                        Cin.setValue(test.cin);
+                        circuit.evaluate();
+
+                        if (sumBulb.getOutput() !== test.sum) return false;
+                        if (carryBulb.getOutput() !== test.cout) return false;
+                    }
+
+                    return true;
+                }
+            },
+            {
+                id: 'challenge_12',
+                prompt: 'Naloga 12: Ustvari enobitni komparator (A > B, A = B, A < B)',
+                solutionCheck: (circuit) => {
+                    const bulbs = this.getOutputGates(circuit);
+                    if (bulbs.length < 3) return false;
+
+                    const sortedBulbs = bulbs.sort((a, b) => {
+                        const aContainer = this.placedComponents.find(c => c.getData('gateId') === a.id);
+                        const bContainer = this.placedComponents.find(c => c.getData('gateId') === b.id);
+                        const aIdx = aContainer ? aContainer.getData('displayIndex') || 0 : 0;
+                        const bIdx = bContainer ? bContainer.getData('displayIndex') || 0 : 0;
+                        return aIdx - bIdx;
+                    });
+
+                    const greaterBulb = sortedBulbs[0];   
+                    const equalBulb = sortedBulbs[1];      
+                    const lessBulb = sortedBulbs[2];     
+
+                    const inputs = this.getInputGates(circuit);
+                    if (inputs.length < 2) return false;
+
+                    const A = inputs[0];
+                    const B = inputs[1];
+
+                    const testCases = [
+                        { a: false, b: false, greater: false, equal: true, less: false },
+                        { a: false, b: true, greater: false, equal: false, less: true },
+                        { a: true, b: false, greater: true, equal: false, less: false },
+                        { a: true, b: true, greater: false, equal: true, less: false }
+                    ];
+
+                    for (const test of testCases) {
+                        A.setValue(test.a);
+                        B.setValue(test.b);
+                        circuit.evaluate();
+
+                        if (greaterBulb.getOutput() !== test.greater) return false;
+                        if (equalBulb.getOutput() !== test.equal) return false;
+                        if (lessBulb.getOutput() !== test.less) return false;
+                    }
+
+                    return true;
+                }
+            },
+            {
+                id: 'challenge_13',
+                prompt: 'Naloga 13: Ustvari 2-na-1 multipleksor (izbira med vhodoma A in B z izbirnim vhodom S)',
+                solutionCheck: (circuit) => {
+                    const bulbs = this.getOutputGates(circuit);
+                    if (bulbs.length === 0) return false;
+
+                    const bulb = bulbs[0];
+                    const inputs = this.getInputGates(circuit);
+                    if (inputs.length < 3) return false;
+
+                    const [A, B, S] = inputs;
+
+                    const testCases = [
+                        { a: false, b: false, s: false, expected: false },
+                        { a: false, b: false, s: true, expected: false },
+                        { a: true, b: false, s: false, expected: true },
+                        { a: true, b: false, s: true, expected: false },
+                        { a: false, b: true, s: false, expected: false },
+                        { a: false, b: true, s: true, expected: true },
+                        { a: true, b: true, s: false, expected: true },
+                        { a: true, b: true, s: true, expected: true }
+                    ];
+
+                    for (const test of testCases) {
+                        A.setValue(test.a);
+                        B.setValue(test.b);
+                        S.setValue(test.s);
+                        circuit.evaluate();
+
+                        if (bulb.getOutput() !== test.expected) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
+            },
+            {
+                id: 'challenge_14',
+                prompt: 'Naloga 14: Ustvari pariteto (izhod ON, če je liho število vhodov ON)',
+                solutionCheck: (circuit) => {
+                    const bulbs = this.getOutputGates(circuit);
+                    if (bulbs.length === 0) return false;
+
+                    const bulb = bulbs[0];
+                    const inputs = this.getInputGates(circuit);
+                    if (inputs.length < 3) return false;
+
+                    const [A, B, C] = inputs;
+
+                    const testCases = [
+                        { a: true, b: false, c: false, expected: true },  
+                        { a: false, b: true, c: false, expected: true },  
+                        { a: false, b: false, c: true, expected: true }, 
+                        { a: true, b: true, c: true, expected: true },  
+                        { a: false, b: false, c: false, expected: false },
+                        { a: true, b: true, c: false, expected: false }, 
+                        { a: true, b: false, c: true, expected: false }, 
+                        { a: false, b: true, c: true, expected: false } 
+                    ];
+
+                    for (const test of testCases) {
+                        A.setValue(test.a);
+                        B.setValue(test.b);
+                        C.setValue(test.c);
+                        circuit.evaluate();
+
+                        if (bulb.getOutput() !== test.expected) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
+            },
+            {
+                id: 'challenge_15',
+                prompt: 'Naloga 15: Ustvari vezje za preverjanje pravilnosti 2-bitnega seštevanja (A1A0 + B1B0 = S1S0)',
+                solutionCheck: (circuit) => {
+                    const bulbs = this.getOutputGates(circuit);
+                    if (bulbs.length === 0) return false;
+
+                    const bulb = bulbs[0];
+                    const inputs = this.getInputGates(circuit);
+                    if (inputs.length < 4) return false;
+
+                    const [A1, A0, B1, B0] = inputs;
+
+                    const testCases = [
+                        { a1: false, a0: false, b1: false, b0: false, expected: true },
+                        { a1: false, a0: true, b1: true, b0: false, expected: true },
+                        { a1: true, a0: true, b1: false, b0: true, expected: false },
+                        { a1: true, a0: false, b1: true, b0: false, expected: false },
+                        { a1: false, a0: true, b1: false, b0: true, expected: true }
+                    ];
+
+                    for (const test of testCases) {
+                        A1.setValue(test.a1);
+                        A0.setValue(test.a0);
+                        B1.setValue(test.b1);
+                        B0.setValue(test.b0);
+                        circuit.evaluate();
+
+                        if (bulb.getOutput() !== test.expected) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
+            },
+            {
+                id: 'challenge_16',
+                prompt: 'Naloga 16: Ustvari vezje, ki implementira funkcijo F = (A AND B) OR (NOT C)',
+                solutionCheck: (circuit) => {
+                    const bulbs = this.getOutputGates(circuit);
+                    if (bulbs.length === 0) return false;
+
+                    const bulb = bulbs[0];
+                    const inputs = this.getInputGates(circuit);
+                    if (inputs.length < 3) return false;
+
+                    const [A, B, C] = inputs;
+
+                    const testCases = [
+                        { a: false, b: false, c: false, expected: true },
+                        { a: false, b: false, c: true, expected: false },
+                        { a: false, b: true, c: false, expected: true },
+                        { a: false, b: true, c: true, expected: false },
+                        { a: true, b: false, c: false, expected: true },
+                        { a: true, b: false, c: true, expected: false },
+                        { a: true, b: true, c: false, expected: true },
+                        { a: true, b: true, c: true, expected: true }
+                    ];
+
+                    for (const test of testCases) {
+                        A.setValue(test.a);
+                        B.setValue(test.b);
+                        C.setValue(test.c);
+                        circuit.evaluate();
+
+                        if (bulb.getOutput() !== test.expected) {
+                            return false;
+                        }
+                    }
+
+                    return true;
+                }
             }
         ];
 
