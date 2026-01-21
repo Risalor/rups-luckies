@@ -249,11 +249,145 @@ export default class WorkspaceScene extends Phaser.Scene {
       },
     ];
 
+    this.solutionData = {
+      0: [
+        // Battery and Bulb
+        { type: "baterija", x: 400, y: 280, angle: 0 },
+        { type: "žica", x: 440, y: 320, angle: 90 },
+        { type: "svetilka", x: 400, y: 360, angle: 0 },
+        { type: "žica", x: 360, y: 320, angle: 90 },
+      ],
+      1: [
+        // Bulb + Resistor series
+        { type: "baterija", x: 360, y: 320, angle: 90 },
+        { type: "upor", x: 400, y: 280, angle: 0 },
+        { type: "svetilka", x: 440, y: 320, angle: 90 },
+        { type: "žica", x: 400, y: 360, angle: 0 },
+      ],
+      2: [
+        // Two switches series (AND)
+        { type: "baterija", x: 360, y: 320, angle: 90 },
+        { type: "stikalo-on", x: 400, y: 280, angle: 0 },
+        { type: "stikalo-on", x: 480, y: 280, angle: 0 },
+        { type: "svetilka", x: 520, y: 320, angle: 90 },
+        { type: "žica", x: 400, y: 360, angle: 0 },
+        { type: "žica", x: 480, y: 360, angle: 0 },
+      ],
+      3: [
+        // Two bulbs series
+        { type: "baterija", x: 360, y: 320, angle: 90 },
+        { type: "svetilka", x: 400, y: 280, angle: 0 },
+        { type: "svetilka", x: 480, y: 280, angle: 0 },
+        { type: "žica", x: 520, y: 320, angle: 90 },
+        { type: "žica", x: 400, y: 360, angle: 0 },
+        { type: "žica", x: 480, y: 360, angle: 0 },
+      ],
+      4: [
+        // Two bulbs parallel
+        { type: "baterija", x: 360, y: 320, angle: 90 },
+        { type: "žica", x: 400, y: 280, angle: 0 },
+        { type: "svetilka", x: 480, y: 280, angle: 0 },
+        { type: "žica", x: 400, y: 360, angle: 0 },
+        { type: "svetilka", x: 480, y: 360, angle: 0 },
+        { type: "žica", x: 520, y: 320, angle: 90 },
+      ],
+      5: [
+        // Parallel switches (OR)
+        { type: "baterija", x: 360, y: 320, angle: 90 },
+        { type: "žica", x: 400, y: 280, angle: 0 },
+        { type: "stikalo-on", x: 480, y: 280, angle: 0 },
+        { type: "žica", x: 400, y: 360, angle: 0 },
+        { type: "stikalo-on", x: 480, y: 360, angle: 0 },
+        { type: "žica", x: 560, y: 280, angle: 0 },
+        { type: "žica", x: 560, y: 360, angle: 0 },
+        { type: "svetilka", x: 600, y: 320, angle: 90 },
+      ],
+      6: [
+        // Voltage divider
+        { type: "baterija", x: 360, y: 320, angle: 90 },
+        { type: "upor", x: 400, y: 280, angle: 0 },
+        { type: "upor", x: 480, y: 280, angle: 0 },
+        { type: "svetilka", x: 520, y: 320, angle: 90 },
+        { type: "žica", x: 400, y: 360, angle: 0 },
+        { type: "žica", x: 480, y: 360, angle: 0 },
+      ],
+      7: [
+        { type: "baterija", x: 320, y: 320, angle: 90 },
+        { type: "žica", x: 360, y: 360, angle: 0 },
+        { type: "žica", x: 440, y: 360, angle: 0 },
+        { type: "žica", x: 520, y: 360, angle: 0 },
+
+        { type: "stikalo-on", x: 360, y: 280, angle: 0 },
+
+        { type: "žica", x: 400, y: 240, angle: 90 },
+        { type: "stikalo-on", x: 440, y: 200, angle: 0 },
+        { type: "stikalo-on", x: 440, y: 280, angle: 0 },
+        { type: "žica", x: 480, y: 240, angle: 90 },
+
+        { type: "žica", x: 520, y: 280, angle: 0 },
+        { type: "svetilka", x: 560, y: 320, angle: 90 },
+      ],
+      8: [
+        // 2 Parallel branches (R+Bulb)
+        { type: "baterija", x: 320, y: 320, angle: 90 },
+        { type: "žica", x: 360, y: 280, angle: 0 },
+        { type: "upor", x: 440, y: 280, angle: 0 },
+        { type: "svetilka", x: 520, y: 280, angle: 0 },
+        { type: "žica", x: 360, y: 360, angle: 0 },
+        { type: "upor", x: 440, y: 360, angle: 0 },
+        { type: "svetilka", x: 520, y: 360, angle: 0 },
+        { type: "žica", x: 560, y: 320, angle: 90 },
+      ],
+      9: [
+        { type: "baterija", x: 320, y: 320, angle: 90 },
+        { type: "upor", x: 360, y: 280, angle: 0 },
+        { type: "žica", x: 400, y: 240, angle: 90 },
+        { type: "svetilka", x: 440, y: 200, angle: 0 },
+        { type: "svetilka", x: 440, y: 280, angle: 0 },
+        { type: "žica", x: 480, y: 240, angle: 90 },
+        { type: "žica", x: 520, y: 280, angle: 0 },
+        { type: "žica", x: 560, y: 320, angle: 90 },
+        { type: "žica", x: 360, y: 360, angle: 0 },
+        { type: "žica", x: 440, y: 360, angle: 0 },
+        { type: "žica", x: 520, y: 360, angle: 0 },
+      ],
+      10: [
+        { type: "baterija", x: 320, y: 320, angle: 90 },
+        { type: "upor", x: 360, y: 280, angle: 0 },
+        { type: "žica", x: 440, y: 280, angle: 0 },
+        { type: "svetilka", x: 520, y: 280, angle: 0 },
+        { type: "stikalo-on", x: 480, y: 320, angle: 90 },
+        { type: "žica", x: 560, y: 320, angle: 90 },
+        { type: "žica", x: 360, y: 360, angle: 0 },
+        { type: "žica", x: 440, y: 360, angle: 0 },
+        { type: "žica", x: 520, y: 360, angle: 0 },
+      ],
+      11: [
+        { type: "baterija", x: 320, y: 320, angle: 90 },
+        { type: "žica", x: 360, y: 280, angle: 0 },
+        { type: "žica", x: 400, y: 240, angle: 90 }, // Split
+        { type: "upor", x: 440, y: 200, angle: 0 },
+        { type: "upor", x: 440, y: 280, angle: 0 },
+        { type: "žica", x: 480, y: 240, angle: 90 }, // Merge
+        { type: "svetilka", x: 520, y: 280, angle: 0 },
+        { type: "žica", x: 560, y: 320, angle: 90 }, // Right side down
+        { type: "žica", x: 360, y: 360, angle: 0 },
+        { type: "žica", x: 440, y: 360, angle: 0 },
+        { type: "žica", x: 520, y: 360, angle: 0 },
+      ],
+      12: [
+        // 2 Parallel bulbs with dedicated switches
+        { type: "baterija", x: 360, y: 320, angle: 90 },
+        { type: "stikalo-on", x: 400, y: 280, angle: 0 },
+        { type: "svetilka", x: 480, y: 280, angle: 0 },
+        { type: "stikalo-on", x: 400, y: 360, angle: 0 },
+        { type: "svetilka", x: 480, y: 360, angle: 0 },
+        { type: "žica", x: 520, y: 320, angle: 90 },
+      ],
+    };
+
     this.currentChallengeIndex = this.getRandomChallengeIndex();
 
-    // this.currentChallengeIndex = 0;
-
-    this.currentChallengeIndex = this.getRandomChallengeIndex();
     this.promptText = this.add
       .text(
         width / 1.8,
@@ -372,6 +506,7 @@ export default class WorkspaceScene extends Phaser.Scene {
         }
       });
     });
+    makeButton(width - 140, 225, "Solve Task", () => this.autoSolve());
 
     // stranska vrstica na levi
     const panelWidth = 150;
@@ -439,7 +574,7 @@ export default class WorkspaceScene extends Phaser.Scene {
 
     this.timerText = this.add
       .text(this.cameras.main.width / 2, 20, "Time: 00:00", {
-        fontSize: "24px",
+        fontSize: "22px",
         fill: "#ff0000",
         fontStyle: "bold",
         backgroundColor: "#ffffffaa",
@@ -475,7 +610,7 @@ export default class WorkspaceScene extends Phaser.Scene {
     this.checkText.setText("Čas se je iztekel!");
     this.checkText.setStyle({ color: "#ff0000" });
 
-    console.log("FAILED TASK ", this.currentChallengeIndex);
+    console.log("FAIL");
   }
 
   getComponentDetails(type) {
@@ -1093,6 +1228,78 @@ export default class WorkspaceScene extends Phaser.Scene {
     });
   }
 
+  autoSolve() {
+    this.placedComponents.forEach((comp) => {
+      const logic = comp.getData("logicComponent");
+      if (logic) this.graph.removeComponent(logic);
+      comp.destroy();
+    });
+    this.placedComponents = [];
+    this.cleanupFlows();
+
+    const solution = this.solutionData[this.currentChallengeIndex];
+    if (!solution) {
+      // console.warn("No solution defined for this challenge index.");
+      return;
+    }
+
+    solution.forEach((data) => {
+      const component = this.add.container(data.x, data.y);
+
+      let compLogic;
+      let imgKey = data.type;
+
+      if (data.type === "baterija")
+        compLogic = new Battery(
+          "sol_bat",
+          new Node("s1", -40, 0),
+          new Node("s2", 40, 0),
+          3.3,
+        );
+      if (data.type === "svetilka")
+        compLogic = new Bulb(
+          "sol_bulb",
+          new Node("s1", -40, 0),
+          new Node("s2", 40, 0),
+        );
+      if (data.type === "žica")
+        compLogic = new Wire(
+          "sol_wire",
+          new Node("s1", -40, 0),
+          new Node("s2", 40, 0),
+        );
+      if (data.type === "upor")
+        compLogic = new Resistor(
+          "sol_res",
+          new Node("s1", -40, 0),
+          new Node("s2", 40, 0),
+          1.5,
+        );
+      if (data.type === "stikalo-on")
+        compLogic = new Switch(
+          "sol_sw",
+          new Node("s1", -40, 0),
+          new Node("s2", 40, 0),
+          true,
+        );
+
+      const img = this.add.image(0, 0, imgKey).setDisplaySize(80, 80);
+      component.add(img);
+      component.angle = data.angle;
+
+      component.setData("logicComponent", compLogic);
+      component.setData("type", data.type);
+      component.setData("isInPanel", false);
+
+      this.graph.addComponent(compLogic);
+      this.updateLogicNodePositions(component);
+      this.placedComponents.push(component);
+    });
+
+    this.updateBulbsAndFlows();
+    this.checkText.setText("Solution Loaded").setStyle({ color: "#0000ff" });
+  }
+
   checkCircuit() {
     const currentChallenge = this.challenges[this.currentChallengeIndex];
 
@@ -1124,11 +1331,11 @@ export default class WorkspaceScene extends Phaser.Scene {
       return;
     }
 
-    console.log("SUCCESSFUL TASK", this.currentChallengeIndex);
+    console.log("SUCCESS");
     this.checkText
       .setText("Task completed.")
       .setStyle({ color: "#17a417" })
-      .setStyle({ fontSize: "24px" })
+      .setStyle({ fontSize: "22px" })
       .setStyle({ fontWeight: "bold" });
 
     if (this.timerEvent) this.timerEvent.remove();
