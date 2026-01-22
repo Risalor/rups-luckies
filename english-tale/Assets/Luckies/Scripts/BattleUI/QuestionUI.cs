@@ -4,20 +4,21 @@ using System.ComponentModel;
 using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
-using static UnityEditor.Experimental.GraphView.GraphView;
 using Debug = UnityEngine.Debug;
 using Random = UnityEngine.Random;
+
+public enum QuestionType { Typing, Matching, LogicGateMinigame }
 
 public class QuestionUI : UIObject
 {
     public static QuestionUI Instance = null;
 
-    public enum QuestionType { Typing, Matching }
-
     [Header("Battle Rules")]
     public int totalCorrectRequired = 10;
     private int totalCorrectCount = 0;
 
+    [Header("Logic Gate Minigame")]
+    public LogicGateMinigame logicGateMinigameInstance;
 
     [Header("Common")]
     public TMP_Text questionText;
@@ -124,16 +125,58 @@ public class QuestionUI : UIObject
         matchingSubmitButton.gameObject.SetActive(false);
         matchingNextButton.gameObject.SetActive(false);
         matchingFeedbackText.gameObject.SetActive(false);
+        logicGateMinigameInstance.Hide();
 
-        // Random mode
-        currentType = (Random.value > 0.5f) ? QuestionType.Typing : QuestionType.Matching;
+        switch (Random.value)
+        {
+            case < 0.3f:
+                currentType = QuestionType.Typing;
+                LoadTypingQuestion();
+                break;
+            case < 0.6f:
+                currentType = QuestionType.Matching;
+                LoadMatchingQuestion();
+                break;
+            default:
+                currentType = QuestionType.LogicGateMinigame;
+                LoadLogicGateMinigame();
+                break;
+        }
         Debug.Log("Mode: " + currentType);
-
-        if (currentType == QuestionType.Typing)
-            LoadTypingQuestion();
-        else
-            LoadMatchingQuestion();
     }
+
+    #region Logic Gate Minigame
+    private void LoadLogicGateMinigame()
+    {
+        logicGateMinigameInstance.Setup(this);
+    }
+
+    public void LogicGateMinigameResult(bool success)
+    {
+        if (success)
+        {
+            totalCorrectCount++;
+            Debug.Log($"Minigame success! ({totalCorrectCount}/{totalCorrectRequired})");
+            _player.Attack();
+        }
+        else
+        {
+            Debug.Log("Minigame failed!");
+            _enemy.Attack();
+        }
+
+        if (totalCorrectCount >= totalCorrectRequired)
+            EndBattle();
+        else
+            StartCoroutine(WaitAndLoadNewWord(3.0f));
+    }
+
+    private IEnumerator WaitAndLoadNewWord(float delay)
+    {
+        yield return new WaitForSeconds(delay);
+        LoadNewWord();
+    }
+    #endregion
 
     #region Typing Mode
     private void LoadTypingQuestion()
@@ -165,7 +208,8 @@ public class QuestionUI : UIObject
             typingFeedbackText.color = Color.green;
 
             _player.Attack();
-        } else
+        }
+        else
         {
             typingFeedbackText.text = "Wrong! Correct: " + currentWord.eng_word;
             typingFeedbackText.color = Color.red;
@@ -391,7 +435,8 @@ public class QuestionUI : UIObject
             matchingFeedbackText.color = Color.green;
 
             _player.Attack();
-        } else
+        }
+        else
         {
             matchingFeedbackText.text = "Some matches are wrong!";
             matchingFeedbackText.color = Color.red;
